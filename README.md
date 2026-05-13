@@ -15,10 +15,11 @@ Everyone is welcome to fork the project and continue experimenting with it withi
 The Android port currently supports:
 
 - Release APK builds for all configured Android ABIs
+- Android 7.0+ devices, including Android 16
 - Android launcher for game data path, save path, resolution, scaling, language, and mouse mode
 - Fixed-path game data loading
 - Android 11+ all-files access support
-- Android 6-10 legacy storage permission fallback
+- Android 7-10 legacy storage permission fallback
 - SDL statically linked into `libja2.so`
 - OpenSL ES audio backend tuning for stable playback
 - Modern Controls input mode, plus legacy absolute mouse and touchscreen modes
@@ -105,7 +106,7 @@ This port expects the user to provide original Jagged Alliance 2 data files. The
 Storage behavior:
 
 - Android 11+ uses all-files access for fixed-path native reads.
-- Android 6-10 uses legacy runtime storage permissions.
+- Android 7-10 uses legacy runtime storage permissions.
 
 ## Upstream
 
