@@ -6,11 +6,11 @@ This document describes the Android-specific systems added by the JA2 Reborn And
 
 The Android launcher exposes three mouse input modes:
 
-- `Touchscreen`: forwards native touch events to SDL.
-- `Absolute mouse`: maps finger coordinates directly to the game cursor.
-- `Touchpad mouse`: uses swipes to move a virtual cursor.
+- `Modern Controls`: uses swipes to move a virtual cursor.
+- `Absolute mouse` (legacy): maps finger coordinates directly to the game cursor.
+- `Touchscreen` (legacy): forwards native touch events to SDL.
 
-Touchpad mouse mode supports mobile-friendly gestures:
+Modern Controls mode supports mobile-friendly gestures:
 
 - One-finger tap sends a left mouse click.
 - Two-finger tap sends a right mouse click.

@@ -20,7 +20,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Fixed tactical name labels leaving white trails while scrolling the map during merc movement.
 - Fixed a follow-up rendering regression by suppressing above-merc name rendering during active video scrolling instead of invalidating the full viewport.
 - Improved long-press selection on team-panel portraits so all controllable in-sector mercs are selected consistently.
-- Improved touchpad-mode two-finger taps in the tactical field so right-click is recognized on the first pointer release and does not compete with deferred single-tap or double-tap handling.
+- Improved Modern Controls two-finger taps in the tactical field so right-click is recognized on the first pointer release and does not compete with deferred single-tap or double-tap handling.
 
 ### Verified
 
@@ -38,7 +38,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 - Updated launcher copy for internal resolution, scaling, and mouse mode recommendations.
 - Changed the default scaling mode to near-perfect oversampling.
-- Reduced the touchpad double-tap-hold threshold for faster held-click actions.
+- Reduced the Modern Controls double-tap-hold threshold for faster held-click actions.
 - Updated the bundled default touch preset.
 
 ### Fixed
@@ -55,20 +55,20 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 - Added Android 6-10 legacy storage permission fallback while keeping all-files access for Android 11+.
 - Added bundled default touch overlay preset loading from app resources.
-- Added direct bottom-panel touch handling in touchpad mouse mode for tactical panel controls and inventory drag/drop.
+- Added direct bottom-panel touch handling in Modern Controls mode for tactical panel controls and inventory drag/drop.
 - Added two-finger bottom-panel tap to toggle between team portraits and the single-merc inventory panel.
-- Added hybrid direct-tap behavior for menus and map screens while preserving relative touchpad cursor movement.
+- Added hybrid direct-tap behavior for menus and map screens while preserving Modern Controls cursor movement.
 
 ### Changed
 
 - Refined launcher defaults for internal resolution and scaling.
-- Reworked touchpad double-tap and double-tap-hold behavior for more reliable running and drag selection.
+- Reworked Modern Controls double-tap and double-tap-hold behavior for more reliable running and drag selection.
 - Reworked touch overlay reset behavior to offer restoring the bundled preset or deleting all buttons.
 
 ### Fixed
 
 - Fixed touch overlay drag raw-coordinate handling on older Android/Fire OS devices.
-- Fixed touchpad tap-to-click by holding synthetic mouse clicks briefly instead of sending down/up in the same event frame.
+- Fixed Modern Controls tap-to-click by holding synthetic mouse clicks briefly instead of sending down/up in the same event frame.
 - Fixed double-tap-hold so it no longer emits an unwanted first single click before the held action.
 - Fixed bottom-panel direct-touch boundary detection by querying native tactical panel geometry through JNI.
 
@@ -113,9 +113,9 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 ### Added
 
 - Added Android-focused launcher modernization.
-- Added touchpad mouse mode with virtual cursor movement.
-- Added absolute mouse mode.
-- Added touchscreen mode selection.
+- Added Modern Controls mode with virtual cursor movement.
+- Added legacy absolute mouse mode.
+- Added legacy touchscreen mode selection.
 - Added persistent mouse mode configuration.
 - Added Android release signing support.
 
@@ -134,8 +134,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 - Fixed Android release startup with the synchronized SDL Java wrapper.
 - Fixed missing `libSDL2.so` issues by loading only `libja2.so`.
-- Fixed touchpad mouse button transitions by sending the current Android SDL button-state bitmask on press and `0` on release.
-- Fixed absolute mouse release and cancel handling.
+- Fixed Modern Controls button transitions by sending the current Android SDL button-state bitmask on press and `0` on release.
+- Fixed legacy absolute mouse release and cancel handling.
 - Fixed Android audio stutter and clicking caused by AAudio underruns.
 
 ### Verified

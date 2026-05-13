@@ -155,8 +155,8 @@
 
     <!-- Mouse Mode Labels -->
     <string name="mouse_mode_touchpad">Moderne Steuerung (Empfohlen)</string>
-    <string name="mouse_mode_absolute">Absolute Maus</string>
-    <string name="mouse_mode_touchscreen">Touchscreen</string>
+    <string name="mouse_mode_absolute">Absolute Maus (veraltet)</string>
+    <string name="mouse_mode_touchscreen">Touchscreen (veraltet)</string>
 
     <!-- Touch Button Action Display -->
     <string name="touch_action_left">Links</string>

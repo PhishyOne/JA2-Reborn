@@ -21,7 +21,7 @@ The Android port currently supports:
 - Android 6-10 legacy storage permission fallback
 - SDL statically linked into `libja2.so`
 - OpenSL ES audio backend tuning for stable playback
-- Touchscreen, absolute mouse, and Modern Controls input modes
+- Modern Controls input mode, plus legacy absolute mouse and touchscreen modes
 - Modern Controls cursor movement with single-tap left click, two-finger right click, double click, and held-click drag
 - Direct tactical bottom-panel touch handling for panel buttons and inventory drag/drop
 - Modular in-game touch overlay with editable buttons and JSON persistence
@@ -47,9 +47,9 @@ src/            Native JA2 Stracciatella engine and Android JNI bridges
 
 The launcher exposes three input modes:
 
-- `Touchscreen`: forwards native touch events.
-- `Absolute mouse`: maps finger coordinates directly to the game cursor.
 - `Modern Controls`: uses swipes to move a virtual cursor and taps to click.
+- `Absolute mouse` (legacy): maps finger coordinates directly to the game cursor.
+- `Touchscreen` (legacy): forwards native touch events.
 
 In Modern Controls mode:
 
