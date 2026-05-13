@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="seed">#9D1E1C</color>
+    <color name="seed_on">#FFFFFF</color>
+    <color name="colorPrimary">#9D1E1C</color>
+    <color name="colorPrimaryDark">#4E0F0E</color>
+    <color name="colorAccent">#9D1E1C</color>
+</resources>

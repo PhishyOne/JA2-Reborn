@@ -1,0 +1,40 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="20dp"
+    android:viewportWidth="32"
+    android:viewportHeight="20">
+
+    <path
+        android:fillColor="#012169"
+        android:pathData="M0,0h32v20h-32z" />
+
+    <!-- White saltire, drawn as strokes to avoid vector fill-rule artifacts. -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M-2,-2L34,22M34,-2L-2,22"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="butt"
+        android:strokeWidth="5.6" />
+
+    <!-- Red St. Patrick's saltire, offset inside the white diagonals. -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M-2,-1L34,23M34,-3L-2,21"
+        android:strokeColor="#C8102E"
+        android:strokeLineCap="butt"
+        android:strokeWidth="2.0" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M13,0h6v20h-6zM0,7h32v6h-32z" />
+
+    <path
+        android:fillColor="#C8102E"
+        android:pathData="M15,0h2v20h-2zM0,9h32v2h-32z" />
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,0h32v20h-32z"
+        android:strokeColor="#40FFFFFF"
+        android:strokeWidth="0.4" />
+</vector>

@@ -1,0 +1,250 @@
+<resources>
+    <string name="app_name">JA2 Reborn</string>
+    <string name="launcher_header_title">JA2 Reborn - Stracciatella with Sprinkles</string>
+    <string name="title_activity_launcher">JA2 Reborn</string>
+    <string name="floating_action_button_start_text">Start the game</string>
+    <string name="tab_text_data">Data</string>
+    <string name="tab_text_settings">Settings</string>
+    <string name="tab_text_logs">Logs</string>
+    <string name="select_directory_button_label">Choose</string>
+    <string name="game_dir_title_text">JA2 Reborn Game Directory</string>
+    <string name="game_dir_info_text">
+        JA2 Reborn needs a copy of the original game files to run.
+        Copy them to your Android device and enter the directory path here.
+        This directory must contain the original Data directory.
+    </string>
+    <string name="game_dir_empty_text">No directory chosen yet</string>
+    <string name="game_dir_choose_title">Game Directory</string>
+    <string name="game_dir_choose_message">Enter the full path to your JA2 game directory:</string>
+    <string name="game_dir_empty_error">Please enter a directory path.</string>
+    <string name="game_dir_not_found_error">Directory does not exist. Check the path.</string>
+    <string name="directory_picker_path_error">Could not use this directory. Please choose a folder on shared device storage.</string>
+    <string name="save_game_dir_title_text">Savegame Directory</string>
+    <string name="save_game_dir_info_text">
+        Change the savegame directory. Button overlay presets will be saved here, too.
+    </string>
+    <string name="save_game_dir_empty_text">Use default directory</string>
+    <string name="save_game_dir_choose_title">Savegame Directory</string>
+    <string name="save_game_dir_choose_message">Enter the full path to your savegame directory (leave empty for default):</string>
+    <string name="game_version_title_text">Language</string>
+    <string name="game_version_info_text">
+        Select the game version of your original Jagged Alliance 2 game files.
+    </string>
+    <string name="game_version_empty_text">No version chosen yet</string>
+    <string name="scaling_quality_info_title_text">Scaling Mode</string>
+    <string name="scaling_quality_info_text">Choose a scaling mode to stretch the game video to fit the screen. Linear and Near-Perfect modes stretch the video to match any window sizes, but the image may look blurred. Pixel-Perfect can only scale up by integer (1x, 2x and so on) but gives sharp images.</string>
+    <string name="mouse_mode_info_title_text">Mouse Mode</string>
+    <string name="mouse_mode_info_text">Use Modern Controls for the best experience. Absolute Mouse and Touchscreen are legacy controls, left for experimenting.</string>
+    <string name="resolution_info_title_text">Internal Resolution</string>
+    <string name="resolution_info_text">On modern devices, half of the actual screen resolution usually yields the best results. This value is the default and is applied via the \'Detect\' button. Higher resolutions will shrink the game\'s display.</string>
+    <string name="resolution_auto_button">Detect</string>
+    <string name="logs_description_text">The logs of your latest run of the game are shown below. In case of any issues, you can check the logs for errors. If you create a bug report, please include the logs.</string>
+    <string name="logs_copy_to_clipboard_button">Copy all logs to clipboard</string>
+    <string name="logs_copied_to_clipboard_name">JA2 Reborn logs</string>
+    <string name="logs_copied_to_clipboard_toast">Copied logs to clipboard</string>
+    <string name="debug_mode_info_title_text">Debug Mode</string>
+    <string name="debug_mode_info_text">In case you run into issues, you can enable debug mode. This will result in more logs being written in order to be able to debug issues.</string>
+    <string name="debug_mode_label">Enable Debug Mode</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="continue_action">Continue</string>
+    <string name="storage_permission_title">File access required</string>
+    <string name="storage_permission_message">JA2 Reborn needs access to your selected game data folder. Android requires enabling "Allow access to manage all files" for this app before the game can start.</string>
+    <string name="storage_permission_legacy_message">JA2 Reborn needs access to your selected game data folder. Please allow file access in the Android permission prompt before the game starts.</string>
+    <string name="storage_permission_open_settings">Open Settings</string>
+    <string name="storage_permission_missing_toast">File access was not granted. JA2 cannot start without access to the game data folder.</string>
+    <string name="common_mistakes_no_game_dir_selected_title">No game directory selected</string>
+    <string name="common_mistakes_no_game_dir_selected_description">You have not selected a game directory yet. Please set a game directory containing an unmodified JA2 Reborn installation.</string>
+    <string name="common_mistakes_no_data_dir_found_title">Incorrect game directory detected</string>
+    <string name="common_mistakes_no_data_dir_found_description">The Data directory was not found within game directory. This means the chosen directory does not contain a JA2 Reborn installation.</string>
+    <string name="common_mistakes_one_dot_thirteen_detected_title">Modified game directory detected</string>
+    <string name="common_mistakes_one_dot_thirteen_detected_description">We detected that the game directory contains the 1.13 patch. JA2 Reborn will not work properly with the modified files. Please use a clean installation of JA2 Reborn.</string>
+    <string name="cheats_info_title_text">Cheats</string>
+    <string name="cheats_info_text">Cheats can affect game balance and savegames. Use at your own risk. Changes take effect on the next game start.</string>
+    <string name="cheats_enabled_label">Enable Cheats</string>
+    <string name="cheat_god_mode_label">God Mode</string>
+    <string name="cheat_non_lethal_player_damage_label">Non-lethal Mode</string>
+    <string name="cheat_full_medical_healing_label">Always Complete Healing</string>
+    <string name="cheat_unlimited_ammo_label">Unlimited Ammo</string>
+    <string name="cheat_no_weapon_jam_label">No Weapon Jam</string>
+    <string name="cheat_unlimited_ap_label">Unlimited AP</string>
+    <string name="cheat_unlimited_breath_label">Unlimited Breath</string>
+    <string name="cheat_reveal_enemies_label">Reveal Enemies</string>
+    <string name="cheat_reveal_items_label">Reveal Items</string>
+    <string name="cheat_one_hit_kill_label">One-Hit Kill</string>
+    <string name="cheat_perfect_hit_chance_label">Perfect Hit Chance</string>
+
+    <!-- Touch Overlay Settings Dialog -->
+    <string name="touch_settings_title">Settings</string>
+    <string name="touch_section_scroll_speed">Scroll Speed</string>
+    <string name="touch_section_mouse_speed">Mouse Speed</string>
+    <string name="touch_section_auto_hide">Auto-Hide</string>
+    <string name="touch_section_presets">Presets</string>
+    <string name="touch_preset_export">Export Preset</string>
+    <string name="touch_preset_import">Import Preset</string>
+    <string name="touch_reset_layout">Reset Layout</string>
+    <string name="touch_reset_confirm_title">Reset Touch Layout?</string>
+    <string name="touch_reset_confirm_message">All custom buttons will be lost and replaced with default buttons.</string>
+    <string name="touch_reset_confirm_positive">Reset</string>
+    <string name="touch_reset_confirm_negative">Cancel</string>
+    <string name="touch_reset_restore_default">Restore defaults</string>
+    <string name="touch_reset_delete_all">Delete all buttons</string>
+    <string name="touch_reset_confirm_choose">What would you like to do?</string>
+    <string name="touch_speed_slow">Slow</string>
+    <string name="touch_speed_fast">Fast</string>
+    <string name="touch_auto_hide_label">Hide overlay in videos and menus</string>
+    <string name="touch_close">Close</string>
+
+    <!-- Touch Overlay Edit Dialog -->
+    <string name="touch_edit_title">Touch Button</string>
+    <string name="touch_edit_field_button">Button</string>
+    <string name="touch_edit_field_size">Size</string>
+    <string name="touch_edit_field_shape">Shape</string>
+    <string name="touch_edit_field_opacity">Opacity</string>
+    <string name="touch_shape_circle">Circle</string>
+    <string name="touch_shape_square">Square</string>
+    <string name="touch_shape_rectangle">Rectangle</string>
+    <string name="touch_edit_save">Save</string>
+    <string name="touch_edit_delete">Delete</string>
+
+    <!-- Cheat Overlay Dialog -->
+    <string name="cheat_overlay_title">Cheats</string>
+    <string name="cheat_section_toggles">Toggles</string>
+    <string name="cheat_section_actions">Actions</string>
+    <string name="cheat_action_heal_team">Heal Team</string>
+    <string name="cheat_action_reload_team">Reload Team</string>
+    <string name="cheat_action_reload_selected">Reload Selected</string>
+    <string name="cheat_action_grant_money">+%d Money</string>
+
+    <!-- Touch Overlay Controller (Export/Import) -->
+    <string name="touch_export_failed_title">Export Failed</string>
+    <string name="touch_export_no_save_dir">No save game directory configured. Please set a save game directory in Settings.</string>
+    <string name="touch_export_dir_invalid">The save game directory does not exist or is not writable:\n%s</string>
+    <string name="touch_export_success">Exported: %s</string>
+    <string name="touch_export_filename_title">Export Preset</string>
+    <string name="touch_export_filename_message">Enter a file name for this preset. The .json extension will be added automatically.</string>
+    <string name="touch_export_filename_hint">Preset name</string>
+    <string name="touch_export_filename_confirm">Save</string>
+    <string name="touch_export_filename_invalid">Enter a valid file name</string>
+    <string name="touch_export_success_named">Preset \"%s\" was saved in the savegame folder</string>
+    <string name="touch_import_read_error">Could not read file.</string>
+    <string name="touch_import_read_error_detail">Could not read file: %s</string>
+    <string name="touch_import_invalid_layout">Invalid touch layout:\n%s</string>
+    <string name="touch_import_success">Touch layout imported (%d buttons)</string>
+    <string name="touch_import_failed_title">Import Failed</string>
+    <string name="touch_import_unknown_error">Unknown error</string>
+
+    <!-- Crash Toast -->
+    <string name="crash_exception_toast">An exception occurred when running the game: %s</string>
+
+    <!-- Vanilla Version Labels -->
+    <string name="vanilla_version_dutch">Dutch</string>
+    <string name="vanilla_version_english">English</string>
+    <string name="vanilla_version_french">French</string>
+    <string name="vanilla_version_german">German</string>
+    <string name="vanilla_version_italian">Italian</string>
+    <string name="vanilla_version_polish">Polish</string>
+    <string name="vanilla_version_russian">Russian</string>
+    <string name="vanilla_version_russian_gold">Russian (Gold)</string>
+    <string name="vanilla_version_simplified_chinese">Simplified Chinese</string>
+
+    <!-- Scaling Quality Labels -->
+    <string name="scaling_quality_linear">Linear Interpolation</string>
+    <string name="scaling_quality_near_perfect">Near Perfect with Oversampling (Recommended)</string>
+    <string name="scaling_quality_perfect">Pixel Perfect Centered</string>
+
+    <!-- Mouse Mode Labels -->
+    <string name="mouse_mode_touchpad">Modern Controls (recommended)</string>
+    <string name="mouse_mode_absolute">Absolute Mouse</string>
+    <string name="mouse_mode_touchscreen">Touchscreen</string>
+
+    <!-- Touch Button Action Display -->
+    <string name="touch_action_left">Left</string>
+    <string name="touch_action_right">Right</string>
+    <string name="touch_action_middle">Middle</string>
+    <string name="touch_action_combo">Combo</string>
+    <string name="touch_action_cheats">Cheats</string>
+    <string name="touch_action_unknown">?</string>
+    <string name="touch_icon_inventory">Inv</string>
+    <string name="touch_icon_map">Map</string>
+
+    <!-- Touch Button Preset Categories -->
+    <string name="touch_preset_category_mouse">Mouse</string>
+    <string name="touch_preset_category_controls">Controls</string>
+    <string name="touch_preset_category_movement">Movement</string>
+    <string name="touch_preset_category_combat">Combat</string>
+    <string name="touch_preset_category_ui">UI</string>
+
+    <!-- Key Short Names (button face abbreviations) -->
+    <string name="touch_key_escape">Esc</string>
+    <string name="touch_key_space">Spc</string>
+    <string name="touch_key_enter">Ent</string>
+    <string name="touch_key_backspace">Bsp</string>
+    <string name="touch_key_delete">Del</string>
+    <string name="touch_key_up">Up</string>
+    <string name="touch_key_down">Dn</string>
+    <string name="touch_key_left">L</string>
+    <string name="touch_key_right">R</string>
+    <string name="touch_key_tab">Tab</string>
+    <string name="touch_key_middle">M</string>
+    <string name="touch_key_unknown">Key</string>
+
+    <!-- Language Flags -->
+    <string name="flag_de_cd">Deutsch</string>
+    <string name="flag_gb_cd">English</string>
+
+    <!-- Touch Button Preset Labels -->
+    <string name="touch_preset_mouse_left">Left Mouse Button</string>
+    <string name="touch_preset_mouse_right">Right Mouse Button</string>
+    <string name="touch_preset_mouse_middle">Middle Mouse Button</string>
+    <string name="touch_preset_dpad_map">DPAD Map Control</string>
+    <string name="touch_preset_stance_stand">Stand Up</string>
+    <string name="touch_preset_stance_crouch">Crouch</string>
+    <string name="touch_preset_stance_prone">Go Prone</string>
+    <string name="touch_preset_run_toggle">Toggle Run</string>
+    <string name="touch_preset_stealth_toggle">Toggle Stealth</string>
+    <string name="touch_preset_swap_places">Swap Places</string>
+    <string name="touch_preset_alt_movement_hold">Reverse/Strafe</string>
+    <string name="touch_preset_fire_mode">Switch Fire Mode</string>
+    <string name="touch_preset_range_cursor">Show Range to Cursor</string>
+    <string name="touch_preset_keyring">Open Keyring</string>
+    <string name="touch_preset_auto_bandage">Auto Bandage</string>
+    <string name="touch_preset_target_enemy">Target Next Enemy</string>
+    <string name="touch_preset_cycle_targets">Cycle Targets</string>
+    <string name="touch_preset_level_toggle">Switch Level</string>
+    <string name="touch_preset_look_direction">Change Look Direction</string>
+    <string name="touch_preset_cancel_action">Cancel Action</string>
+    <string name="touch_preset_merc_1">Select Merc 1</string>
+    <string name="touch_preset_merc_2">Select Merc 2</string>
+    <string name="touch_preset_merc_3">Select Merc 3</string>
+    <string name="touch_preset_merc_4">Select Merc 4</string>
+    <string name="touch_preset_merc_5">Select Merc 5</string>
+    <string name="touch_preset_merc_6">Select Merc 6</string>
+    <string name="touch_preset_squad_1">Select Squad 1</string>
+    <string name="touch_preset_squad_2">Select Squad 2</string>
+    <string name="touch_preset_squad_3">Select Squad 3</string>
+    <string name="touch_preset_squad_4">Select Squad 4</string>
+    <string name="touch_preset_squad_5">Select Squad 5</string>
+    <string name="touch_preset_squad_6">Select Squad 6</string>
+    <string name="touch_preset_squad_7">Select Squad 7</string>
+    <string name="touch_preset_squad_8">Select Squad 8</string>
+    <string name="touch_preset_squad_9">Select Squad 9</string>
+    <string name="touch_preset_squad_10">Select Squad 10</string>
+    <string name="touch_preset_next_merc">Select Next Merc</string>
+    <string name="touch_preset_map">Open Map</string>
+    <string name="touch_preset_blink_items">Blink Items</string>
+    <string name="touch_preset_options">Options Menu</string>
+    <string name="touch_preset_version_info">Show Version Info</string>
+    <string name="touch_preset_end_turn">End Turn</string>
+    <string name="touch_preset_wireframe">Toggle Wireframe</string>
+    <string name="touch_preset_treetops">Toggle Treetops</string>
+    <string name="touch_preset_pause">Pause Game</string>
+    <string name="touch_preset_sector_exit_north">Exit Sector North</string>
+    <string name="touch_preset_sector_exit_east">Exit Sector East</string>
+    <string name="touch_preset_sector_exit_south">Exit Sector South</string>
+    <string name="touch_preset_sector_exit_west">Exit Sector West</string>
+    <string name="touch_preset_quick_save">Quick Save</string>
+    <string name="touch_preset_quick_load">Quick Load</string>
+    <string name="touch_preset_quit_game">Quit Game</string>
+    <string name="touch_preset_cheats">Cheats</string>
+</resources>
