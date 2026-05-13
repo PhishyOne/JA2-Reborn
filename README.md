@@ -21,8 +21,8 @@ The Android port currently supports:
 - Android 6-10 legacy storage permission fallback
 - SDL statically linked into `libja2.so`
 - OpenSL ES audio backend tuning for stable playback
-- Touchscreen, absolute mouse, and touchpad mouse modes
-- Relative touchpad cursor with single-tap left click, two-finger right click, double click, and held-click drag
+- Touchscreen, absolute mouse, and Modern Controls input modes
+- Modern Controls cursor movement with single-tap left click, two-finger right click, double click, and held-click drag
 - Direct tactical bottom-panel touch handling for panel buttons and inventory drag/drop
 - Modular in-game touch overlay with editable buttons and JSON persistence
 - Bundled default touch overlay preset
@@ -49,9 +49,9 @@ The launcher exposes three input modes:
 
 - `Touchscreen`: forwards native touch events.
 - `Absolute mouse`: maps finger coordinates directly to the game cursor.
-- `Touchpad mouse`: uses swipes to move a virtual cursor and taps to click.
+- `Modern Controls`: uses swipes to move a virtual cursor and taps to click.
 
-In touchpad mouse mode:
+In Modern Controls mode:
 
 - One-finger tap sends left click.
 - Two-finger tap sends right click.
