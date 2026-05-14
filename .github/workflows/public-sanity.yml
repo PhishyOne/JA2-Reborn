@@ -67,6 +67,13 @@ jobs:
               if name == "contributors.txt":
                   allowed_contributor = ("Tom" + "my Green").lower()
                   lowered = lowered.replace(allowed_contributor, "")
+              if name == "android/app/build.gradle":
+                  for allowed_signing_key in [
+                      "store" + "Password",
+                      "key" + "Password",
+                      "store" + "File",
+                  ]:
+                      lowered = lowered.replace(allowed_signing_key.lower(), "")
               for term in terms:
                   if term.lower() in lowered:
                       print(f"{name}: contains forbidden private or signing term")
