@@ -8,13 +8,22 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Changed
 
-- Added tactical action-panel presentation scaling for Android, including safe input remapping back to the original JA2 panel coordinates.
-- Added adaptive touch-overlay defaults for phone, tablet, and wide-screen Android layouts.
 - Reworked the public project documentation.
 - Moved Android build instructions into `docs/BUILDING_ANDROID.md`.
 - Added the Android scaling plan to the public documentation and linked it from the README and Android feature overview.
 - Added public release documentation, release notes, third-party notices, and a repository sanity workflow.
 - Clarified that clean release builds produce `app-release-unsigned.apk` unless signing is configured locally.
+
+## 2026-05-14
+
+### Added
+
+- Added tactical action-panel presentation scaling for Android, including safe input remapping back to the original JA2 panel coordinates.
+- Added adaptive touch-overlay defaults for phone, tablet, and wide-screen Android layouts.
+
+### Fixed
+
+- Blocked touch-overlay input while the in-game tutorial is visible.
 
 ## 2026-05-13
 
