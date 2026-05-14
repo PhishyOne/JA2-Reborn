@@ -1,0 +1,97 @@
+name: Public sanity
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  public-sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for private paths and release artifacts
+        shell: python
+        run: |
+          import pathlib
+          import re
+          import subprocess
+          import sys
+
+          root = pathlib.Path(".")
+          tracked = subprocess.check_output(["git", "ls-files"], text=True).splitlines()
+          text_files = []
+
+          def is_binary(path: pathlib.Path) -> bool:
+              data = path.read_bytes()[:4096]
+              return b"\0" in data
+
+          for name in tracked:
+              path = root / name
+              if not path.is_file() or is_binary(path):
+                  continue
+              text_files.append((name, path.read_text(errors="ignore")))
+
+          terms = [
+              "Tom" + "my",
+              "Real" + "Tom" + "my",
+              "Free" + "Cla" + "ude",
+              "G" + "Drive",
+              "Google " + "Drive",
+              "drive" + ".google",
+              "C:" + "\\Users" + "\\",
+              "D:" + "\\Coding",
+              "D:" + "/Coding",
+              "C:" + "/Users",
+              "ja2" + "strac" + "2026",
+              "AI" + "2401",
+              "G" + "001",
+              "Fire" + "H" + "D",
+              "secure" + ': "',
+              "GCLOUD" + "_CREDENTIALS",
+              "GITHUB" + "_ACCESS_TOKEN",
+              "BOT" + "_GITHUB_TOKEN",
+              "COVERITY" + "_SCAN_TOKEN",
+              "ANDROID" + "_KEYSTORE_FILE",
+              "ANDROID" + "_KEYSTORE_PASSWORD",
+              "store" + "Password",
+              "key" + "Password",
+              "store" + "File",
+              "keystore" + ".jks",
+              "gcloud" + "-key",
+          ]
+
+          failed = False
+          for name, text in text_files:
+              lowered = text.lower()
+              if name == "contributors.txt":
+                  allowed_contributor = ("Tom" + "my Green").lower()
+                  lowered = lowered.replace(allowed_contributor, "")
+              if name == "android/app/build.gradle":
+                  for allowed_signing_key in [
+                      "store" + "Password",
+                      "key" + "Password",
+                      "store" + "File",
+                  ]:
+                      lowered = lowered.replace(allowed_signing_key.lower(), "")
+              for term in terms:
+                  if term.lower() in lowered:
+                      print(f"{name}: contains forbidden private or signing term")
+                      failed = True
+
+          email = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+          for name, text in text_files:
+              if name.startswith("dependencies/"):
+                  continue
+              if email.search(text):
+                  print(f"{name}: contains email address")
+                  failed = True
+
+          artifact = re.compile(r"(^|/)(local\.properties|.*\.apk|.*\.aab|.*\.jks|.*\.keystore|.*\.p12|.*\.pfx|.*\.pem|.*\.key|.*\.log|.*\.tmp|.*\.bak|.*~|Thumbs\.db|desktop\.ini)$|(^|/)(build|\.gradle|\.kotlin|\.cxx|target)/", re.I)
+          for name in tracked:
+              if artifact.search(name):
+                  print(f"{name}: generated, local, signing, or release artifact is tracked")
+                  failed = True
+
+          if failed:
+              sys.exit(1)

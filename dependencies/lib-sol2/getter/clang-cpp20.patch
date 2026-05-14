@@ -1,0 +1,31 @@
+--- a/include/sol/function_types.hpp
++++ b/include/sol/function_types.hpp
+@@ -107,7 +107,7 @@ namespace sol {
+ 		template <bool is_yielding, bool no_trampoline, typename Fx, typename... Args>
+ 		void select_member_variable(lua_State* L, Fx&& fx, Args&&... args) {
+ 			if constexpr (sizeof...(Args) < 1) {
+-				lua_CFunction freefunc = &function_detail::upvalue_this_member_variable<C, Fx>::template call<is_yielding, no_trampoline>;
++				lua_CFunction freefunc = &function_detail::upvalue_this_member_variable<C, Fx>::real_call;
+ 				int upvalues = 0;
+ 				upvalues += stack::push(L, nullptr);
+ 				upvalues += stack::stack_detail::push_as_upvalues(L, fx);
+@@ -119,7 +119,7 @@ namespace sol {
+ 				constexpr bool is_reference = meta::is_specialization_of_v<Tu, std::reference_wrapper> || std::is_pointer_v<Tu>;
+ 				if constexpr (meta::is_specialization_of_v<Tu, function_detail::class_indicator>) {
+ 					lua_CFunction freefunc
+-					     = &function_detail::upvalue_this_member_variable<typename Tu::type, Fx>::template call<is_yielding, no_trampoline>;
++					     = &function_detail::upvalue_this_member_variable<typename Tu::type, Fx>::real_call;
+
+ 					int upvalues = 0;
+ 					upvalues += stack::push(L, nullptr);
+--- a/include/sol/usertype_container.hpp
++++ b/include/sol/usertype_container.hpp
+@@ -1189,7 +1189,7 @@ namespace sol {
+ 			template <bool ip>
+ 			static int next_associative(std::true_type, lua_State* L_) {
+ 				iter& i = stack::unqualified_get<user<iter>>(L_, 1);
+-				auto& end = i.end();
++				auto& end = i.sen();
+ 				auto& it = i.it();
+ 				if (it == end) {
+ 					return stack::push(L_, lua_nil);

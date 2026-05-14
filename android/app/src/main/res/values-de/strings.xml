@@ -1,0 +1,257 @@
+<resources>
+    <string name="app_name">JA2 Reborn</string>
+    <string name="launcher_header_title">JA2 Reborn - Stracciatella with Sprinkles</string>
+    <string name="title_activity_launcher">JA2 Reborn</string>
+    <string name="floating_action_button_start_text">Spiel starten</string>
+    <string name="tab_text_data">Daten</string>
+    <string name="tab_text_settings">Einstellungen</string>
+    <string name="tab_text_logs">Protokoll</string>
+    <string name="select_directory_button_label">Auswählen</string>
+    <string name="game_dir_title_text">JA2 Reborn Spielverzeichnis</string>
+    <string name="game_dir_info_text">
+        JA2 Reborn benötigt die Original-Spieldateien.
+        Kopiere sie auf dein Android-Gerät und wähle hier den Verzeichnispfad aus.
+        Der gewählte Ordner muss das "Data" Verzeichnis enthalten.
+    </string>
+    <string name="game_dir_empty_text">Noch kein Verzeichnis ausgewählt</string>
+    <string name="game_dir_choose_title">Spielverzeichnis</string>
+    <string name="game_dir_choose_message">Gib den vollständigen Pfad zu deinem JA2-Spielverzeichnis ein:</string>
+    <string name="game_dir_empty_error">Bitte gib einen Verzeichnispfad ein.</string>
+    <string name="game_dir_not_found_error">Verzeichnis existiert nicht. Überprüfe den Pfad.</string>
+    <string name="directory_picker_path_error">Dieses Verzeichnis kann nicht verwendet werden. Bitte wähle einen Ordner im gemeinsamen Gerätespeicher.</string>
+    <string name="save_game_dir_title_text">Savegame-Verzeichnis</string>
+    <string name="save_game_dir_info_text">
+        Ändere das Savegame-Verzeichnis. Touchbutton Presets werden auch hier gespeichert.
+    </string>
+    <string name="save_game_dir_empty_text">Standardverzeichnis verwenden</string>
+    <string name="save_game_dir_choose_title">Savegame-Verzeichnis</string>
+    <string name="save_game_dir_choose_message">Gib den Pfad zum Savegame-Verzeichnis ein (leer lassen für Standard):</string>
+    <string name="game_version_title_text">Sprache</string>
+    <string name="game_version_info_text">
+        Wähle die Version deiner originalen Jagged Alliance 2 Spieldateien.
+    </string>
+    <string name="game_version_empty_text">Noch keine Version ausgewählt</string>
+    <string name="scaling_quality_info_title_text">Skalierungsmodus</string>
+    <string name="scaling_quality_info_text">Wähle einen Skalierungsmodus, um das Spielvideo an den Bildschirm anzupassen. Linear und Near-Perfect dehnen das Video auf jede Fenstergröße, das Bild kann aber verschwommen wirken. Pixel-Perfect skaliert nur ganzzahlig (1x, 2x usw.), liefert aber scharfe Bilder.</string>
+    <string name="resolution_info_title_text">Interne Auflösung</string>
+    <string name="resolution_info_text">Auf modernen Geräten führt die Hälfte der tatsächlichen Bildschirmauflösung meist zum besten Ergebnis. Dieser Wert ist daher die Voreinstellung und wird vom Erkennen-Button eingetragen. Größere Auflösungen verkleinern die Spieldarstellung.</string>
+    <string name="resolution_auto_button">Erkennen</string>
+    <string name="logs_description_text">Unten wird das Protokoll des letzten Spieldurchlaufs angezeigt. Bei Problemen kannst du hier nach Fehlern suchen. Wenn du einen Fehlerbericht erstellst, füge bitte das Protokoll bei.</string>
+    <string name="logs_copy_to_clipboard_button">Gesamtes Protokoll kopieren</string>
+    <string name="logs_copied_to_clipboard_name">JA2 Reborn Protokoll</string>
+    <string name="logs_copied_to_clipboard_toast">Protokoll in Zwischenablage kopiert</string>
+    <string name="debug_mode_info_title_text">Debug-Modus</string>
+    <string name="debug_mode_info_text">Falls du auf Probleme stößt, kannst du den Debug-Modus aktivieren. Dadurch werden mehr Protokolleinträge geschrieben, um Fehler besser eingrenzen zu können.</string>
+    <string name="debug_mode_label">Debug-Modus aktivieren</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="continue_action">Fortfahren</string>
+    <string name="storage_permission_title">Dateizugriff erforderlich</string>
+    <string name="storage_permission_message">JA2 benötigt Zugriff auf deinen gewählten Spieldatenordner. Android verlangt dafür, dass du für diese App "Zugriff zum Verwalten aller Dateien erlauben" aktivierst, bevor das Spiel starten kann.</string>
+    <string name="storage_permission_legacy_message">JA2 benötigt Zugriff auf deinen gewählten Spieldatenordner. Bitte erlaube den Dateizugriff in der Android-Berechtigungsabfrage, bevor das Spiel startet.</string>
+    <string name="storage_permission_open_settings">Einstellungen öffnen</string>
+    <string name="storage_permission_missing_toast">Der Dateizugriff wurde nicht erteilt. JA2 kann ohne Zugriff auf den Spieldatenordner nicht starten.</string>
+    <string name="common_mistakes_no_game_dir_selected_title">Kein Spielverzeichnis ausgewählt</string>
+    <string name="common_mistakes_no_game_dir_selected_description">Du hast noch kein Spielverzeichnis ausgewählt. Bitte wähle ein Verzeichnis mit einer unveränderten JA2 Reborn-Installation.</string>
+    <string name="common_mistakes_no_data_dir_found_title">Falsches Spielverzeichnis erkannt</string>
+    <string name="common_mistakes_no_data_dir_found_description">Das Data-Verzeichnis wurde im Spielverzeichnis nicht gefunden. Das gewählte Verzeichnis enthält keine JA2 Reborn-Installation.</string>
+    <string name="common_mistakes_one_dot_thirteen_detected_title">Modifiziertes Spielverzeichnis erkannt</string>
+    <string name="common_mistakes_one_dot_thirteen_detected_description">Wir haben erkannt, dass das Spielverzeichnis den 1.13-Patch enthält. JA2 Reborn funktioniert nicht mit modifizierten Dateien. Bitte verwende eine unveränderte Installation von JA2 Reborn.</string>
+    <string name="cheats_info_title_text">Cheats</string>
+    <string name="cheats_info_text">Cheats können Spielbalance und Spielstände beeinflussen. Verwendung auf eigene Gefahr. Änderungen werden beim nächsten Spielstart wirksam.</string>
+    <string name="cheats_enabled_label">Cheats aktivieren</string>
+    <string name="cheat_god_mode_label">Unverwundbarkeit</string>
+    <string name="cheat_non_lethal_player_damage_label">Verwundbar, aber nicht sterblich</string>
+    <string name="cheat_full_medical_healing_label">Jede Behandlung heilt vollständig</string>
+    <string name="cheat_unlimited_ammo_label">Unbegrenzte Munition</string>
+    <string name="cheat_no_weapon_jam_label">Keine Waffenladehemmungen</string>
+    <string name="cheat_unlimited_ap_label">Unbegrenzte AP</string>
+    <string name="cheat_unlimited_breath_label">Unbegrenzte Ausdauer</string>
+    <string name="cheat_reveal_enemies_label">Alle Gegner sichtbar</string>
+    <string name="cheat_reveal_items_label">Alle Items sichtbar</string>
+    <string name="cheat_one_hit_kill_label">One-Hit Kill</string>
+    <string name="cheat_perfect_hit_chance_label">Perfekte Trefferchance</string>
+    <string name="mouse_mode_info_title_text">Maus-Modus</string>
+    <string name="mouse_mode_info_text">Moderne Steuerung bietet die beste Spielerfahrung. Absolute Maus und Touchscreen sind veraltet und experimentell.</string>
+
+    <!-- Touch Overlay Settings Dialog -->
+    <string name="touch_settings_title">Einstellungen</string>
+    <string name="touch_section_scroll_speed">Scroll-Geschwindigkeit</string>
+    <string name="touch_section_mouse_speed">Maus-Geschwindigkeit</string>
+    <string name="touch_section_auto_hide">Automatisch ausblenden</string>
+    <string name="touch_section_presets">Voreinstellungen</string>
+    <string name="touch_preset_export">Preset exportieren</string>
+    <string name="touch_preset_import">Preset importieren</string>
+    <string name="touch_reset_layout">Layout zurücksetzen</string>
+    <string name="touch_reset_confirm_title">Touch-Layout zurücksetzen?</string>
+    <string name="touch_reset_confirm_message">Alle angepassten Buttons gehen verloren und werden durch die Standard-Buttons ersetzt.</string>
+    <string name="touch_reset_confirm_positive">Zurücksetzen</string>
+    <string name="touch_reset_confirm_negative">Abbrechen</string>
+    <string name="touch_reset_restore_default">Standardkonfiguration wiederherstellen</string>
+    <string name="touch_reset_delete_all">Alle Buttons löschen</string>
+    <string name="touch_reset_confirm_choose">Was möchtest du tun?</string>
+    <string name="touch_speed_slow">Langsam</string>
+    <string name="touch_speed_fast">Schnell</string>
+    <string name="touch_auto_hide_label">Overlay in Videos und Menüs ausblenden</string>
+    <string name="touch_section_map_fov">Kartenausschnitt</string>
+    <string name="touch_map_fov_smaller">Größer</string>
+    <string name="touch_map_fov_larger">Mehr Karte</string>
+    <string name="touch_section_panel_scale">Aktionsleiste</string>
+    <string name="touch_panel_scale_normal">Normal</string>
+    <string name="touch_panel_scale_smaller">Kleiner</string>
+    <string name="touch_panel_scale_larger">Größer</string>
+    <string name="touch_close">Schließen</string>
+
+    <!-- Touch Overlay Edit Dialog -->
+    <string name="touch_edit_title">Touch-Button</string>
+    <string name="touch_edit_field_button">Button</string>
+    <string name="touch_edit_field_size">Größe</string>
+    <string name="touch_edit_field_shape">Form</string>
+    <string name="touch_edit_field_opacity">Deckkraft</string>
+    <string name="touch_shape_circle">Kreis</string>
+    <string name="touch_shape_square">Quadrat</string>
+    <string name="touch_shape_rectangle">Rechteck</string>
+    <string name="touch_edit_save">Speichern</string>
+    <string name="touch_edit_delete">Löschen</string>
+
+    <!-- Cheat Overlay Dialog -->
+    <string name="cheat_overlay_title">Cheats</string>
+    <string name="cheat_section_toggles">Schalter</string>
+    <string name="cheat_section_actions">Aktionen</string>
+    <string name="cheat_action_heal_team">Team heilen</string>
+    <string name="cheat_action_reload_team">Team nachladen</string>
+    <string name="cheat_action_reload_selected">Auswahl nachladen</string>
+    <string name="cheat_action_grant_money">+%d Geld</string>
+
+    <!-- Touch Overlay Controller (Export/Import) -->
+    <string name="touch_export_failed_title">Export fehlgeschlagen</string>
+    <string name="touch_export_no_save_dir">Kein Savegame-Verzeichnis konfiguriert. Bitte in den Einstellungen ein Savegame-Verzeichnis festlegen.</string>
+    <string name="touch_export_dir_invalid">Das Savegame-Verzeichnis existiert nicht oder ist nicht beschreibbar:\n%s</string>
+    <string name="touch_export_success">Exportiert: %s</string>
+    <string name="touch_export_filename_title">Preset exportieren</string>
+    <string name="touch_export_filename_message">Gib einen Dateinamen für dieses Preset ein. Die Endung .json wird automatisch ergänzt.</string>
+    <string name="touch_export_filename_hint">Preset-Name</string>
+    <string name="touch_export_filename_confirm">Speichern</string>
+    <string name="touch_export_filename_invalid">Gib einen gültigen Dateinamen ein</string>
+    <string name="touch_export_success_named">Preset \"%s\" wurde im Savegame Ordner gespeichert</string>
+    <string name="touch_import_read_error">Datei konnte nicht gelesen werden.</string>
+    <string name="touch_import_read_error_detail">Datei konnte nicht gelesen werden: %s</string>
+    <string name="touch_import_invalid_layout">Ungültiges Touch-Layout:\n%s</string>
+    <string name="touch_import_success">Touch-Layout importiert (%d Buttons)</string>
+    <string name="touch_import_failed_title">Import fehlgeschlagen</string>
+    <string name="touch_import_unknown_error">Unbekannter Fehler</string>
+
+    <!-- Crash Toast -->
+    <string name="crash_exception_toast">Ein Fehler ist beim Ausführen des Spiels aufgetreten: %s</string>
+
+    <!-- Vanilla Version Labels -->
+    <string name="vanilla_version_dutch">Niederländisch</string>
+    <string name="vanilla_version_english">Englisch</string>
+    <string name="vanilla_version_french">Französisch</string>
+    <string name="vanilla_version_german">Deutsch</string>
+    <string name="vanilla_version_italian">Italienisch</string>
+    <string name="vanilla_version_polish">Polnisch</string>
+    <string name="vanilla_version_russian">Russisch</string>
+    <string name="vanilla_version_russian_gold">Russisch (Gold)</string>
+    <string name="vanilla_version_simplified_chinese">Chinesisch (Vereinfacht)</string>
+
+    <!-- Scaling Quality Labels -->
+    <string name="scaling_quality_linear">Lineare Interpolation</string>
+    <string name="scaling_quality_near_perfect">Nahezu perfekt mit Oversampling (Empfohlen)</string>
+    <string name="scaling_quality_perfect">Pixelgenau zentriert</string>
+
+    <!-- Mouse Mode Labels -->
+    <string name="mouse_mode_touchpad">Moderne Steuerung (Empfohlen)</string>
+    <string name="mouse_mode_absolute">Absolute Maus (veraltet)</string>
+    <string name="mouse_mode_touchscreen">Touchscreen (veraltet)</string>
+
+    <!-- Touch Button Action Display -->
+    <string name="touch_action_left">Links</string>
+    <string name="touch_action_right">Rechts</string>
+    <string name="touch_action_middle">Mitte</string>
+    <string name="touch_action_combo">Kombi</string>
+    <string name="touch_action_cheats">Cheats</string>
+    <string name="touch_action_unknown">?</string>
+    <string name="touch_icon_inventory">Inv</string>
+    <string name="touch_icon_map">Karte</string>
+
+    <!-- Touch Button Preset Categories -->
+    <string name="touch_preset_category_mouse">Maus</string>
+    <string name="touch_preset_category_controls">Steuerung</string>
+    <string name="touch_preset_category_movement">Bewegung</string>
+    <string name="touch_preset_category_combat">Kampf</string>
+    <string name="touch_preset_category_ui">UI</string>
+
+    <!-- Key Short Names (button face abbreviations) -->
+    <string name="touch_key_escape">Esc</string>
+    <string name="touch_key_space">LrT</string>
+    <string name="touch_key_enter">Ent</string>
+    <string name="touch_key_backspace">Rck</string>
+    <string name="touch_key_delete">Entf</string>
+    <string name="touch_key_up">Obn</string>
+    <string name="touch_key_down">Unt</string>
+    <string name="touch_key_left">L</string>
+    <string name="touch_key_right">R</string>
+    <string name="touch_key_tab">Tab</string>
+    <string name="touch_key_middle">M</string>
+    <string name="touch_key_unknown">Tst</string>
+
+    <!-- Language Flags -->
+    <string name="flag_de_cd">Deutsch</string>
+    <string name="flag_gb_cd">English</string>
+
+    <!-- Touch Button Preset Labels -->
+    <string name="touch_preset_mouse_left">Linke Maustaste</string>
+    <string name="touch_preset_mouse_right">Rechte Maustaste</string>
+    <string name="touch_preset_mouse_middle">Mittlere Maustaste</string>
+    <string name="touch_preset_dpad_map">DPAD Kartensteuerung</string>
+    <string name="touch_preset_stance_stand">Aufstehen</string>
+    <string name="touch_preset_stance_crouch">Ducken</string>
+    <string name="touch_preset_stance_prone">Hinlegen</string>
+    <string name="touch_preset_run_toggle">Laufen an/aus</string>
+    <string name="touch_preset_stealth_toggle">Schleichmodus an/aus</string>
+    <string name="touch_preset_swap_places">Plätze tauschen</string>
+    <string name="touch_preset_alt_movement_hold">Rückwärtsgang / Seitwärtsschritte</string>
+    <string name="touch_preset_fire_mode">Feuermodus wechseln</string>
+    <string name="touch_preset_range_cursor">Reichweite zum Cursor anzeigen</string>
+    <string name="touch_preset_keyring">Schlüsselbund öffnen</string>
+    <string name="touch_preset_auto_bandage">Automatisches Verbinden</string>
+    <string name="touch_preset_target_enemy">Nächsten sichtbaren Feind fixieren</string>
+    <string name="touch_preset_cycle_targets">Durch Ziele schalten</string>
+    <string name="touch_preset_level_toggle">Ebene wechseln</string>
+    <string name="touch_preset_look_direction">Blickrichtung ändern</string>
+    <string name="touch_preset_cancel_action">Aktuelle Aktion abbrechen</string>
+    <string name="touch_preset_merc_1">Söldner 1 auswählen</string>
+    <string name="touch_preset_merc_2">Söldner 2 auswählen</string>
+    <string name="touch_preset_merc_3">Söldner 3 auswählen</string>
+    <string name="touch_preset_merc_4">Söldner 4 auswählen</string>
+    <string name="touch_preset_merc_5">Söldner 5 auswählen</string>
+    <string name="touch_preset_merc_6">Söldner 6 auswählen</string>
+    <string name="touch_preset_squad_1">Squad 1 auswählen</string>
+    <string name="touch_preset_squad_2">Squad 2 auswählen</string>
+    <string name="touch_preset_squad_3">Squad 3 auswählen</string>
+    <string name="touch_preset_squad_4">Squad 4 auswählen</string>
+    <string name="touch_preset_squad_5">Squad 5 auswählen</string>
+    <string name="touch_preset_squad_6">Squad 6 auswählen</string>
+    <string name="touch_preset_squad_7">Squad 7 auswählen</string>
+    <string name="touch_preset_squad_8">Squad 8 auswählen</string>
+    <string name="touch_preset_squad_9">Squad 9 auswählen</string>
+    <string name="touch_preset_squad_10">Squad 10 auswählen</string>
+    <string name="touch_preset_next_merc">Nächsten Söldner im Squad wählen</string>
+    <string name="touch_preset_map">Kartenbildschirm öffnen</string>
+    <string name="touch_preset_blink_items">Gegenstände am Boden blinken lassen</string>
+    <string name="touch_preset_options">Optionen-Menü</string>
+    <string name="touch_preset_version_info">Versions-Info anzeigen</string>
+    <string name="touch_preset_end_turn">Zug beenden</string>
+    <string name="touch_preset_wireframe">Drahtgittermodell an/aus</string>
+    <string name="touch_preset_treetops">Baumkronen an/aus</string>
+    <string name="touch_preset_pause">Spiel pausieren</string>
+    <string name="touch_preset_sector_exit_north">Sektor nach Norden verlassen</string>
+    <string name="touch_preset_sector_exit_east">Sektor nach Osten verlassen</string>
+    <string name="touch_preset_sector_exit_south">Sektor nach Süden verlassen</string>
+    <string name="touch_preset_sector_exit_west">Sektor nach Westen verlassen</string>
+    <string name="touch_preset_quick_save">Schnellspeichern</string>
+    <string name="touch_preset_quick_load">Schnellladen</string>
+    <string name="touch_preset_quit_game">Spiel beenden</string>
+    <string name="touch_preset_cheats">Cheats</string>
+</resources>

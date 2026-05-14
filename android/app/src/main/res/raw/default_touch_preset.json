@@ -1,0 +1,276 @@
+{
+    "relative_mouse_speed": 1.45,
+    "scroll_speed_ms": 35,
+    "buttons": [
+        {
+            "id": "mouse_left",
+            "label": "Linke Maustaste",
+            "icon": "mouse_left",
+            "x": 0.035,
+            "y": 0.27222222,
+            "size": 0.12,
+            "actions": [
+                {
+                    "type": "mouse_button",
+                    "button": "left"
+                }
+            ]
+        },
+        {
+            "id": "mouse_right",
+            "label": "Rechte Maustaste",
+            "icon": "mouse_right",
+            "x": 0.0875,
+            "y": 0.15555556,
+            "size": 0.12,
+            "actions": [
+                {
+                    "type": "mouse_button",
+                    "button": "right"
+                }
+            ]
+        },
+        {
+            "id": "button_1778182255890",
+            "label": "Zug beenden",
+            "icon": "end_turn",
+            "x": 0.0175,
+            "y": 0.15555556,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "D"
+                }
+            ]
+        },
+        {
+            "id": "button_1778182274729",
+            "label": "DPAD Kartensteuerung",
+            "icon": "dpad_map",
+            "x": 0.0175,
+            "y": 0.42777777,
+            "size": 0.4,
+            "actions": [
+                {
+                    "type": "dpad"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184454959",
+            "label": "Cheats",
+            "icon": "cheats",
+            "x": 0.875,
+            "y": 0.89444447,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "cheat_menu",
+                    "mode": "tap"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184514061",
+            "label": "Schnellspeichern",
+            "icon": "quick_save",
+            "x": 0.8225,
+            "y": 0.7777778,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key_combo",
+                    "mode": "tap",
+                    "key_names": [
+                        "ALT",
+                        "S"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "button_1778184539401",
+            "label": "Schnellladen",
+            "icon": "quick_load",
+            "x": 0.8225,
+            "y": 0.89444447,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key_combo",
+                    "mode": "tap",
+                    "key_names": [
+                        "ALT",
+                        "L"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "button_1778184559365",
+            "label": "Kartenbildschirm öffnen",
+            "icon": "map",
+            "x": 0.875,
+            "y": 0.7777778,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "M"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184579274",
+            "label": "Aktuelle Aktion abbrechen",
+            "icon": "cancel_action",
+            "x": 0.9275,
+            "y": 0.7777778,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "ESCAPE"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184596324",
+            "label": "Automatisches Verbinden",
+            "icon": "auto_bandage",
+            "x": 0.9275,
+            "y": 0.89444447,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "A"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184614235",
+            "label": "Aufstehen",
+            "icon": "stance_stand",
+            "x": 0.8575,
+            "y": 0.27222222,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "S"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184624719",
+            "label": "Ducken",
+            "icon": "stance_crouch",
+            "x": 0.875,
+            "y": 0.3888889,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "C"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184641238",
+            "label": "Hinlegen",
+            "icon": "stance_prone",
+            "x": 0.8925,
+            "y": 0.50555557,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "P"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184648490",
+            "label": "Schleichmodus an/aus",
+            "icon": "stealth_toggle",
+            "x": 0.9275,
+            "y": 0.35,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "Z"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184658218",
+            "label": "Rückwärtsgang / Seitwärtsschritte",
+            "icon": "alt_movement_hold",
+            "x": 0.945,
+            "y": 0.46666667,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "key_name": "ALT"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184673846",
+            "label": "Feuermodus wechseln",
+            "icon": "fire_mode",
+            "x": 0.91,
+            "y": 0.23333333,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "B"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184682442",
+            "label": "Blickrichtung ändern",
+            "icon": "look_direction",
+            "x": 0.83958334,
+            "y": 0.15555556,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "L"
+                }
+            ]
+        },
+        {
+            "id": "button_1778184701058",
+            "label": "Durch Ziele schalten",
+            "icon": "cycle_targets",
+            "x": 0.8925,
+            "y": 0.11666667,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "N"
+                }
+            ]
+        }
+    ]
+}

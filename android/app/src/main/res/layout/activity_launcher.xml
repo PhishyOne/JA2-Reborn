@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LauncherActivity">
+
+    <ImageView
+        android:id="@+id/launcherBackground"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ja2_launcherbg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/launcherScrim"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/launcher_scrim"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/launcherHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/launcher_surface"
+        android:gravity="center_vertical"
+        android:minHeight="64dp"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="@string/launcher_header_title"
+            android:textColor="#FFF3E6D7"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/languageFlags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/flagDE"
+                android:layout_width="32dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="6dp"
+                android:clickable="true"
+                android:contentDescription="@string/flag_de_cd"
+                android:focusable="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag_de" />
+
+            <ImageView
+                android:id="@+id/flagGB"
+                android:layout_width="32dp"
+                android:layout_height="20dp"
+                android:clickable="true"
+                android:contentDescription="@string/flag_gb_cd"
+                android:focusable="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/flag_gb" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fab"
+            android:layout_width="260dp"
+            android:layout_height="52dp"
+            android:background="@drawable/launcher_start_button"
+            android:elevation="12dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:maxLines="1"
+            android:text="@string/floating_action_button_start_text"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"
+            app:icon="@android:drawable/ic_media_play"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="#FFFFFFFF" />
+    </LinearLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/launcherHeader" />
+</androidx.constraintlayout.widget.ConstraintLayout>
