@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JA2 Reborn — Jagged Alliance 2 for Android</title>
+    <meta name="description" content="A fully modernized Android port of Jagged Alliance 2, based on JA2 Stracciatella. Touch controls, Material 3 dark theme, full German/English localization.">
+
+    <style>
+        :root {
+            --bg: #0d0f0d;
+            --surface: #151715;
+            --surface2: #1f221f;
+            --accent: #8B3A3A;
+            --accent-light: #A84444;
+            --accent-glow: #c05555;
+            --text: #d0d0c8;
+            --text-dim: #8a8a82;
+            --text-muted: #5a5a55;
+            --border: #2a2c2a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Background texture overlay ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.004) 2px, rgba(255,255,255,0.004) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.003) 2px, rgba(255,255,255,0.003) 4px);
+            pointer-events: none;
+        }
+
+        /* ── Scanline animation ── */
+        @keyframes scanlines {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        @keyframes glitch-shift {
+            0%, 94%, 96%, 100% { transform: translateX(0); opacity: 1; }
+            95% { transform: translateX(3px); opacity: 0.97; }
+        }
+
+        /* ── Navigation ── */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(13,15,13,0.94);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        nav .inner {
+            max-width: 1000px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 1.5rem;
+        }
+        nav .brand {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-weight: 700; font-size: 1rem; color: #fff; text-decoration: none;
+            letter-spacing: 0.06em; text-transform: uppercase;
+        }
+        nav .brand img { height: 30px; border-radius: 4px; }
+        nav .links { display: flex; gap: 1.5rem; list-style: none; }
+        nav .links a {
+            color: var(--text-dim); text-decoration: none;
+            font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        nav .links a:hover { color: var(--accent-glow); }
+
+        /* ── Hero ── */
+        .hero {
+            position: relative; overflow: hidden;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 6rem 1.5rem 3rem;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 30%, rgba(139,58,58,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at center, #0a0c0a 0%, var(--bg) 70%);
+        }
+        .hero::after {
+            content: '';
+            position: absolute; inset: 0; pointer-events: none; z-index: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(255,255,255,0.012) 3px,
+                rgba(255,255,255,0.012) 4px
+            );
+            animation: scanlines 8s linear infinite;
+        }
+        .hero-grid {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            gap: 1.5rem; max-width: 1100px; width: 100%;
+            animation: glitch-shift 10s ease-in-out infinite;
+        }
+        .hero .logo-main {
+            width: min(520px, 85vw);
+            filter: drop-shadow(0 4px 24px rgba(139,58,58,0.35));
+        }
+        .hero-content {
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .hero .subtitle {
+            font-size: 1.1rem; color: var(--text-dim);
+            max-width: 580px; margin-bottom: 1.5rem;
+            letter-spacing: 0.03em; line-height: 1.8;
+        }
+        .hero .badges {
+            display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .hero .badge {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 0.3rem 0.85rem; border-radius: 3px;
+            font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--text-dim);
+            transition: transform 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .hero .badge:hover {
+            transform: scale(1.08);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(139,58,58,0.25);
+        }
+        .hero .badge.hl {
+            border-color: var(--accent); color: var(--accent-glow);
+            box-shadow: 0 0 12px rgba(139,58,58,0.2);
+            animation: badge-pulse 3s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(139,58,58,0.15); }
+            50% { box-shadow: 0 0 18px rgba(139,58,58,0.4); }
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.8rem 2.2rem; font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            text-decoration: none; transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary {
+            background: var(--accent); color: #fff;
+            border: 1px solid var(--accent-light);
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+        }
+        .btn-primary:hover {
+            background: var(--accent-light);
+            box-shadow: 0 0 20px rgba(139,58,58,0.4);
+        }
+        .btn-secondary {
+            background: transparent; color: var(--text);
+            border: 1px solid var(--border);
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: #fff; }
+        .hero .buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+        /* Desktop: side-by-side hero */
+        @media (min-width: 800px) {
+            .hero-grid {
+                flex-direction: row; text-align: center; gap: 3rem;
+            }
+            .hero .logo-main {
+                width: min(400px, 38vw); flex-shrink: 0;
+            }
+            .hero-content {
+                align-items: center; flex: 1;
+            }
+            .hero .badges,
+            .hero .buttons {
+                width: 100%;
+            }
+        }
+
+        /* ── Lightbox ── */
+        .lightbox {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img {
+            max-width: 92vw; max-height: 92vh;
+            border: 1px solid var(--border); border-radius: 6px;
+        }
+        .lightbox .close {
+            position: absolute; top: 1rem; right: 1.5rem;
+            font-size: 2rem; color: var(--text-dim); cursor: pointer;
+            line-height: 1; z-index: 201;
+            transition: color 0.2s;
+        }
+        .lightbox .close:hover { color: #fff; }
+
+        /* ── Sections ── */
+        section { padding: 5rem 1.5rem; }
+        section .inner { max-width: 1000px; margin: 0 auto; }
+        section h2 {
+            font-size: 1.6rem; font-weight: 700; color: #fff;
+            margin-bottom: 0.75rem; text-align: center;
+            letter-spacing: 0.08em; text-transform: uppercase;
+        }
+        section .lead {
+            text-align: center; color: var(--text-dim);
+            max-width: 600px; margin: 0 auto 3rem; font-size: 0.95rem;
+        }
+        .section-accent {
+            display: block; width: 60px; height: 2px;
+            background: var(--accent); margin: 0.5rem auto 1.5rem;
+        }
+
+        /* ── Features Grid ── */
+        .features { background: var(--surface); }
+        .features .grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;
+        }
+        .features .card {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 2rem 1.5rem; transition: border-color 0.25s, transform 0.2s;
+        }
+        .features .card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .features .card .icon { font-size: 1.5rem; margin-bottom: 0.75rem; color: var(--accent-glow); }
+        .features .card h3 {
+            color: #fff; margin-bottom: 0.5rem;
+            font-size: 0.95rem; letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .features .card p { color: var(--text-dim); font-size: 0.88rem; }
+
+        /* ── Screenshots ── */
+        .screenshots .grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem;
+        }
+        .screenshots .shot {
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 4px; overflow: hidden;
+            position: relative;
+            cursor: pointer; transition: border-color 0.25s, transform 0.2s;
+        }
+        .screenshots .shot img {
+            width: 100%; height: auto; display: block;
+        }
+        .screenshots .shot:hover {
+            border-color: var(--accent); transform: scale(1.03);
+            box-shadow: 0 0 24px rgba(139,58,58,0.25);
+        }
+        .screenshots .shot .label {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 0.5rem 0.6rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.85));
+            color: var(--text); font-size: 0.72rem;
+            letter-spacing: 0.05em; text-transform: uppercase;
+        }
+
+        /* ── Download ── */
+        .download { background: var(--surface); }
+        .download .card {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 2.5rem; text-align: center; max-width: 500px; margin: 0 auto;
+        }
+        .download .card h3 { color: #fff; margin-bottom: 0.5rem; }
+        .download .card .size { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.85rem; }
+        .download .card .shasum {
+            color: var(--text-muted); font-size: 0.7rem;
+            word-break: break-all; margin-top: 1rem;
+        }
+        .download .card .shasum a { color: var(--accent-glow); text-decoration: none; }
+        .download .card .shasum a:hover { text-decoration: underline; }
+
+        /* ── Support ── */
+        .support { background: var(--surface); text-align: center; padding: 2rem 1.5rem; scroll-margin-top: 35vh; }
+        .support p { color: var(--text-dim); font-size: 0.9rem; }
+        .support a { color: var(--accent-glow); text-decoration: none; }
+        .support a:hover { text-decoration: underline; }
+
+        /* ── Install Guide ── */
+        .install .steps { max-width: 600px; margin: 0 auto; }
+        .install .step {
+            display: flex; gap: 1.25rem; padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .install .step:last-child { border-bottom: none; }
+        .install .step .num {
+            width: 38px; height: 38px; min-width: 38px;
+            background: var(--accent); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+        .install .step h4 {
+            color: #fff; margin-bottom: 0.25rem;
+            letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.9rem;
+        }
+        .install .step p { color: var(--text-dim); font-size: 0.88rem; }
+        .install code {
+            background: var(--surface2); padding: 0.1rem 0.5rem; color: var(--accent-glow);
+            font-size: 0.82rem; border: 1px solid var(--border);
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center; padding: 3rem 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted); font-size: 0.78rem;
+            letter-spacing: 0.04em;
+        }
+        footer a { color: var(--accent-glow); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer .gap { margin: 0 0.75rem; color: var(--border); }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            nav .links { display: none; }
+            .hero .logo-main { width: 90vw; }
+            .hero .subtitle { font-size: 0.95rem; }
+            section { padding: 3rem 1rem; }
+            section h2 { font-size: 1.3rem; }
+            .screenshots .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+
+    <!-- Google Fonts: monospace tactical feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+    <div class="inner">
+        <a href="#" class="brand">JA2 Reborn</a>
+        <ul class="links">
+            <li><a href="#">Download</a></li>
+            <li><a href="#install">Install</a></li>
+            <li><a href="#support">Support Me</a></li>
+            <li><a href="#screenshots">Screenshots</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+    <div class="hero-grid">
+        <img src="images/ja2reborn-logo.png" alt="JA2 Reborn" class="logo-main">
+        <div class="hero-content">
+            <p class="subtitle">
+                A fully modernized Jagged Alliance 2 Stracciatella experience,
+                specially designed for Android touch mobile devices.
+            </p>
+            <div class="badges">
+                <span class="badge hl">Supports Android up to 16+</span>
+                <span class="badge">Dynamic and precise Touch UI</span>
+                <span class="badge">Customizable Buttons: Tailored for JA2</span>
+                <span class="badge">Control Preset Import and Export</span>
+                <span class="badge">Integrated on-the-fly Cheat Menu</span>
+            </div>
+            <div class="buttons">
+                <a href="https://github.com/RealTommyGreen/JA2-Reborn/releases" class="btn btn-primary">Download APK</a>
+                <a href="https://github.com/RealTommyGreen/JA2-Reborn" class="btn btn-secondary">View on GitHub</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Install Guide ── -->
+<section class="install" id="install">
+    <div class="inner">
+        <h2>How to Install</h2>
+        <span class="section-accent"></span>
+        <p class="lead">You need to own a copy of Jagged Alliance 2 (v1.0 – v1.12).
+        JA2 Reborn does not provide any game files.</p>
+        <div class="steps">
+            <div class="step">
+                <div class="num">1</div>
+                <div>
+                    <h4>Create a new game directory on your device</h4>
+                    <p>Create a folder on your Android device where JA2 Reborn
+                    will read the game data from, e.g. <code>/sdcard/games/jaggedalliance2</code>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="num">2</div>
+                <div>
+                    <h4>Copy the game data</h4>
+                    <p>Copy the <code>data</code> folder of your Jagged Alliance 2
+                    installation into this directory, so you end up with
+                    <code>/sdcard/games/jaggedalliance2/data</code>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="num">3</div>
+                <div>
+                    <h4>Pick the directory and choose your language</h4>
+                    <p>Select the game directory within the start launcher and
+                    choose the correct language of your game files.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="num">4</div>
+                <div>
+                    <h4>Supported languages</h4>
+                    <p>Game files: English, German, French, Italian, Spanish,
+                    Russian, Polish, Simplified Chinese, and Dutch.</p>
+                    <p>Reborn UI: English and German.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Support ── -->
+<section class="support" id="support">
+    <div class="inner">
+        <p>If you enjoy JA2 Reborn, consider <a href="https://ko-fi.com/REALTOMMYGREEN" target="_blank" rel="noopener">&#x2615; buying me a coffee</a>.</p>
+    </div>
+</section>
+
+<!-- ── Screenshots ── -->
+<section class="screenshots" id="screenshots">
+    <div class="inner">
+        <h2>Screenshots</h2>
+        <span class="section-accent"></span>
+        <p class="lead">With JA2 Reborn, Jagged Alliance 2 feels like a native Android game.</p>
+        <div class="grid">
+            <div class="shot">
+                <img src="images/screenshot-1.jpg" alt="Dynamic Touch Interface" loading="lazy">
+                <span class="label">Dynamic Touch Interface</span>
+            </div>
+            <div class="shot">
+                <img src="images/screenshot-4.jpg" alt="Extended Gameplay Settings" loading="lazy">
+                <span class="label">Extended Gameplay Settings</span>
+            </div>
+            <div class="shot">
+                <img src="images/screenshot-3.jpg" alt="Customizable Button Layout" loading="lazy">
+                <span class="label">Customizable Button Layout</span>
+            </div>
+            <div class="shot">
+                <img src="images/screenshot-2.jpg" alt="Ingame Cheat Menu" loading="lazy">
+                <span class="label">Ingame Cheat Menu</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+    <p>
+        JA2 Reborn by
+        <a href="https://github.com/RealTommyGreen">RealTommyGreen</a>
+        <span class="gap">|</span>
+        Based on
+        <a href="https://github.com/ja2-stracciatella/ja2-stracciatella">JA2 Stracciatella</a>
+        <span class="gap">|</span>
+        Jagged Alliance&nbsp;2 &copy; Strategy First Inc.
+    </p>
+    <p style="margin-top:0.5rem;">
+        <a href="https://github.com/RealTommyGreen/JA2-Reborn">GitHub</a>
+        <span class="gap">|</span>
+        <a href="https://github.com/RealTommyGreen/JA2-Reborn/releases">Releases</a>
+        <span class="gap">|</span>
+        <a href="https://github.com/RealTommyGreen/JA2-Reborn/issues">Report a Bug</a>
+    </p>
+</footer>
+
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox">
+    <span class="close">&times;</span>
+    <img src="" alt="" id="lightbox-img">
+</div>
+
+<script>
+(function(){
+    var lb = document.getElementById('lightbox');
+    var img = document.getElementById('lightbox-img');
+    var shots = document.querySelectorAll('.screenshots .shot');
+    shots.forEach(function(shot){
+        shot.addEventListener('click', function(){
+            var src = shot.querySelector('img').getAttribute('src');
+            var alt = shot.querySelector('img').getAttribute('alt');
+            img.setAttribute('src', src);
+            img.setAttribute('alt', alt);
+            lb.classList.add('open');
+        });
+    });
+    lb.addEventListener('click', function(e){
+        if (e.target === lb || e.target.classList.contains('close'))
+            lb.classList.remove('open');
+    });
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') lb.classList.remove('open');
+    });
+})();
+</script>
+
+</body>
+</html>
