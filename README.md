@@ -25,6 +25,7 @@ The Android port currently supports:
 - Modern Controls input mode, plus legacy absolute mouse and touchscreen modes
 - Modern Controls cursor movement with single-tap left click, two-finger right click, double click, and held-click drag
 - Direct tactical bottom-panel touch handling for panel buttons and inventory drag/drop
+- Tactical UI scaling with adaptive default action-panel and overlay sizing for phones and tablets
 - Modular in-game touch overlay with editable buttons and JSON persistence
 - Bundled default touch overlay preset
 - Team-panel portrait touch selection and long-press multi-select
