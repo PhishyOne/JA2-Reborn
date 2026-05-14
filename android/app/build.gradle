@@ -44,10 +44,26 @@ android {
         viewBinding true
     }
 
+    signingConfigs {
+        def releaseKeystorePropertiesFile = rootProject.file('release-keystore.properties')
+        if (releaseKeystorePropertiesFile.exists()) {
+            def releaseKeystoreProperties = new Properties()
+            releaseKeystoreProperties.load(new FileInputStream(releaseKeystorePropertiesFile))
+
+            release {
+                storeFile rootProject.file(releaseKeystoreProperties.getProperty('storeFile'))
+                storePassword releaseKeystoreProperties.getProperty('storePassword')
+                keyAlias releaseKeystoreProperties.getProperty('keyAlias')
+                keyPassword releaseKeystoreProperties.getProperty('keyPassword')
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.findByName('release')
         }
     }
 
