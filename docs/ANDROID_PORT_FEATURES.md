@@ -35,6 +35,18 @@ The overlay provides:
 
 Overlay button positions and sizes are normalized relative to the screen, so layouts survive different screen sizes and orientation changes.
 
+## Android Scaling
+
+The Android port uses a conservative scaling model to keep the original JA2 UI stable while making tactical controls readable on modern devices.
+
+- The launcher recommends half of the native landscape resolution when that remains above 640x480.
+- `Near Perfect with Oversampling` is the recommended default video scaling mode.
+- Tactical action-panel presentation can scale from 100% to 130% without rebuilding native UI state.
+- Scaled panel input is mapped back to the original tactical coordinates before it reaches the JA2 interface.
+- Touch overlay defaults adapt to phone, tablet, and landscape aspect-ratio profiles while preserving user-edited layouts.
+
+See [Android scaling plan](SCALING_PLAN.md) for the full strategy and future-work rules.
+
 ### Preset Actions
 
 The preset catalog covers common JA2 actions:

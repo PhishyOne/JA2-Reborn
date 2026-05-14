@@ -10,6 +10,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 - Reworked the public project documentation.
 - Moved Android build instructions into `docs/BUILDING_ANDROID.md`.
+- Added the Android scaling plan to the public documentation and linked it from the README and Android feature overview.
 - Added public release documentation, release notes, third-party notices, and a repository sanity workflow.
 - Clarified that clean release builds produce `app-release-unsigned.apk` unless signing is configured locally.
 

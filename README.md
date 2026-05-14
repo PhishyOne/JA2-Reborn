@@ -81,6 +81,7 @@ tutorial.set          Tutorial visibility preference
 
 - [Android build instructions](docs/BUILDING_ANDROID.md)
 - [Android port feature documentation](docs/ANDROID_PORT_FEATURES.md)
+- [Android scaling plan](docs/SCALING_PLAN.md)
 - [Release process](docs/RELEASING.md)
 
 ## Building
