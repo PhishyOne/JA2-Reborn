@@ -1316,6 +1316,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static native void runCheatAction(int actionId, int amount);
     public static native void setScrollSpeed(int ms);
     public static native int getScrollSpeed();
+    public static native void setTacticalMapFovPercent(int percent);
+    public static native int getTacticalMapFovPercent();
+    public static native void setTacticalActionPanelScalePercent(int percent);
+    public static native int getTacticalActionPanelScalePercent();
     public static native int getJa2ScreenId();
     public static native void showSectorExitMenu(int direction);
     public static native boolean selectTeamPanelMercPortraitAt(float xNorm, float yNorm);

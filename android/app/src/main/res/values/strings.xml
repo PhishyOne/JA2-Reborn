@@ -93,6 +93,12 @@
     <string name="touch_speed_slow">Slow</string>
     <string name="touch_speed_fast">Fast</string>
     <string name="touch_auto_hide_label">Hide overlay in videos and menus</string>
+    <string name="touch_section_map_fov">Map View</string>
+    <string name="touch_map_fov_smaller">Larger</string>
+    <string name="touch_map_fov_larger">More Map</string>
+    <string name="touch_section_panel_scale">Action Panel</string>
+    <string name="touch_panel_scale_smaller">Smaller</string>
+    <string name="touch_panel_scale_larger">Larger</string>
     <string name="touch_close">Close</string>
 
     <!-- Touch Overlay Edit Dialog -->

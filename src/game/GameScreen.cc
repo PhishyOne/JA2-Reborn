@@ -48,6 +48,7 @@
 #include "EditScreen.h"
 #include "Logger.h"
 #include "GameSettings.h"
+#include "TacticalScaling.h"
 
 #define ARE_IN_FADE_IN( )		( gfFadeIn || gfFadeInitialized )
 
@@ -269,6 +270,8 @@ static void TacticalScreenLocateToSoldier(void);
 
 ScreenID MainGameScreenHandle(void)
 {
+	TacticalScaling::ApplyPendingTacticalScaling();
+
 	bool showTutorialAfterFirstRender = false;
 
 	// --- Tutorial system ---

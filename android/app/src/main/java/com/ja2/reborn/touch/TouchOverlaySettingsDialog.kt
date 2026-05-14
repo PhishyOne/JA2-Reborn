@@ -29,11 +29,17 @@ class TouchOverlaySettingsDialog(
     private val autoHideEnabled: Boolean = true,
     private val onAutoHideToggled: (Boolean) -> Unit = {},
     private val onScrollSpeedChanged: (Int) -> Unit = {},
-    private val onMouseSpeedChanged: (Float) -> Unit = {}
+    private val onMouseSpeedChanged: (Float) -> Unit = {},
+    private val mapFovPercent: Int = 100,
+    private val onMapFovChanged: (Int) -> Unit = {},
+    private val panelScalePercent: Int = 100,
+    private val onPanelScaleChanged: (Int) -> Unit = {}
 ) {
     // Inverted: left=slow (80ms), right=fast (5ms)
     private val scrollSpeedValues = intArrayOf(80, 60, 45, 35, 27, 20, 15, 10, 5)
     private val mouseSpeedValues = floatArrayOf(0.50f, 0.65f, 0.80f, 1.00f, 1.20f, 1.45f, 1.75f, 2.10f, 2.50f)
+    private val mapFovValues = intArrayOf(80, 90, 100, 110, 120, 130)
+    private val panelScaleValues = intArrayOf(75, 85, 100, 110, 125)
 
     fun show() {
         val scrollView = ScrollView(context).apply {
@@ -100,6 +106,53 @@ class TouchOverlaySettingsDialog(
         layout.addView(sliderWithLabels(scrollSeekBar))
         layout.addView(section(R.string.touch_section_mouse_speed))
         layout.addView(sliderWithLabels(mouseSeekBar))
+
+        val mapFovIndex = findClosestIndex(mapFovValues, mapFovPercent)
+        val mapFovSeekBar = SeekBar(context).apply {
+            max = mapFovValues.size - 1
+            progress = mapFovIndex
+            thumbTintList = ColorStateList.valueOf(ACCENT)
+            progressTintList = ColorStateList.valueOf(ACCENT)
+            progressBackgroundTintList = ColorStateList.valueOf(0x667D8DA0)
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        val v = mapFovValues[progress.coerceIn(0, mapFovValues.size - 1)]
+                        SDLActivity.setTacticalMapFovPercent(v)
+                        onMapFovChanged(v)
+                    }
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }
+
+        val panelScaleIndex = findClosestIndex(panelScaleValues, panelScalePercent)
+        val panelSeekBar = SeekBar(context).apply {
+            max = panelScaleValues.size - 1
+            progress = panelScaleIndex
+            thumbTintList = ColorStateList.valueOf(ACCENT)
+            progressTintList = ColorStateList.valueOf(ACCENT)
+            progressBackgroundTintList = ColorStateList.valueOf(0x667D8DA0)
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        val v = panelScaleValues[progress.coerceIn(0, panelScaleValues.size - 1)]
+                        SDLActivity.setTacticalActionPanelScalePercent(v)
+                        onPanelScaleChanged(v)
+                    }
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }
+
+        layout.addView(section(R.string.touch_section_map_fov))
+        layout.addView(sliderWithDirectionalLabels(mapFovSeekBar,
+            R.string.touch_map_fov_smaller, R.string.touch_map_fov_larger))
+        layout.addView(section(R.string.touch_section_panel_scale))
+        layout.addView(sliderWithDirectionalLabels(panelSeekBar,
+            R.string.touch_panel_scale_smaller, R.string.touch_panel_scale_larger))
 
         layout.addView(section(R.string.touch_section_auto_hide))
         layout.addView(autoHideSwitch())
@@ -187,10 +240,14 @@ class TouchOverlaySettingsDialog(
     }
 
     private fun findClosestScrollIndex(target: Int): Int {
-        var best = 4
-        var bestDist = Int.MAX_VALUE
-        for (i in scrollSpeedValues.indices) {
-            val dist = kotlin.math.abs(scrollSpeedValues[i] - target)
+        return findClosestIndex(scrollSpeedValues, target)
+    }
+
+    private fun findClosestMouseIndex(target: Float): Int {
+        var best = 3
+        var bestDist = Float.MAX_VALUE
+        for (i in mouseSpeedValues.indices) {
+            val dist = kotlin.math.abs(mouseSpeedValues[i] - target)
             if (dist < bestDist) {
                 bestDist = dist
                 best = i
@@ -199,11 +256,11 @@ class TouchOverlaySettingsDialog(
         return best
     }
 
-    private fun findClosestMouseIndex(target: Float): Int {
-        var best = 3
-        var bestDist = Float.MAX_VALUE
-        for (i in mouseSpeedValues.indices) {
-            val dist = kotlin.math.abs(mouseSpeedValues[i] - target)
+    private fun findClosestIndex(values: IntArray, target: Int): Int {
+        var best = 0
+        var bestDist = Int.MAX_VALUE
+        for (i in values.indices) {
+            val dist = kotlin.math.abs(values[i] - target)
             if (dist < bestDist) {
                 bestDist = dist
                 best = i
@@ -243,6 +300,24 @@ class TouchOverlaySettingsDialog(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
                 ))
                 addView(speedLabel(R.string.touch_speed_fast, Gravity.END), LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                ))
+            })
+        }
+
+    private fun sliderWithDirectionalLabels(seekBar: SeekBar, @StringRes leftLabel: Int, @StringRes rightLabel: Int): LinearLayout =
+        LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 4.dp(), 0, 4.dp())
+            addView(seekBar, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            ))
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                addView(speedLabel(leftLabel, Gravity.START), LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                ))
+                addView(speedLabel(rightLabel, Gravity.END), LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
                 ))
             })

@@ -627,6 +627,57 @@ static void DeletePrimaryVideoSurfaces(void)
 	g_mouse_buffer = NULL;
 }
 
+void VideoReinitSurfaces(void)
+{
+	// Tear down wrappers and textures
+	DeletePrimaryVideoSurfaces();
+
+	if (ScreenTexture) {
+		SDL_DestroyTexture(ScreenTexture);
+		ScreenTexture = NULL;
+	}
+	if (ScaledScreenTexture) {
+		SDL_DestroyTexture(ScaledScreenTexture);
+		ScaledScreenTexture = NULL;
+	}
+
+	// Free raw SDL surfaces
+	if (FrameBuffer) {
+		SDL_FreeSurface(FrameBuffer);
+		FrameBuffer = NULL;
+	}
+	if (ScreenBuffer) {
+		SDL_FreeSurface(ScreenBuffer);
+		ScreenBuffer = NULL;
+	}
+
+	// Recreate at current SCREEN_WIDTH/SCREEN_HEIGHT
+	FrameBuffer = SDL_CreateRGBSurface(SDL_SWSURFACE,
+		SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH,
+		RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK);
+
+	ScreenBuffer = SDL_CreateRGBSurface(0,
+		SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH,
+		RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK);
+
+	SDL_RenderSetLogicalSize(GameRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	ScreenTexture = SDL_CreateTexture(GameRenderer,
+		SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING,
+		SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	if (ScaleQuality == VideoScaleQuality::NEAR_PERFECT) {
+		ScaledScreenTexture = SDL_CreateTexture(GameRenderer,
+			SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET,
+			SCREEN_WIDTH * OVERSAMPLING_SCALE, SCREEN_HEIGHT * OVERSAMPLING_SCALE);
+	}
+
+	// Re-wrap raw surfaces into SGPVSurface objects
+	SetPrimaryVideoSurfaces();
+
+	gfForceFullScreenRefresh = TRUE;
+}
+
 SGPVSurface* gpVSurfaceHead = 0;
 
 void InitializeVideoSurfaceManager(void)
