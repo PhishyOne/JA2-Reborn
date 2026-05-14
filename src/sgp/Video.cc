@@ -13,6 +13,10 @@
 #include "Video.h"
 #include "UILayout.h"
 #include "Icon.h"
+#include "Button_System.h"
+#include "TacticalScaling.h"
+#include "JAScreens.h"
+#include "ScreenIDs.h"
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
@@ -62,6 +66,7 @@ static VideoScaleQuality ScaleQuality = VideoScaleQuality::LINEAR;
 static std::chrono::steady_clock::duration TimeBetweenRefreshScreens;
 
 static void DeletePrimaryVideoSurfaces(void);
+static constexpr int STANDARD_PRESENTATION_HEIGHT = 480;
 
 // returns if desktop resolution larger game resolution
 BOOLEAN IsDesktopLargeEnough()
@@ -351,8 +356,42 @@ void InvalidateScreen(void)
 	gfForceFullScreenRefresh = TRUE;
 }
 
+bool VideoGetPresentationSourceRect(SDL_Rect& out)
+{
+	out = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
+	if (guiCurrentScreen == GAME_SCREEN) return false;
+	if (SCREEN_HEIGHT <= STANDARD_PRESENTATION_HEIGHT) return false;
+	if (STD_SCREEN_Y <= 0) return false;
+
+	const int sourceBottom = STD_SCREEN_Y + STANDARD_PRESENTATION_HEIGHT;
+	if (sourceBottom > SCREEN_HEIGHT) return false;
+
+	out = { 0, STD_SCREEN_Y, SCREEN_WIDTH, STANDARD_PRESENTATION_HEIGHT };
+	return true;
+}
+
 
 //#define SCROLL_TEST
+
+static INT16 GetPresentedViewportEndY()
+{
+	INT16 viewportEndY = gsVIEWPORT_WINDOW_END_Y;
+
+	if (guiCurrentScreen == GAME_SCREEN &&
+	    TacticalScaling::GetActionPanelScalePercent() != TacticalScaling::kDefaultPanelScalePercent)
+	{
+		SDL_Rect panelDest;
+		if (TacticalScaling::GetPanelDestinationRect(panelDest) &&
+		    panelDest.y > gsVIEWPORT_WINDOW_START_Y &&
+		    panelDest.y < viewportEndY)
+		{
+			viewportEndY = static_cast<INT16>(panelDest.y);
+		}
+	}
+
+	return viewportEndY;
+}
 
 static void ScrollJA2Background(INT16 sScrollXIncrement, INT16 sScrollYIncrement)
 {
@@ -363,7 +402,9 @@ static void ScrollJA2Background(INT16 sScrollXIncrement, INT16 sScrollYIncrement
 	UINT16       NumStrips = 0;
 
 	int const width  = SCREEN_WIDTH;
-	int const height = gsVIEWPORT_WINDOW_END_Y - gsVIEWPORT_WINDOW_START_Y;
+	INT16 const viewportEndY = GetPresentedViewportEndY();
+	int const height = viewportEndY - gsVIEWPORT_WINDOW_START_Y;
+	if (height <= 0) return;
 
 	if (sScrollXIncrement < 0)
 	{
@@ -411,7 +452,7 @@ static void ScrollJA2Background(INT16 sScrollXIncrement, INT16 sScrollYIncrement
 		SrcRect.h = height - sScrollYIncrement;
 		DstRect.y = gsVIEWPORT_WINDOW_START_Y;
 		StripRegions[NumStrips].x = DstRect.x;
-		StripRegions[NumStrips].y = gsVIEWPORT_WINDOW_END_Y - sScrollYIncrement;
+		StripRegions[NumStrips].y = viewportEndY - sScrollYIncrement;
 		StripRegions[NumStrips].w = SrcRect.w;
 		StripRegions[NumStrips].h = sScrollYIncrement;
 		++NumStrips;
@@ -513,11 +554,31 @@ void RefreshScreen(void)
 			ScreenTextureUpdateRect += SDL_Rect{
 				gsVIEWPORT_START_X, gsVIEWPORT_WINDOW_START_Y,
 				gsVIEWPORT_END_X - gsVIEWPORT_START_X,
-				gsVIEWPORT_WINDOW_END_Y - gsVIEWPORT_WINDOW_START_Y };
+				GetPresentedViewportEndY() - gsVIEWPORT_WINDOW_START_Y };
 		}
 		gfIgnoreScrollDueToCenterAdjust = FALSE;
 	}
 
+	// Phase 3: Panel presentation scaling
+	if (guiCurrentScreen == GAME_SCREEN)
+	{
+		int panelScale = TacticalScaling::GetActionPanelScalePercent();
+		if (panelScale != 100)
+		{
+			SDL_Rect panelSrc;
+			SDL_Rect destRect;
+			if (TacticalScaling::GetPanelSourceRect(panelSrc) &&
+			    TacticalScaling::GetPanelDestinationRect(destRect))
+			{
+				SDL_Rect clearRect = { 0, destRect.y, ScreenBuffer->w, ScreenBuffer->h - destRect.y };
+				SDL_FillRect(ScreenBuffer, &clearRect, SDL_MapRGB(ScreenBuffer->format, 0, 0, 0));
+
+				SDL_BlitScaled(FrameBuffer, &panelSrc, ScreenBuffer, &destRect);
+
+				ScreenTextureUpdateRect += clearRect;
+			}
+		}
+	}
 	auto const cursorPos{ GetCursorPos() };
 	SDL_Rect src;
 	src.x = 0;
@@ -539,15 +600,18 @@ void RefreshScreen(void)
 
 	SDL_RenderClear(GameRenderer);
 
+	SDL_Rect presentationSource;
+	SDL_Rect* presentationSourcePtr = VideoGetPresentationSourceRect(presentationSource) ? &presentationSource : nullptr;
+
 	if (ScaleQuality == VideoScaleQuality::NEAR_PERFECT) {
 		SDL_SetRenderTarget(GameRenderer, ScaledScreenTexture);
-		SDL_RenderCopy(GameRenderer, ScreenTexture, nullptr, nullptr);
+		SDL_RenderCopy(GameRenderer, ScreenTexture, presentationSourcePtr, nullptr);
 
 		SDL_SetRenderTarget(GameRenderer, nullptr);
 		SDL_RenderCopy(GameRenderer, ScaledScreenTexture, nullptr, nullptr);
 	}
 	else {
-		SDL_RenderCopy(GameRenderer, ScreenTexture, NULL, NULL);
+		SDL_RenderCopy(GameRenderer, ScreenTexture, presentationSourcePtr, NULL);
 	}
 
 	FPS::RenderPresentPtr(GameRenderer);
@@ -613,6 +677,7 @@ static void SetPrimaryVideoSurfaces(void)
 	g_back_buffer  = new SGPVSurface(ScreenBuffer);
 	g_mouse_buffer = new SGPVSurface(MouseCursor);
 	g_frame_buffer = new SGPVSurface(FrameBuffer);
+	ButtonDestBuffer = FRAME_BUFFER;
 }
 
 static void DeletePrimaryVideoSurfaces(void)
@@ -625,6 +690,55 @@ static void DeletePrimaryVideoSurfaces(void)
 
 	delete g_mouse_buffer;
 	g_mouse_buffer = NULL;
+}
+
+void VideoReinitSurfaces(void)
+{
+	// Tear down wrappers and textures
+	DeletePrimaryVideoSurfaces();
+	ScreenBuffer = NULL;
+	FrameBuffer = NULL;
+	MouseCursor = NULL;
+
+	if (ScreenTexture) {
+		SDL_DestroyTexture(ScreenTexture);
+		ScreenTexture = NULL;
+	}
+	if (ScaledScreenTexture) {
+		SDL_DestroyTexture(ScaledScreenTexture);
+		ScaledScreenTexture = NULL;
+	}
+
+	// Recreate at current SCREEN_WIDTH/SCREEN_HEIGHT
+	FrameBuffer = SDL_CreateRGBSurface(SDL_SWSURFACE,
+		SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH,
+		RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK);
+
+	ScreenBuffer = SDL_CreateRGBSurface(0,
+		SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH,
+		RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK);
+
+	MouseCursor = SDL_CreateRGBSurface(0,
+		MAX_CURSOR_WIDTH, MAX_CURSOR_HEIGHT, PIXEL_DEPTH,
+		RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK);
+	SDL_SetColorKey(MouseCursor, SDL_TRUE, 0);
+
+	SDL_RenderSetLogicalSize(GameRenderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	ScreenTexture = SDL_CreateTexture(GameRenderer,
+		SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING,
+		SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	if (ScaleQuality == VideoScaleQuality::NEAR_PERFECT) {
+		ScaledScreenTexture = SDL_CreateTexture(GameRenderer,
+			SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET,
+			SCREEN_WIDTH * OVERSAMPLING_SCALE, SCREEN_HEIGHT * OVERSAMPLING_SCALE);
+	}
+
+	// Re-wrap raw surfaces into SGPVSurface objects
+	SetPrimaryVideoSurfaces();
+
+	gfForceFullScreenRefresh = TRUE;
 }
 
 SGPVSurface* gpVSurfaceHead = 0;

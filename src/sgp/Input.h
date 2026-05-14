@@ -40,6 +40,8 @@ struct InputAtom
 	UINT16 usKeyState;
 	UINT16 usEvent;
 	UINT32 usParam;
+	UINT16 usMouseX;
+	UINT16 usMouseY;
 	ST::utf32_buffer codepoints;
 };
 
@@ -60,6 +62,7 @@ void FingerDown(const SDL_TouchFingerEvent*);
 void FingerUp(const SDL_TouchFingerEvent*);
 
 SGPPoint GetMousePos();
+SGPPoint GetMousePosForMouseSystem();
 // TRUE = specified mouse button is down, FALSE = specified mouse button is up
 bool IsMouseButtonDown(UINT32 mouseButton);
 // TRUE = Main finger is down. Multitouch gesture is not detected, FALSE = Main finger is up or multitouch gesture is in progress

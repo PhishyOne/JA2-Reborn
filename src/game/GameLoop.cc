@@ -112,19 +112,19 @@ try
 	InputAtom InputEvent;
 	ScreenID uiOldScreen = guiCurrentScreen;
 
-	auto const MousePos{ GetMousePos() };
+	auto const MouseSystemPos{ GetMousePosForMouseSystem() };
 	// Hook into mouse stuff for MOVEMENT MESSAGES
-	MouseSystemHook(MOUSE_POS, 0, MousePos.iX, MousePos.iY);
+	MouseSystemHook(MOUSE_POS, 0, MouseSystemPos.iX, MouseSystemPos.iY);
 	MusicPoll();
 
 	HandleSingleClicksAndButtonRepeats();
 	while (DequeueSpecificEvent(&InputEvent, MOUSE_EVENTS))
 	{
-		MouseSystemHook(InputEvent.usEvent, InputEvent.usParam, MousePos.iX, MousePos.iY);
+		MouseSystemHook(InputEvent.usEvent, InputEvent.usParam, InputEvent.usMouseX, InputEvent.usMouseY);
 	}
 	while (DequeueSpecificEvent(&InputEvent, TOUCH_EVENTS))
 	{
-		MouseSystemHook(InputEvent.usEvent, InputEvent.usParam, MousePos.iX, MousePos.iY);
+		MouseSystemHook(InputEvent.usEvent, InputEvent.usParam, InputEvent.usMouseX, InputEvent.usMouseY);
 	}
 
 

@@ -32,6 +32,8 @@ void SetMouseCursorProperties(INT16 sOffsetX, INT16 sOffsetY, UINT16 usCursorHei
 void InvalidateRegionEx(INT32 iLeft, INT32 iTop, INT32 iRight, INT32 iBottom);
 
 void RefreshScreen(void);
+void VideoReinitSurfaces(void);
+bool VideoGetPresentationSourceRect(SDL_Rect& out);
 
 // Creates a list to contain video Surfaces
 void InitializeVideoSurfaceManager(void);

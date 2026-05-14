@@ -370,16 +370,21 @@ class TouchOverlayController(
     }
 
     private fun onGearTapped() {
+        val cfg = config
         val dialog = TouchOverlaySettingsDialog(
             context = activity,
             onResetAll = { resetToDefaults() },
             onDeleteAll = { deleteAllButtons() },
             onExportPreset = { exportPreset() },
             onImportPreset = { onImportPreset() },
-            autoHideEnabled = config?.hideOverlayOnNonGameScreens ?: true,
+            autoHideEnabled = cfg?.hideOverlayOnNonGameScreens ?: true,
             onAutoHideToggled = { enabled -> toggleAutoHide(enabled) },
             onScrollSpeedChanged = { ms -> persistScrollSpeed(ms) },
-            onMouseSpeedChanged = { speed -> persistMouseSpeed(speed) }
+            onMouseSpeedChanged = { speed -> persistMouseSpeed(speed) },
+            mapFovPercent = cfg?.tacticalMapFovPercent ?: 100,
+            onMapFovChanged = { v -> persistMapFov(v) },
+            panelScalePercent = cfg?.tacticalActionPanelScalePercent ?: 100,
+            onPanelScaleChanged = { v -> persistPanelScale(v) }
         )
         dialog.show()
     }
@@ -400,8 +405,9 @@ class TouchOverlayController(
         SDLSurface.setTouchpadMouseSpeed(cfg.relativeMouseSpeed)
         try {
             SDLActivity.setScrollSpeed(cfg.scrollSpeedMs)
+            SDLActivity.setTacticalActionPanelScalePercent(cfg.tacticalActionPanelScalePercent)
         } catch (e: Exception) {
-            Log.w(TAG, "Could not apply scroll speed: ${e.message}")
+            Log.w(TAG, "Could not apply runtime settings: ${e.message}")
         }
     }
 
@@ -419,8 +425,22 @@ class TouchOverlayController(
             editMode = false,
             layoutLocked = true,
             relativeMouseSpeed = SDLSurface.getTouchpadMouseSpeed(),
-            scrollSpeedMs = currentScrollSpeed()
+            scrollSpeedMs = currentScrollSpeed(),
+            tacticalMapFovPercent = currentMapFovPercent(),
+            tacticalActionPanelScalePercent = currentPanelScalePercent()
         )
+
+    private fun currentMapFovPercent(): Int {
+        return 100
+    }
+
+    private fun currentPanelScalePercent(): Int {
+        return try {
+            SDLActivity.getTacticalActionPanelScalePercent()
+        } catch (e: Exception) {
+            config?.tacticalActionPanelScalePercent ?: 100
+        }
+    }
 
     private fun saveConfig() {
         val cfg = config ?: return
@@ -437,6 +457,20 @@ class TouchOverlayController(
     private fun persistMouseSpeed(speed: Float) {
         val cfg = config ?: return
         val updated = cfg.copy(relativeMouseSpeed = speed)
+        config = updated
+        store.save(persistableConfig(updated))
+    }
+
+    private fun persistMapFov(v: Int) {
+        val cfg = config ?: return
+        val updated = cfg.copy(tacticalMapFovPercent = v)
+        config = updated
+        store.save(persistableConfig(updated))
+    }
+
+    private fun persistPanelScale(v: Int) {
+        val cfg = config ?: return
+        val updated = cfg.copy(tacticalActionPanelScalePercent = v)
         config = updated
         store.save(persistableConfig(updated))
     }

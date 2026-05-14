@@ -13,6 +13,8 @@ set(LOCAL_JA2_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/MercPortraitTouch_JNI.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/SectorExit_JNI.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/ScrollSpeed_JNI.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/TacticalScaling.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/TacticalScaling_JNI.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/ScreenID_JNI.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/Tutorial_JNI.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/TutorialSystem.cc
