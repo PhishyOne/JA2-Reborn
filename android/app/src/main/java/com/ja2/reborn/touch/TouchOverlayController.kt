@@ -398,6 +398,8 @@ class TouchOverlayController(
             updateGridViewState()
             saveCurrentPositions()
         }
+        overlayAutoHidden = true
+        applyAutoHideVisibility(false)
         SDLActivity.showTutorial()
     }
 
@@ -714,7 +716,27 @@ class TouchOverlayController(
 
     private fun autoHidePoll() {
         val cfg = config ?: return
-        if (!cfg.hideOverlayOnNonGameScreens) return
+
+        val tutorialVisible = try {
+            SDLActivity.isTutorialVisible()
+        } catch (e: Exception) {
+            false
+        }
+        if (tutorialVisible) {
+            if (!overlayAutoHidden) {
+                overlayAutoHidden = true
+                applyAutoHideVisibility(false)
+            }
+            return
+        }
+
+        if (!cfg.hideOverlayOnNonGameScreens) {
+            if (overlayAutoHidden) {
+                overlayAutoHidden = false
+                applyAutoHideVisibility(true)
+            }
+            return
+        }
 
         val screenId = try {
             SDLActivity.getJa2ScreenId()
@@ -1032,7 +1054,7 @@ class TouchOverlayController(
         private const val AUTO_HIDE_POLL_MS = 250L
 
         // Screen IDs from src/game/ScreenIDs.h
-        // GAME_SCREEN = 5. Map and menus intentionally auto-hide the overlay.
+        // GAME_SCREEN = 5. Map, menus, and the modal native tutorial hide the overlay.
         private val VISIBLE_SCREEN_WHITELIST = setOf(5)
         private const val SAFE_SCREEN_ID = 5 // GAME_SCREEN; fallback when JNI fails
 

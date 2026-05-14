@@ -9,6 +9,7 @@ import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
+import org.libsdl.app.SDLActivity
 
 class TouchOverlayButtonView(
     context: Context,
@@ -92,6 +93,11 @@ class TouchOverlayButtonView(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (isTutorialVisible()) {
+            releaseIfHeld()
+            return false
+        }
+
         val action = event.actionMasked
 
         when (action) {
@@ -256,12 +262,15 @@ class TouchOverlayButtonView(
     }
 
     fun releaseIfHeld() {
-        if (canDispatchInput() && isPressed && isDpad && isHoldMode && !isDragging) {
+        if (isPressed && isDpad && isHoldMode && !isDragging) {
             releaseDpadDirection()
             setPressedState(false)
             activePointerId = -1
-        } else if (canDispatchInput() && isPressed && isHoldMode && !isDragging) {
+        } else if (isPressed && isHoldMode && !isDragging) {
             dispatchActions(false)
+            setPressedState(false)
+            activePointerId = -1
+        } else if (isPressed) {
             setPressedState(false)
             activePointerId = -1
         }
@@ -317,7 +326,14 @@ class TouchOverlayButtonView(
         }
     }
 
-    private fun canDispatchInput(): Boolean = !isDraggable
+    private fun canDispatchInput(): Boolean = !isDraggable && !isTutorialVisible()
+
+    private fun isTutorialVisible(): Boolean =
+        try {
+            SDLActivity.isTutorialVisible()
+        } catch (e: Exception) {
+            false
+        }
 
     private fun updateDpadDirection(x: Float, y: Float) {
         val direction = dpadDirection(x, y) ?: return
