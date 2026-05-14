@@ -34,6 +34,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 - Added an in-game tutorial system with JNI entry points, localized panels, persistent "do not show again" state, and touch-overlay access.
 - Added a help button to the touch overlay in edit mode.
+- Added tactical action-panel presentation scaling for Android, including safe input remapping back to the original JA2 panel coordinates.
+- Added adaptive touch-overlay defaults for phone, tablet, and wide-screen Android layouts.
 
 ### Changed
 
