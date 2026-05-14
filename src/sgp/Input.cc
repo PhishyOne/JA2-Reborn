@@ -4,6 +4,9 @@
 #include "Timer.h"
 #include "Video.h"
 #include "UILayout.h"
+#include "JAScreens.h"
+#include "ScreenIDs.h"
+#include "TacticalScaling.h"
 
 #include <string_theory/string>
 
@@ -96,8 +99,11 @@ static void QueuePointerEvent(UINT16 eventType, UINT32 param)
 	// Can we queue up one more event, if not, the event is lost forever
 	if (gusQueueCount == lengthof(gEventQueue)) return;
 
+	SGPPoint const MousePos = GetMousePosForMouseSystem();
 	gEventQueue[gusTailIndex].usEvent = eventType;
 	gEventQueue[gusTailIndex].usParam = param;
+	gEventQueue[gusTailIndex].usMouseX = MousePos.iX;
+	gEventQueue[gusTailIndex].usMouseY = MousePos.iY;
 
 	gusQueueCount++;
 
@@ -117,6 +123,8 @@ static void QueueKeyEvent(UINT16 ubInputEvent, SDL_Keycode Key, SDL_Keymod Mod, 
 	gEventQueue[gusTailIndex].usKeyState = ModifierState;
 	gEventQueue[gusTailIndex].usEvent = ubInputEvent;
 	gEventQueue[gusTailIndex].usParam = Key;
+	gEventQueue[gusTailIndex].usMouseX = gusMouseXPos;
+	gEventQueue[gusTailIndex].usMouseY = gusMouseYPos;
 	gEventQueue[gusTailIndex].codepoints = std::move(codepoints);
 
 	gusQueueCount++;
@@ -125,6 +133,13 @@ static void QueueKeyEvent(UINT16 ubInputEvent, SDL_Keycode Key, SDL_Keymod Mod, 
 }
 
 void SetSafeMousePosition(int x, int y) {
+	SDL_Rect presentationSource;
+	if (VideoGetPresentationSourceRect(presentationSource))
+	{
+		x = presentationSource.x + x * presentationSource.w / SCREEN_WIDTH;
+		y = presentationSource.y + y * presentationSource.h / SCREEN_HEIGHT;
+	}
+
 	if (x < 0) x = 0;
 	if (y < 0) y = 0;
 	if (x > SCREEN_WIDTH) x = SCREEN_WIDTH;
@@ -496,6 +511,24 @@ void TextInput(const SDL_TextInputEvent* TextEv) {
 SGPPoint GetMousePos()
 {
 	return { gusMouseXPos, gusMouseYPos };
+}
+
+SGPPoint GetMousePosForMouseSystem()
+{
+	float x = static_cast<float>(gusMouseXPos);
+	float y = static_cast<float>(gusMouseYPos);
+
+	if (guiCurrentScreen == GAME_SCREEN)
+	{
+		TacticalScaling::ScreenToTacticalLogicalPoint(x, y);
+	}
+
+	if (x < 0.0f) x = 0.0f;
+	if (y < 0.0f) y = 0.0f;
+	if (x > static_cast<float>(SCREEN_WIDTH)) x = static_cast<float>(SCREEN_WIDTH);
+	if (y > static_cast<float>(SCREEN_HEIGHT)) y = static_cast<float>(SCREEN_HEIGHT);
+
+	return { static_cast<UINT16>(x), static_cast<UINT16>(y) };
 }
 
 bool IsMouseButtonDown(UINT32 mouseButton) {

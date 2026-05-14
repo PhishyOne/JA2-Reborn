@@ -405,7 +405,6 @@ class TouchOverlayController(
         SDLSurface.setTouchpadMouseSpeed(cfg.relativeMouseSpeed)
         try {
             SDLActivity.setScrollSpeed(cfg.scrollSpeedMs)
-            SDLActivity.setTacticalMapFovPercent(cfg.tacticalMapFovPercent)
             SDLActivity.setTacticalActionPanelScalePercent(cfg.tacticalActionPanelScalePercent)
         } catch (e: Exception) {
             Log.w(TAG, "Could not apply runtime settings: ${e.message}")
@@ -432,11 +431,7 @@ class TouchOverlayController(
         )
 
     private fun currentMapFovPercent(): Int {
-        return try {
-            SDLActivity.getTacticalMapFovPercent()
-        } catch (e: Exception) {
-            config?.tacticalMapFovPercent ?: 100
-        }
+        return 100
     }
 
     private fun currentPanelScalePercent(): Int {

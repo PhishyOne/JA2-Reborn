@@ -40,11 +40,14 @@ class TouchButtonStore(
             val config = jsonFormat.decodeFromString<TouchOverlayConfig>(raw)
             if (config.schemaVersion != TOUCH_OVERLAY_CONFIG_VERSION) {
                 Log.i(TAG, "Config version mismatch (${config.schemaVersion} != $TOUCH_OVERLAY_CONFIG_VERSION), normalizing with defaults")
-                val normalized = config.copy(
+                var normalized = config.copy(
                     schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
                     editMode = false,
                     layoutLocked = true
                 )
+                if (isBundledDefaultLayout(config) || isLegacyGeneratedDefaultLayout(config)) {
+                    normalized = TouchOverlayAdaptiveDefaults.apply(context, normalized)
+                }
                 save(normalized)
                 normalized
             } else {
@@ -67,6 +70,10 @@ class TouchButtonStore(
     }
 
     fun loadDefaultFromRaw(): TouchOverlayConfig {
+        return TouchOverlayAdaptiveDefaults.apply(context, loadBundledDefaultFromRaw())
+    }
+
+    private fun loadBundledDefaultFromRaw(): TouchOverlayConfig {
         return try {
             val raw = context.resources.openRawResource(
                 context.resources.getIdentifier(
@@ -82,6 +89,22 @@ class TouchButtonStore(
         } catch (e: Exception) {
             Log.w(TAG, "Could not load bundled default preset, falling back to code defaults: ${e.message}")
             TouchOverlayConfig()
+        }
+    }
+
+    private fun isBundledDefaultLayout(config: TouchOverlayConfig): Boolean {
+        return try {
+            TouchOverlayAdaptiveDefaults.isSameButtonLayout(config, loadBundledDefaultFromRaw())
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun isLegacyGeneratedDefaultLayout(config: TouchOverlayConfig): Boolean {
+        return try {
+            TouchOverlayAdaptiveDefaults.isLegacyV7GeneratedLayout(context, config, loadBundledDefaultFromRaw())
+        } catch (e: Exception) {
+            false
         }
     }
 

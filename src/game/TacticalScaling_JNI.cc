@@ -14,8 +14,8 @@ static int clampMapFov(int v) {
 }
 
 static int clampPanelScale(int v) {
-	if (v < 75) return 75;
-	if (v > 125) return 125;
+	if (v < 100) return 100;
+	if (v > 130) return 130;
 	return v;
 }
 
@@ -36,7 +36,9 @@ Java_org_libsdl_app_SDLActivity_getTacticalMapFovPercent(JNIEnv* env, jclass cls
 extern "C" JNIEXPORT void JNICALL
 Java_org_libsdl_app_SDLActivity_setTacticalActionPanelScalePercent(JNIEnv* env, jclass cls, jint percent)
 {
-	g_tacticalActionPanelScalePercent.store(clampPanelScale(static_cast<int>(percent)), std::memory_order_relaxed);
+	int clamped = clampPanelScale(static_cast<int>(percent));
+	g_tacticalActionPanelScalePercent.store(clamped, std::memory_order_relaxed);
+	TacticalScaling::SetPendingActionPanelScalePercent(clamped);
 }
 
 extern "C" JNIEXPORT jint JNICALL

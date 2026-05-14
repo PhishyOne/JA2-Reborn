@@ -3,7 +3,7 @@ package com.ja2.reborn.touch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val TOUCH_OVERLAY_CONFIG_VERSION = 6
+const val TOUCH_OVERLAY_CONFIG_VERSION = 8
 
 @Serializable
 data class TouchOverlayConfig(

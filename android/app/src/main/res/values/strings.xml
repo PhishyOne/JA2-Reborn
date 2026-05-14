@@ -97,6 +97,7 @@
     <string name="touch_map_fov_smaller">Larger</string>
     <string name="touch_map_fov_larger">More Map</string>
     <string name="touch_section_panel_scale">Action Panel</string>
+    <string name="touch_panel_scale_normal">Normal</string>
     <string name="touch_panel_scale_smaller">Smaller</string>
     <string name="touch_panel_scale_larger">Larger</string>
     <string name="touch_close">Close</string>

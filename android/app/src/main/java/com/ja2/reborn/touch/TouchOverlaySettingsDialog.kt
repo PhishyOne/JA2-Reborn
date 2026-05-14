@@ -38,8 +38,7 @@ class TouchOverlaySettingsDialog(
     // Inverted: left=slow (80ms), right=fast (5ms)
     private val scrollSpeedValues = intArrayOf(80, 60, 45, 35, 27, 20, 15, 10, 5)
     private val mouseSpeedValues = floatArrayOf(0.50f, 0.65f, 0.80f, 1.00f, 1.20f, 1.45f, 1.75f, 2.10f, 2.50f)
-    private val mapFovValues = intArrayOf(80, 90, 100, 110, 120, 130)
-    private val panelScaleValues = intArrayOf(75, 85, 100, 110, 125)
+    private val panelScaleValues = intArrayOf(100, 110, 120, 130)
 
     fun show() {
         val scrollView = ScrollView(context).apply {
@@ -107,26 +106,6 @@ class TouchOverlaySettingsDialog(
         layout.addView(section(R.string.touch_section_mouse_speed))
         layout.addView(sliderWithLabels(mouseSeekBar))
 
-        val mapFovIndex = findClosestIndex(mapFovValues, mapFovPercent)
-        val mapFovSeekBar = SeekBar(context).apply {
-            max = mapFovValues.size - 1
-            progress = mapFovIndex
-            thumbTintList = ColorStateList.valueOf(ACCENT)
-            progressTintList = ColorStateList.valueOf(ACCENT)
-            progressBackgroundTintList = ColorStateList.valueOf(0x667D8DA0)
-            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser) {
-                        val v = mapFovValues[progress.coerceIn(0, mapFovValues.size - 1)]
-                        SDLActivity.setTacticalMapFovPercent(v)
-                        onMapFovChanged(v)
-                    }
-                }
-                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-            })
-        }
-
         val panelScaleIndex = findClosestIndex(panelScaleValues, panelScalePercent)
         val panelSeekBar = SeekBar(context).apply {
             max = panelScaleValues.size - 1
@@ -147,12 +126,9 @@ class TouchOverlaySettingsDialog(
             })
         }
 
-        layout.addView(section(R.string.touch_section_map_fov))
-        layout.addView(sliderWithDirectionalLabels(mapFovSeekBar,
-            R.string.touch_map_fov_smaller, R.string.touch_map_fov_larger))
         layout.addView(section(R.string.touch_section_panel_scale))
         layout.addView(sliderWithDirectionalLabels(panelSeekBar,
-            R.string.touch_panel_scale_smaller, R.string.touch_panel_scale_larger))
+            R.string.touch_panel_scale_normal, R.string.touch_panel_scale_larger))
 
         layout.addView(section(R.string.touch_section_auto_hide))
         layout.addView(autoHideSwitch())

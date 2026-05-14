@@ -67,11 +67,7 @@ class LauncherActivity : AppCompatActivity() {
         loadJA2Json()
         syncGameVersionWithLanguageSelection()
         loadCheatsJson()
-
-        if (hasGameSession() && hasPlayableGameDirectory()) {
-            startGameAfterPermissionCheck()
-            return
-        }
+        deleteStaleGameSession()
 
         binding = ActivityLauncherBinding.inflate(layoutInflater)
         val view = binding.root
@@ -484,13 +480,13 @@ class LauncherActivity : AppCompatActivity() {
         }
     }
 
-    private fun hasGameSession(): Boolean {
-        return File(applicationContext.filesDir, ".ja2/game_session").exists()
-    }
-
-    private fun hasPlayableGameDirectory(): Boolean {
-        val dir = configurationModel.vanillaGameDir.value?.trim() ?: return false
-        return dir.isNotEmpty() && File(dir).isDirectory
+    private fun deleteStaleGameSession() {
+        try {
+            val file = File(applicationContext.filesDir, ".ja2/game_session")
+            if (file.exists()) file.delete()
+        } catch (e: Exception) {
+            Log.w(activityLogTag, "Could not delete stale game session marker: ${e.message}")
+        }
     }
 
     private fun saveCheatsJson() {
