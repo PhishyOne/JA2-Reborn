@@ -1,0 +1,77 @@
+name: Feature request
+description: Suggest an improvement for JA2 Reborn.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion.
+
+        JA2 Reborn is a hobby project with limited maintenance time. Feature requests are welcome, but there is no guarantee that suggestions will be implemented.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have checked the existing issues for similar requests.
+          required: true
+        - label: This request is related to JA2 Reborn and not a request for copyrighted game data.
+          required: true
+        - label: I understand that this is a hobby project and features may only be added when there is time and interest.
+          required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Requested area
+      options:
+        - Launcher
+        - Installation / storage access
+        - Touch controls
+        - Touch overlay
+        - Tactical UI / gameplay
+        - Audio
+        - Saves
+        - Cheats
+        - Build / development
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What problem would this solve, or what workflow would it improve?
+      placeholder: It would be useful if...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature or behavior you would like to see.
+      placeholder: Add an option to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional. Mention any workaround or alternative design you have tried.
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, mockups, examples, or extra details.
+    validations:
+      required: false

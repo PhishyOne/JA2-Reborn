@@ -8,7 +8,9 @@ The project does not include Jagged Alliance 2 game data. You need a legally own
 
 ## Status
 
-Work on this Android port is considered complete. No regular updates are planned. Future updates may happen only if a maintainer personally feels like returning to the project.
+JA2 Reborn is maintained as a hobby project with limited available time. There is no fixed update schedule, and new releases or improvements will only happen when I have time and interest to work on them.
+
+Bug reports are welcome, but fixes can only be considered when the issue is reproducible for me or includes enough detail to understand and verify the problem.
 
 Everyone is welcome to fork the project and continue experimenting with it within the terms of the [LICENSE](LICENSE).
 

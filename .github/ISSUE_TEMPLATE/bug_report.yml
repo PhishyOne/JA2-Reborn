@@ -1,0 +1,128 @@
+name: Bug report
+description: Report a reproducible problem with JA2 Reborn.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem.
+
+        JA2 Reborn is a hobby project with limited maintenance time. Please include enough detail for the issue to be reproduced or verified. Bugs that cannot be reproduced may not be actionable.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have checked the existing issues for duplicates.
+          required: true
+        - label: I am using the latest available JA2 Reborn release.
+          required: true
+        - label: I own a legal copy of Jagged Alliance 2 and am not requesting game data.
+          required: true
+        - label: I can reproduce this issue or provide enough detail to help verify it.
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: JA2 Reborn version
+      description: Example: v1.0.2
+      placeholder: v1.0.2
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Android device
+      description: Device model and Android version.
+      placeholder: Pixel 8, Android 15
+    validations:
+      required: true
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Game data language
+      options:
+        - English
+        - German
+        - French
+        - Italian
+        - Spanish
+        - Russian
+        - Polish
+        - Simplified Chinese
+        - Dutch
+        - Other / unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Launcher
+        - Installation / storage access
+        - Game startup
+        - Touch controls
+        - Touch overlay
+        - Tactical UI / gameplay
+        - Audio
+        - Saves
+        - Cheats
+        - Build / development
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem clearly.
+      placeholder: The game crashes when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps needed to trigger the issue.
+      placeholder: |
+        1. Open JA2 Reborn
+        2. Select ...
+        3. Tap ...
+        4. The issue happens
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: I expected...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, screenshots, or screen recordings
+      description: Paste relevant logs from the app's log screen or attach screenshots/recordings. Do not attach copyrighted Jagged Alliance 2 game data.
+      placeholder: Paste logs here if available.
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that might help reproduce or understand the issue.
+    validations:
+      required: false
