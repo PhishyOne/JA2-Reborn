@@ -94,9 +94,11 @@ class ConfigurationModel : ViewModel() {
     val vanillaGameDir = MutableLiveData<String?>()
     val vanillaGameVersion = MutableLiveData(VanillaVersion.DEFAULT)
     val saveGameDir = MutableLiveData<String?>()
+    val resolutionMode = MutableLiveData(ResolutionMode.DEFAULT)
     val resolution = MutableLiveData(Resolution.DEFAULT)
     val scalingQuality = MutableLiveData(ScalingQuality.DEFAULT)
     val mouseMode = MutableLiveData(MouseMode.DEFAULT)
+    val expertSettings = MutableLiveData(false)
     val debug = MutableLiveData(false)
     val cheatConfig = MutableLiveData(CheatConfig.DEFAULT)
 
@@ -112,6 +114,10 @@ class ConfigurationModel : ViewModel() {
         saveGameDir.value = saveGameDirSet
     }
 
+    fun setResolutionMode(mode: ResolutionMode) {
+        resolutionMode.value = mode
+    }
+
     fun setResolution(res: Resolution) {
         resolution.value = res
     }
@@ -122,6 +128,10 @@ class ConfigurationModel : ViewModel() {
 
     fun setMouseMode(mode: MouseMode) {
         mouseMode.value = mode
+    }
+
+    fun setExpertSettings(enabled: Boolean) {
+        expertSettings.value = enabled
     }
 
     fun setDebug(enabled: Boolean) {

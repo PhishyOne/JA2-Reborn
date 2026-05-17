@@ -1,7 +1,7 @@
 package com.ja2.reborn.ui.main
 
+import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -23,11 +23,18 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var configurationModel: ConfigurationModel
+    private lateinit var resolutionModes: Array<ResolutionMode>
     private lateinit var scalingQualities: Array<ScalingQuality>
     private lateinit var mouseModes: Array<MouseMode>
+    private var updatingResolutionFields = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         configurationModel = ViewModelProvider(requireActivity())[ConfigurationModel::class.java]
+        resolutionModes = arrayOf(
+            ResolutionMode.MODERN,
+            ResolutionMode.HIGH_RES,
+            ResolutionMode.RETRO
+        )
         scalingQualities = arrayOf(
             ScalingQuality.NEAR_PERFECT,
             ScalingQuality.PERFECT,
@@ -44,86 +51,53 @@ class SettingsFragment : Fragment() {
     ): View {
         _binding = FragmentLauncherSettingsBinding.inflate(inflater, container, false)
 
-        val spinnerLabels = scalingQualities.map { LocalizationHelper.getScalingQualityLabel(requireContext(), it) }
-        val adapter: ArrayAdapter<String> =
-            ArrayAdapter(this.requireContext(), R.layout.launcher_spinner_item, spinnerLabels)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.scalingQualitySpinner.adapter = adapter
+        val resolutionModeLabels = resolutionModes.map { LocalizationHelper.getResolutionModeLabel(requireContext(), it) }
+        val resolutionModeAdapter: ArrayAdapter<String> =
+            ArrayAdapter(this.requireContext(), R.layout.launcher_spinner_item, resolutionModeLabels)
+        resolutionModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.resolutionModeSpinner.adapter = resolutionModeAdapter
 
-        configurationModel.resolution.observe(viewLifecycleOwner) { resolution ->
-            if (binding.resolutionWidthEdit.text.toString() != resolution.width.toString()) {
-                binding.resolutionWidthEdit.setText(resolution.width.toString())
+        configurationModel.resolutionMode.observe(viewLifecycleOwner) { mode ->
+            val index = resolutionModes.indexOf(mode)
+            if (index >= 0) {
+                binding.resolutionModeSpinner.setSelection(index)
             }
-            if (binding.resolutionHeightEdit.text.toString() != resolution.height.toString()) {
-                binding.resolutionHeightEdit.setText(resolution.height.toString())
+            if (configurationModel.expertSettings.value != true) {
+                applyPresetResolution(mode)
             }
         }
-        binding.resolutionWidthEdit.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {}
-            override fun beforeTextChanged(
-                s: CharSequence, start: Int,
-                count: Int, after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence, start: Int,
-                before: Int, count: Int
-            ) {
-                if (s.isNotEmpty()) {
-                    try {
-                        val width = s.toString().toUInt()
-                        val current = configurationModel.resolution.value ?: Resolution.DEFAULT
-                        if (width != current.width) {
-                            configurationModel.setResolution(
-                                Resolution(
-                                    width,
-                                    current.height
-                                )
-                            )
+        binding.resolutionModeSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (position >= 0 && position < resolutionModes.size) {
+                        val mode = resolutionModes[position]
+                        configurationModel.setResolutionMode(mode)
+                        if (configurationModel.expertSettings.value != true) {
+                            applyPresetResolution(mode)
                         }
-
-                    } catch (e: java.lang.NumberFormatException) {
-                        Log.w(TAG, "Invalid resolution width: $s", e)
                     }
                 }
-            }
-        })
-        binding.resolutionHeightEdit.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {}
-            override fun beforeTextChanged(
-                s: CharSequence, start: Int,
-                count: Int, after: Int
-            ) {
-            }
 
-            override fun onTextChanged(
-                s: CharSequence, start: Int,
-                before: Int, count: Int
-            ) {
-                if (s.isNotEmpty()) {
-                    try {
-                        val height = s.toString().toUInt()
-                        val current = configurationModel.resolution.value ?: Resolution.DEFAULT
-                        if (height != current.height) {
-                            configurationModel.setResolution(
-                                Resolution(
-                                    current.width,
-                                    height
-                                )
-                            )
-                        }
-
-                    } catch (e: java.lang.NumberFormatException) {
-                        Log.w(TAG, "Invalid resolution height: $s", e)
-                    }
+                override fun onNothingSelected(parent: AdapterView<*>?) {
                 }
             }
-        })
+
+        val scalingLabels = scalingQualities.map { LocalizationHelper.getScalingQualityLabel(requireContext(), it) }
+        val scalingAdapter: ArrayAdapter<String> =
+            ArrayAdapter(this.requireContext(), R.layout.launcher_spinner_item, scalingLabels)
+        scalingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.scalingQualitySpinner.adapter = scalingAdapter
 
         configurationModel.scalingQuality.observe(viewLifecycleOwner) { scalingQuality ->
             val index = scalingQualities.indexOf(scalingQuality)
-            binding.scalingQualitySpinner.setSelection(index)
+            if (index >= 0) {
+                binding.scalingQualitySpinner.setSelection(index)
+            }
         }
         binding.scalingQualitySpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -150,7 +124,9 @@ class SettingsFragment : Fragment() {
 
         configurationModel.mouseMode.observe(viewLifecycleOwner) { mouseMode ->
             val index = mouseModes.indexOf(mouseMode)
-            binding.mouseModeSpinner.setSelection(index)
+            if (index >= 0) {
+                binding.mouseModeSpinner.setSelection(index)
+            }
         }
         binding.mouseModeSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -169,14 +145,95 @@ class SettingsFragment : Fragment() {
                 }
             }
 
-        binding.resolutionAutoButton.setOnClickListener {
-            val launcherActivity = requireActivity()
-            if (launcherActivity is LauncherActivity) {
-                configurationModel.resolution.value = launcherActivity.getRecommendedResolution()
+        configurationModel.resolution.observe(viewLifecycleOwner) { resolution ->
+            updatingResolutionFields = true
+            binding.resolutionWidthEditText.setText(resolution.width.toString())
+            binding.resolutionHeightEditText.setText(resolution.height.toString())
+            updatingResolutionFields = false
+        }
+
+        binding.resolutionWidthEditText.addTextChangedListener(resolutionTextWatcher)
+        binding.resolutionHeightEditText.addTextChangedListener(resolutionTextWatcher)
+
+        configurationModel.expertSettings.observe(viewLifecycleOwner) { enabled ->
+            binding.expertSettingsCheckbox.isChecked = enabled
+            setExpertControlsEnabled(enabled)
+            if (!enabled) {
+                applyStandardSettings()
+            }
+        }
+
+        binding.expertSettingsCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (configurationModel.expertSettings.value == isChecked) {
+                return@setOnCheckedChangeListener
+            }
+
+            configurationModel.setExpertSettings(isChecked)
+            if (isChecked) {
+                showExpertSettingsWarning()
+            } else {
+                applyStandardSettings()
             }
         }
 
         return binding.root
+    }
+
+    private val resolutionTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
+        override fun afterTextChanged(s: Editable?) {
+            if (updatingResolutionFields || configurationModel.expertSettings.value != true) {
+                return
+            }
+
+            val width = binding.resolutionWidthEditText.text.toString().toUIntOrNull()
+            val height = binding.resolutionHeightEditText.text.toString().toUIntOrNull()
+            if (width != null && height != null && width > 0u && height > 0u) {
+                configurationModel.setResolution(Resolution(width, height))
+            }
+        }
+    }
+
+    private fun applyPresetResolution(mode: ResolutionMode) {
+        val launcherActivity = requireActivity()
+        if (launcherActivity is LauncherActivity) {
+            configurationModel.setResolution(launcherActivity.calculateResolutionForMode(mode))
+        }
+    }
+
+    private fun applyStandardSettings() {
+        val mode = configurationModel.resolutionMode.value ?: ResolutionMode.DEFAULT
+        applyPresetResolution(mode)
+        configurationModel.setScalingQuality(ScalingQuality.DEFAULT)
+        configurationModel.setMouseMode(MouseMode.DEFAULT)
+    }
+
+    private fun setExpertControlsEnabled(enabled: Boolean) {
+        binding.manualResolutionLabel.isEnabled = enabled
+        binding.resolutionWidthEditText.isEnabled = enabled
+        binding.resolutionHeightEditText.isEnabled = enabled
+        binding.scalingQualitySpinner.isEnabled = enabled
+        binding.mouseModeSpinner.isEnabled = enabled
+
+        val alpha = if (enabled) 1.0f else 0.42f
+        binding.manualResolutionLabel.alpha = alpha
+        binding.manualResolutionFields.alpha = alpha
+        binding.scalingQualityInfoTitle.alpha = alpha
+        binding.scalingQualityInfoText.alpha = alpha
+        binding.scalingQualitySpinner.alpha = alpha
+        binding.mouseModeInfoTitle.alpha = alpha
+        binding.mouseModeInfoText.alpha = alpha
+        binding.mouseModeSpinner.alpha = alpha
+    }
+
+    private fun showExpertSettingsWarning() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("! ${getString(R.string.expert_settings_warning_title)}")
+            .setMessage(getString(R.string.expert_settings_warning_message))
+            .setPositiveButton(R.string.expert_settings_confirm, null)
+            .show()
     }
 
     companion object {

@@ -11,7 +11,8 @@ namespace TacticalScaling {
 
 	constexpr int kDefaultPanelScalePercent  = 100;
 	constexpr int kMinPanelScalePercent      = 100;
-	constexpr int kMaxPanelScalePercent      = 130;
+	constexpr int kMaxPanelScalePercent      = 200;
+	constexpr int kMaxPanelHeightPercent     = 45;
 
 	void ApplyPendingTacticalScaling();
 	void SetPendingMapFovPercent(int percent);

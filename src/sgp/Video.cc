@@ -17,6 +17,7 @@
 #include "TacticalScaling.h"
 #include "JAScreens.h"
 #include "ScreenIDs.h"
+#include "TutorialSystem.h"
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
@@ -66,6 +67,7 @@ static VideoScaleQuality ScaleQuality = VideoScaleQuality::LINEAR;
 static std::chrono::steady_clock::duration TimeBetweenRefreshScreens;
 
 static void DeletePrimaryVideoSurfaces(void);
+static constexpr int STANDARD_PRESENTATION_WIDTH = 640;
 static constexpr int STANDARD_PRESENTATION_HEIGHT = 480;
 
 // returns if desktop resolution larger game resolution
@@ -358,16 +360,44 @@ void InvalidateScreen(void)
 
 bool VideoGetPresentationSourceRect(SDL_Rect& out)
 {
-	out = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+	SDL_Rect dest;
+	return VideoGetPresentationRects(out, dest);
+}
+
+bool VideoGetPresentationRects(SDL_Rect& source, SDL_Rect& dest)
+{
+	source = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+	dest = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	if (guiCurrentScreen == GAME_SCREEN) return false;
-	if (SCREEN_HEIGHT <= STANDARD_PRESENTATION_HEIGHT) return false;
-	if (STD_SCREEN_Y <= 0) return false;
+	if (SCREEN_WIDTH <= STANDARD_PRESENTATION_WIDTH &&
+	    SCREEN_HEIGHT <= STANDARD_PRESENTATION_HEIGHT) return false;
 
+	const int sourceRight = STD_SCREEN_X + STANDARD_PRESENTATION_WIDTH;
 	const int sourceBottom = STD_SCREEN_Y + STANDARD_PRESENTATION_HEIGHT;
-	if (sourceBottom > SCREEN_HEIGHT) return false;
+	if (sourceRight > SCREEN_WIDTH || sourceBottom > SCREEN_HEIGHT) return false;
 
-	out = { 0, STD_SCREEN_Y, SCREEN_WIDTH, STANDARD_PRESENTATION_HEIGHT };
+	source = {
+		static_cast<int>(STD_SCREEN_X),
+		static_cast<int>(STD_SCREEN_Y),
+		STANDARD_PRESENTATION_WIDTH,
+		STANDARD_PRESENTATION_HEIGHT
+	};
+
+	int destW = static_cast<int>(SCREEN_WIDTH);
+	int destH = destW * STANDARD_PRESENTATION_HEIGHT / STANDARD_PRESENTATION_WIDTH;
+	if (destH > static_cast<int>(SCREEN_HEIGHT))
+	{
+		destH = static_cast<int>(SCREEN_HEIGHT);
+		destW = destH * STANDARD_PRESENTATION_WIDTH / STANDARD_PRESENTATION_HEIGHT;
+	}
+
+	dest = {
+		(static_cast<int>(SCREEN_WIDTH) - destW) / 2,
+		(static_cast<int>(SCREEN_HEIGHT) - destH) / 2,
+		destW,
+		destH
+	};
 	return true;
 }
 
@@ -560,7 +590,7 @@ void RefreshScreen(void)
 	}
 
 	// Phase 3: Panel presentation scaling
-	if (guiCurrentScreen == GAME_SCREEN)
+	if (guiCurrentScreen == GAME_SCREEN && !gTutorial.fVisible)
 	{
 		int panelScale = TacticalScaling::GetActionPanelScalePercent();
 		if (panelScale != 100)
@@ -601,17 +631,31 @@ void RefreshScreen(void)
 	SDL_RenderClear(GameRenderer);
 
 	SDL_Rect presentationSource;
-	SDL_Rect* presentationSourcePtr = VideoGetPresentationSourceRect(presentationSource) ? &presentationSource : nullptr;
+	SDL_Rect presentationDest;
+	const bool usePresentationRects = VideoGetPresentationRects(presentationSource, presentationDest);
+	SDL_Rect* presentationSourcePtr = usePresentationRects ? &presentationSource : nullptr;
+	SDL_Rect* presentationDestPtr = usePresentationRects ? &presentationDest : nullptr;
 
 	if (ScaleQuality == VideoScaleQuality::NEAR_PERFECT) {
 		SDL_SetRenderTarget(GameRenderer, ScaledScreenTexture);
-		SDL_RenderCopy(GameRenderer, ScreenTexture, presentationSourcePtr, nullptr);
+		SDL_SetRenderDrawColor(GameRenderer, 0, 0, 0, 255);
+		SDL_RenderClear(GameRenderer);
+		SDL_Rect scaledPresentationDest = presentationDest;
+		if (usePresentationRects)
+		{
+			scaledPresentationDest.x *= OVERSAMPLING_SCALE;
+			scaledPresentationDest.y *= OVERSAMPLING_SCALE;
+			scaledPresentationDest.w *= OVERSAMPLING_SCALE;
+			scaledPresentationDest.h *= OVERSAMPLING_SCALE;
+		}
+		SDL_RenderCopy(GameRenderer, ScreenTexture, presentationSourcePtr,
+			usePresentationRects ? &scaledPresentationDest : nullptr);
 
 		SDL_SetRenderTarget(GameRenderer, nullptr);
 		SDL_RenderCopy(GameRenderer, ScaledScreenTexture, nullptr, nullptr);
 	}
 	else {
-		SDL_RenderCopy(GameRenderer, ScreenTexture, presentationSourcePtr, NULL);
+		SDL_RenderCopy(GameRenderer, ScreenTexture, presentationSourcePtr, presentationDestPtr);
 	}
 
 	FPS::RenderPresentPtr(GameRenderer);

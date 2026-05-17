@@ -19,6 +19,8 @@ The Android port currently supports:
 - Release APK builds for all configured Android ABIs
 - Android 7.0+ devices, including Android 16
 - Android launcher for game data path, save path, resolution, scaling, language, and mouse mode
+- Safe launcher resolution presets for Modern, High Res (More Map), and Retro 640x480 play
+- Expert Settings for manual resolution, scaling, and legacy control choices
 - Fixed-path game data loading
 - Android 11+ all-files access support
 - Android 7-10 legacy storage permission fallback
@@ -33,7 +35,9 @@ The Android port currently supports:
 - Team-panel portrait touch selection and long-press multi-select
 - Sector-exit overlay actions
 - Optional in-game tutorial overlay
+- One-time main menu touch-control hint panel
 - Optional cheat system with launcher and in-game overlay controls
+- Native crash log export next to emergency savegames when a recoverable crash report can be written
 
 ## Repository Layout
 
@@ -66,6 +70,16 @@ In Modern Controls mode:
 
 The touch overlay is available in the tactical game screen and can be unlocked in-game to edit button layout and actions.
 
+## Resolution Modes
+
+The Android launcher defaults to safe resolution presets:
+
+- `Modern`: recommended default with readable UI and aspect-correct scaling.
+- `High Res (More Map)`: shows more tactical map area with a smaller UI.
+- `Retro`: fixed classic `640x480` presentation.
+
+Manual resolution, scaling, and legacy control choices are available through `Expert Settings`.
+
 ## Configuration Files
 
 Runtime configuration is stored under the app's `.ja2` directory.
@@ -77,6 +91,8 @@ ja2.json              Launcher/game configuration
 touch_buttons.json    Touch overlay layout and settings
 cheats.json           Optional cheat configuration
 tutorial.set          Tutorial visibility preference
+mainmenu_tutorial.set Main menu hint visibility preference
+crashlog-latest.txt   Latest native crash report, when available
 ```
 
 ## Documentation

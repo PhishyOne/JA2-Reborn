@@ -5,12 +5,20 @@
 
 #define TUTORIAL_MAX_PANELS 3
 
+enum class TutorialMode {
+	Tactical,
+	MainMenu
+};
+
 struct TUTORIAL_STATE {
 	bool fVisible;
 	int  sCurrentPanel;      // 0, 1, 2
 	bool fDontShowAgain;     // persisted state
+	bool fMainMenuDontShowAgain;
 	bool fCheckboxChecked;   // current toggle in UI
 	bool fAutoShownThisSession;
+	bool fMainMenuAutoShownThisSession;
+	TutorialMode mode;
 	SGPVSurface* pSaveBuffer; // background save for overlay
 };
 
@@ -24,10 +32,12 @@ struct TUTORIAL_PANEL {
 extern TUTORIAL_PANEL gTutorialPanels[3];
 
 void EnterTutorial();
+void EnterMainMenuTutorial();
 void ExitTutorial();
 void RenderTutorial();
 void LoadTutorialSettings();
 void SaveTutorialSettings();
+bool ShouldShowMainMenuTutorial();
 void TutorialNextPanel();
 void TutorialPrevPanel();
 void SetTutorialLanguageGerman(bool german);

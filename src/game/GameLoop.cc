@@ -27,6 +27,7 @@
 #include "GameMode.h"
 #include "FPS.h"
 #include "Logger.h"
+#include "SGPFile.h"
 
 #include <string_theory/format>
 #include <string_theory/string>
@@ -38,6 +39,52 @@ ScreenID guiCurrentScreen = ERROR_SCREEN; // XXX TODO001A had no explicit initia
 ScreenID guiPendingScreen = NO_PENDING_SCREEN;
 
 static BOOLEAN gfCheckForFreeSpaceOnHardDrive = FALSE;
+
+static ST::string WriteCrashLog(std::exception const& e, char const* artifactType, ST::string const& artifactStatus, char const* attachNote)
+{
+	static ST::string const filename = "crashlog-latest.txt";
+
+	try
+	{
+		ST::string const text = ST::format(
+			"JA2 Reborn crash log\n"
+			"Version Label: {}\n"
+			"Version Number: {}\n"
+			"Current Screen: {}\n"
+			"Pending Screen: {}\n"
+			"Previous Option Screen: {}\n"
+			"\n"
+			"Exception:\n"
+			"{}\n"
+			"\n"
+			"Emergency artifact:\n"
+			"{} {}\n"
+			"{}\n",
+			g_version_label,
+			g_version_number,
+			static_cast<int>(guiCurrentScreen),
+			static_cast<int>(guiPendingScreen),
+			static_cast<int>(guiPreviousOptionScreen),
+			e.what(),
+			artifactType,
+			artifactStatus,
+			attachNote);
+
+		AutoSGPFile f(GCM->saveGameFiles()->openForWriting(filename, true));
+		f->write(text.c_str(), text.size());
+		return filename;
+	}
+	catch (std::exception const& logException)
+	{
+		SLOGE("Failed to write crashlog: {}", logException.what());
+	}
+	catch (...)
+	{
+		SLOGE("Failed to write crashlog: unknown exception");
+	}
+
+	return "";
+}
 
 // The InitializeGame function is responsible for setting up all data and Gaming Engine
 // tasks which will run the game
@@ -229,29 +276,48 @@ catch (std::exception const& e)
 
 	if (guiCurrentScreen != MAINMENU_SCREEN)
 	{
-		if (gfEditMode && GameMode::getInstance()->isEditorMode())
+		try
 		{
-			what = "map";
-			if (SaveWorldAbsolute("error.dat"))
+			if (gfEditMode && GameMode::getInstance()->isEditorMode())
 			{
-				success = "succeeded (error.dat)";
-				attach = " Do not forget to attach the map.";
+				what = "map";
+				if (SaveWorldAbsolute("error.dat"))
+				{
+					success = "succeeded (error.dat)";
+					attach = " Do not forget to attach the map.";
+				}
+			}
+			else
+			{
+				what = "savegame";
+				auto saveName = GetErrorSaveName();
+				if (SaveGame(saveName, "error savegame"))
+				{
+					success = ST::format("succeeded ({}.sav)", saveName);
+					attach = " Do not forget to attach the savegame.";
+				}
 			}
 		}
-		else
+		catch (std::exception const& saveException)
 		{
-			what = "savegame";
-			auto saveName = GetErrorSaveName();
-			if (SaveGame(saveName, "error savegame"))
-			{
-				success = ST::format("succeeded ({}.sav)", saveName);
-				attach = " Do not forget to attach the savegame.";
-			}
+			success = ST::format("failed ({})", saveException.what());
+		}
+		catch (...)
+		{
+			success = "failed (unknown exception)";
 		}
 	}
+
+	ST::string crashLogStatus = "Crash log could not be written.";
+	ST::string const crashLogName = WriteCrashLog(e, what, success, attach);
+	if (!crashLogName.empty())
+	{
+		crashLogStatus = ST::format("Crash log written to {}.", crashLogName);
+	}
+
 	ST::string msg = ST::format(
-		"{}\nCreating an emergency {} {}.\nPlease report this error with a description of the circumstances. {}",
-		e.what(), what, success, attach
+		"{}\nCreating an emergency {} {}.\n{}\nPlease report this error with a description of the circumstances. {}",
+		e.what(), what, success, crashLogStatus, attach
 	);
 	throw std::runtime_error(msg.c_str());
 }

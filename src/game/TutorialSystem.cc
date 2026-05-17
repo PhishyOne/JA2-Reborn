@@ -42,7 +42,7 @@
 #define TUTORIAL_CLR_DOT_ACTIVE    Get16BPPColor(FROMRGB(200, 200, 210))
 #define TUTORIAL_CLR_DOT_INACTIVE  Get16BPPColor(FROMRGB(60, 60, 70))
 
-TUTORIAL_STATE gTutorial = { false, 0, false, false, false, nullptr };
+TUTORIAL_STATE gTutorial = { false, 0, false, false, false, false, false, TutorialMode::Tactical, nullptr };
 
 static const TUTORIAL_PANEL gTutorialPanelsDE[3] = {
 	{
@@ -96,6 +96,20 @@ static const TUTORIAL_PANEL gTutorialPanelsEN[3] = {
 	}
 };
 
+static const TUTORIAL_PANEL gMainMenuTutorialPanelDE = {
+	"Menüsteuerung",
+	"Tippe Schaltflächen, die du gut mit dem Finger bedienen kannst, direkt an.\n\n"
+	"Bewege deinen Finger am Rand des Bildschirms, um stattdessen den Mauszeiger zu steuern, und tippe, wo dein Finger stoppt, um einen Klick auszulösen.\n\n"
+	"Damit kannst du kleinere Schaltflächen präzise erreichen."
+};
+
+static const TUTORIAL_PANEL gMainMenuTutorialPanelEN = {
+	"Menu Controls",
+	"Tap buttons directly when they are easy to reach with your finger.\n\n"
+	"Move your finger along the edge of the screen to control the mouse cursor instead, then tap where your finger stops to trigger a click.\n\n"
+	"This lets you reach smaller buttons precisely."
+};
+
 TUTORIAL_PANEL gTutorialPanels[3];
 static bool sTutorialPanelsInitialized = false;
 static bool sTutorialLanguageGerman = false;
@@ -144,40 +158,72 @@ static ST::string GetTutorialSettingsPath()
 	return FileMan::joinPaths(ST::string(home.get()), "tutorial.set");
 }
 
+static ST::string GetMainMenuTutorialSettingsPath()
+{
+	RustPointer<char> home(EngineOptions_getStracciatellaHome());
+	return FileMan::joinPaths(ST::string(home.get()), "mainmenu_tutorial.set");
+}
+
 void LoadTutorialSettings()
 {
 	InitTutorialPanels();
 
 	ST::string path = GetTutorialSettingsPath();
-	if (!FileMan::isFile(path)) return;
-
-	try
+	if (FileMan::isFile(path))
 	{
-		AutoSGPFile f(FileMan::openForReading(path));
-		UINT8 val;
-		f->read(&val, sizeof(val));
-		gTutorial.fDontShowAgain = (val != 0);
+		try
+		{
+			AutoSGPFile f(FileMan::openForReading(path));
+			UINT8 val;
+			f->read(&val, sizeof(val));
+			gTutorial.fDontShowAgain = (val != 0);
+		}
+		catch (...)
+		{
+			SLOGW("Failed to read tutorial.set, using defaults");
+		}
 	}
-	catch (...)
+
+	ST::string mainMenuPath = GetMainMenuTutorialSettingsPath();
+	if (FileMan::isFile(mainMenuPath))
 	{
-		SLOGW("Failed to read tutorial.set, using defaults");
+		try
+		{
+			AutoSGPFile f(FileMan::openForReading(mainMenuPath));
+			UINT8 val;
+			f->read(&val, sizeof(val));
+			gTutorial.fMainMenuDontShowAgain = (val != 0);
+		}
+		catch (...)
+		{
+			SLOGW("Failed to read mainmenu_tutorial.set, using defaults");
+		}
 	}
 }
 
 void SaveTutorialSettings()
 {
-	ST::string path = GetTutorialSettingsPath();
+	ST::string path = gTutorial.mode == TutorialMode::MainMenu
+		? GetMainMenuTutorialSettingsPath()
+		: GetTutorialSettingsPath();
 
 	try
 	{
 		AutoSGPFile f(FileMan::openForWriting(path));
-		UINT8 val = gTutorial.fDontShowAgain ? 1 : 0;
+		UINT8 val = gTutorial.mode == TutorialMode::MainMenu
+			? (gTutorial.fMainMenuDontShowAgain ? 1 : 0)
+			: (gTutorial.fDontShowAgain ? 1 : 0);
 		f->write(&val, sizeof(val));
 	}
 	catch (...)
 	{
-		SLOGE("Failed to write tutorial.set");
+		SLOGE("Failed to write tutorial settings");
 	}
+}
+
+bool ShouldShowMainMenuTutorial()
+{
+	return !gTutorial.fMainMenuDontShowAgain && !gTutorial.fMainMenuAutoShownThisSession && !gTutorial.fVisible;
 }
 
 static std::vector<ST::string> TutorialBodyParagraphs(const char* body)
@@ -239,14 +285,23 @@ static bool PointInRect(int x, int y, int left, int top, int width, int height)
 
 static void RecalcCardLayout()
 {
-	gCardW = (SCREEN_WIDTH * TUTORIAL_CARD_WIDTH_PCT) / 100;
+	const int layoutX = gTutorial.mode == TutorialMode::MainMenu ? STD_SCREEN_X : 0;
+	const int layoutY = gTutorial.mode == TutorialMode::MainMenu ? STD_SCREEN_Y : 0;
+	const int layoutW = gTutorial.mode == TutorialMode::MainMenu ? 640 : SCREEN_WIDTH;
+	const int layoutH = gTutorial.mode == TutorialMode::MainMenu ? 480 : SCREEN_HEIGHT;
+
+	gCardW = (layoutW * TUTORIAL_CARD_WIDTH_PCT) / 100;
 	if (gCardW < 300) gCardW = 300;
-	if (gCardW > SCREEN_WIDTH - 20) gCardW = SCREEN_WIDTH - 20;
+	if (gCardW > layoutW - 20) gCardW = layoutW - 20;
 
 	UINT16 maxBodyH = 0;
-	for (int i = 0; i < 3; i++)
+	const int panelCount = gTutorial.mode == TutorialMode::MainMenu ? 1 : 3;
+	for (int i = 0; i < panelCount; i++)
 	{
-		UINT16 h = TutorialBodyHeight(gTutorialPanels[i].body, gCardW - 2 * TUTORIAL_CARD_PADDING);
+		const TUTORIAL_PANEL& panel = gTutorial.mode == TutorialMode::MainMenu
+			? (IsTutorialGerman() ? gMainMenuTutorialPanelDE : gMainMenuTutorialPanelEN)
+			: gTutorialPanels[i];
+		UINT16 h = TutorialBodyHeight(panel.body, gCardW - 2 * TUTORIAL_CARD_PADDING);
 		if (h > maxBodyH) maxBodyH = h;
 	}
 	UINT16 titleH = GetFontHeight(FONT14ARIAL) + TUTORIAL_LINE_GAP;
@@ -254,13 +309,13 @@ static void RecalcCardLayout()
 	gCardH = TUTORIAL_CARD_PADDING_TOP
 		+ titleH + TUTORIAL_CARD_PADDING
 		+ maxBodyH + TUTORIAL_CARD_PADDING
-		+ TUTORIAL_DOT_SIZE + TUTORIAL_CARD_PADDING
+		+ (gTutorial.mode == TutorialMode::MainMenu ? 0 : TUTORIAL_DOT_SIZE + TUTORIAL_CARD_PADDING)
 		+ TUTORIAL_CONFIRM_H + TUTORIAL_CARD_PADDING;
 
-	if (gCardH > SCREEN_HEIGHT - 20) gCardH = SCREEN_HEIGHT - 20;
+	if (gCardH > layoutH - 20) gCardH = layoutH - 20;
 
-	gCardX = (SCREEN_WIDTH - gCardW) / 2;
-	gCardY = (SCREEN_HEIGHT - gCardH) / 2;
+	gCardX = layoutX + (layoutW - gCardW) / 2;
+	gCardY = layoutY + (layoutH - gCardH) / 2;
 	gCardInnerX = gCardX + TUTORIAL_CARD_PADDING;
 	gCardInnerW = gCardW - 2 * TUTORIAL_CARD_PADDING;
 
@@ -342,8 +397,33 @@ void EnterTutorial()
 	if (gTutorial.fVisible) return;
 
 	gTutorial.fVisible = true;
+	gTutorial.mode = TutorialMode::Tactical;
 	gTutorial.sCurrentPanel = 0;
 	gTutorial.fCheckboxChecked = gTutorial.fDontShowAgain;
+	gTutorialPointerDown = false;
+	gTutorialSwipeHandled = false;
+
+	RecalcCardLayout();
+
+	gTutorial.pSaveBuffer = AddVideoSurface(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH);
+	BlitBufferToBuffer(FRAME_BUFFER, gTutorial.pSaveBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	MSYS_DefineRegion(&gTutorialInputRegion, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+		MSYS_PRIORITY_HIGHEST, VIDEO_NO_CURSOR, TutorialMoveCallback, TutorialButtonCallback);
+
+	gTutorialUIInitialized = true;
+}
+
+void EnterMainMenuTutorial()
+{
+	InitTutorialPanels();
+	if (gTutorial.fVisible) return;
+
+	gTutorial.fVisible = true;
+	gTutorial.fMainMenuAutoShownThisSession = true;
+	gTutorial.mode = TutorialMode::MainMenu;
+	gTutorial.sCurrentPanel = 0;
+	gTutorial.fCheckboxChecked = gTutorial.fMainMenuDontShowAgain;
 	gTutorialPointerDown = false;
 	gTutorialSwipeHandled = false;
 
@@ -377,7 +457,14 @@ void ExitTutorial()
 
 	if (gTutorial.fCheckboxChecked)
 	{
-		gTutorial.fDontShowAgain = true;
+		if (gTutorial.mode == TutorialMode::MainMenu)
+		{
+			gTutorial.fMainMenuDontShowAgain = true;
+		}
+		else
+		{
+			gTutorial.fDontShowAgain = true;
+		}
 		SaveTutorialSettings();
 	}
 }
@@ -443,7 +530,9 @@ void RenderTutorial()
 		gCardX + gCardW, gCardY + gCardH,
 		TUTORIAL_CLR_CARD_BG);
 
-	const TUTORIAL_PANEL& panel = gTutorialPanels[gTutorial.sCurrentPanel];
+	const TUTORIAL_PANEL& panel = gTutorial.mode == TutorialMode::MainMenu
+		? (IsTutorialGerman() ? gMainMenuTutorialPanelDE : gMainMenuTutorialPanelEN)
+		: gTutorialPanels[gTutorial.sCurrentPanel];
 	const int titleY = gCardY + TUTORIAL_CARD_PADDING_TOP;
 	DrawTextToScreen(panel.title, gCardX, titleY, gCardW,
 		FONT14ARIAL, FONT_FCOLOR_WHITE, FONT_MCOLOR_BLACK,
@@ -455,16 +544,19 @@ void RenderTutorial()
 	DisplayTutorialBody(gCardInnerX, bodyY, gCardInnerW, panel.body);
 	SetFontShadow(DEFAULT_SHADOW);
 
-	const int dotY = gCardY + gCardH - TUTORIAL_CARD_PADDING - TUTORIAL_CONFIRM_H - TUTORIAL_CARD_PADDING - TUTORIAL_DOT_SIZE;
-	const int totalDotsW = 3 * TUTORIAL_DOT_SIZE + 2 * TUTORIAL_DOT_SPACING;
-	const int dotStartX = gCardX + (gCardW - totalDotsW) / 2;
-	for (int i = 0; i < 3; i++)
+	if (gTutorial.mode != TutorialMode::MainMenu)
 	{
-		UINT16 clr = (i == gTutorial.sCurrentPanel) ? TUTORIAL_CLR_DOT_ACTIVE : TUTORIAL_CLR_DOT_INACTIVE;
-		int dx = dotStartX + i * (TUTORIAL_DOT_SIZE + TUTORIAL_DOT_SPACING);
-		ColorFillVideoSurfaceArea(FRAME_BUFFER,
-			dx, dotY, dx + TUTORIAL_DOT_SIZE, dotY + TUTORIAL_DOT_SIZE,
-			clr);
+		const int dotY = gCardY + gCardH - TUTORIAL_CARD_PADDING - TUTORIAL_CONFIRM_H - TUTORIAL_CARD_PADDING - TUTORIAL_DOT_SIZE;
+		const int totalDotsW = 3 * TUTORIAL_DOT_SIZE + 2 * TUTORIAL_DOT_SPACING;
+		const int dotStartX = gCardX + (gCardW - totalDotsW) / 2;
+		for (int i = 0; i < 3; i++)
+		{
+			UINT16 clr = (i == gTutorial.sCurrentPanel) ? TUTORIAL_CLR_DOT_ACTIVE : TUTORIAL_CLR_DOT_INACTIVE;
+			int dx = dotStartX + i * (TUTORIAL_DOT_SIZE + TUTORIAL_DOT_SPACING);
+			ColorFillVideoSurfaceArea(FRAME_BUFFER,
+				dx, dotY, dx + TUTORIAL_DOT_SIZE, dotY + TUTORIAL_DOT_SIZE,
+				clr);
+		}
 	}
 
 	DrawTutorialCheckbox();
@@ -474,6 +566,7 @@ void RenderTutorial()
 
 void TutorialNextPanel()
 {
+	if (gTutorial.mode == TutorialMode::MainMenu) return;
 	if (gTutorial.sCurrentPanel < 2)
 	{
 		gTutorial.sCurrentPanel++;
@@ -482,6 +575,7 @@ void TutorialNextPanel()
 
 void TutorialPrevPanel()
 {
+	if (gTutorial.mode == TutorialMode::MainMenu) return;
 	if (gTutorial.sCurrentPanel > 0)
 	{
 		gTutorial.sCurrentPanel--;

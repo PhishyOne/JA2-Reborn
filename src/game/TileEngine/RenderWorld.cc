@@ -147,6 +147,7 @@ INT16 gsBottomRightWorldY;                              /**< Bottom right corner
 BOOLEAN gfIgnoreScrolling = FALSE;
 
 BOOLEAN gfIgnoreScrollDueToCenterAdjust = FALSE;
+static bool gMouseScrollingDisabled = false;
 
 // Map coordiante system
 // ---------------------
@@ -2010,7 +2011,7 @@ void ScrollWorld(void)
 				if (!COUNTERDONE(STARTSCROLL)) break;
 			}
 
-			if (!gfIsUsingTouch && !fIsScrollingByOffset) {
+			if (!gfIsUsingTouch && !fIsScrollingByOffset && !IsMouseScrollingDisabled()) {
 				if (gusMouseYPos <  NO_PX_SHOW_EXIT_CURS)                 ScrollFlags |= SCROLL_UP;
 				if (gusMouseYPos >= SCREEN_HEIGHT - NO_PX_SHOW_EXIT_CURS) ScrollFlags |= SCROLL_DOWN;
 				if (gusMouseXPos >= SCREEN_WIDTH  - NO_PX_SHOW_EXIT_CURS) ScrollFlags |= SCROLL_RIGHT;
@@ -2108,6 +2109,16 @@ void ScrollWorld(void)
 		g_scroll_inertia = false;
 		gfScrollPending  = FALSE;
 	}
+}
+
+void SetMouseScrollingDisabled(bool disabled)
+{
+	gMouseScrollingDisabled = disabled;
+}
+
+bool IsMouseScrollingDisabled(void)
+{
+	return gMouseScrollingDisabled;
 }
 
 

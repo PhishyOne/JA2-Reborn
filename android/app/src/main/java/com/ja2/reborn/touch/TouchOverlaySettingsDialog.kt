@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import com.ja2.reborn.Ja2GuiStyle
 import com.ja2.reborn.R
+import com.ja2.reborn.ResolutionMode
 import org.libsdl.app.SDLActivity
 import org.libsdl.app.SDLSurface
 
@@ -28,17 +29,24 @@ class TouchOverlaySettingsDialog(
     private val onImportPreset: () -> Unit = {},
     private val autoHideEnabled: Boolean = true,
     private val onAutoHideToggled: (Boolean) -> Unit = {},
+    private val disableMouseScrolling: Boolean = false,
+    private val onDisableMouseScrollingToggled: (Boolean) -> Unit = {},
     private val onScrollSpeedChanged: (Int) -> Unit = {},
     private val onMouseSpeedChanged: (Float) -> Unit = {},
     private val mapFovPercent: Int = 100,
     private val onMapFovChanged: (Int) -> Unit = {},
     private val panelScalePercent: Int = 100,
-    private val onPanelScaleChanged: (Int) -> Unit = {}
+    private val onPanelScaleChanged: (Int) -> Unit = {},
+    private val resolutionMode: ResolutionMode = ResolutionMode.DEFAULT
 ) {
     // Inverted: left=slow (80ms), right=fast (5ms)
     private val scrollSpeedValues = intArrayOf(80, 60, 45, 35, 27, 20, 15, 10, 5)
     private val mouseSpeedValues = floatArrayOf(0.50f, 0.65f, 0.80f, 1.00f, 1.20f, 1.45f, 1.75f, 2.10f, 2.50f)
-    private val panelScaleValues = intArrayOf(100, 110, 120, 130)
+    private val panelScaleValues: IntArray
+        get() = when (resolutionMode) {
+            ResolutionMode.HIGH_RES -> intArrayOf(100, 120, 140, 160, 180)
+            else -> intArrayOf(100, 110, 120, 130)
+        }
 
     fun show() {
         val scrollView = ScrollView(context).apply {
@@ -103,20 +111,25 @@ class TouchOverlaySettingsDialog(
         layout.addView(title(R.string.touch_settings_title))
         layout.addView(section(R.string.touch_section_scroll_speed))
         layout.addView(sliderWithLabels(scrollSeekBar))
+        layout.addView(disableMouseScrollingSwitch())
         layout.addView(section(R.string.touch_section_mouse_speed))
         layout.addView(sliderWithLabels(mouseSeekBar))
 
-        val panelScaleIndex = findClosestIndex(panelScaleValues, panelScalePercent)
+        val activePanelScaleValues = panelScaleValues
+        val effectivePanelScalePercent = if (resolutionMode == ResolutionMode.RETRO) 100 else panelScalePercent
+        val panelScaleIndex = findClosestIndex(activePanelScaleValues, effectivePanelScalePercent)
+        val isRetroPanelLocked = resolutionMode == ResolutionMode.RETRO
         val panelSeekBar = SeekBar(context).apply {
-            max = panelScaleValues.size - 1
+            max = activePanelScaleValues.size - 1
             progress = panelScaleIndex
             thumbTintList = ColorStateList.valueOf(ACCENT)
             progressTintList = ColorStateList.valueOf(ACCENT)
             progressBackgroundTintList = ColorStateList.valueOf(0x667D8DA0)
+            isEnabled = !isRetroPanelLocked
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
-                        val v = panelScaleValues[progress.coerceIn(0, panelScaleValues.size - 1)]
+                        val v = activePanelScaleValues[progress.coerceIn(0, activePanelScaleValues.size - 1)]
                         SDLActivity.setTacticalActionPanelScalePercent(v)
                         onPanelScaleChanged(v)
                     }
@@ -129,6 +142,14 @@ class TouchOverlaySettingsDialog(
         layout.addView(section(R.string.touch_section_panel_scale))
         layout.addView(sliderWithDirectionalLabels(panelSeekBar,
             R.string.touch_panel_scale_normal, R.string.touch_panel_scale_larger))
+        if (isRetroPanelLocked) {
+            layout.addView(TextView(context).apply {
+                setText(R.string.touch_panel_scale_retro_locked)
+                textSize = 10f
+                setTextColor(0x667D8DA0.toInt())
+                setPadding(0, 0, 0, 4.dp())
+            })
+        }
 
         layout.addView(section(R.string.touch_section_auto_hide))
         layout.addView(autoHideSwitch())
@@ -346,6 +367,25 @@ class TouchOverlaySettingsDialog(
                 isChecked = autoHideEnabled
                 setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
                     onAutoHideToggled(checked)
+                }
+            })
+        }
+
+    private fun disableMouseScrollingSwitch(): LinearLayout =
+        LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, 2.dp(), 0, 4.dp())
+            addView(TextView(context).apply {
+                setText(R.string.touch_disable_mouse_scrolling_label)
+                textSize = 12f
+                setTextColor(0xFFB5C0CC.toInt())
+                setPadding(0, 0, 10.dp(), 0)
+            }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(Switch(context).apply {
+                isChecked = disableMouseScrolling
+                setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
+                    onDisableMouseScrollingToggled(checked)
                 }
             })
         }

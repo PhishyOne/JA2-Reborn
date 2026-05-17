@@ -14,6 +14,47 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added public release documentation, release notes, third-party notices, and a repository sanity workflow.
 - Clarified that clean release builds produce `app-release-unsigned.apk` unless signing is configured locally.
 
+## 2026-05-17
+
+### Added
+
+- Added safe launcher resolution presets: Modern, High Res (More Map), and Retro (640x480).
+- Added `resolution_mode` configuration with stable lowercase serialization and migration from older `res`-only configs.
+- Added Expert Settings for manual resolution, scaling, and control mode selection.
+- Added Android unit tests for resolution policy and resolution mode serialization.
+- Added native crash log writing to `crashlog-latest.txt` alongside emergency savegame creation.
+- Added a one-time main menu touch-control tutorial panel with persistent "do not show again" state.
+- Added a touch-overlay setting to disable mouse-edge map scrolling while keeping keyboard and drag scrolling available.
+
+### Changed
+
+- Renamed the high-resolution preset to High Res (More Map) / High Res (Mehr Karte).
+- Standard launcher mode now keeps users on safe resolution presets and applies Near Perfect scaling with Modern Controls.
+- Modern and High Res modes calculate aspect-correct internal resolutions from the device's landscape display size.
+- Ultrawide phones are treated as phones, not tablets, even when their pixel height is high.
+- Non-game screens, menus, videos, map screen, and splash screens are presented in a centered 4:3 area in Modern and High Res modes.
+- High Res touch overlay defaults now allow larger action panel scales, up to 180% on phones.
+- Existing generated touch layouts are migrated to mode-aware defaults when they still match bundled defaults.
+
+### Fixed
+
+- Fixed stretched or horizontally squeezed menu, splash, video, and map-screen presentation in wide internal resolutions.
+- Fixed the first splash screen being stretched across the widescreen render surface.
+- Fixed stale game pixels appearing in side bars during near-perfect oversampling presentation.
+- Fixed Android touch-overlay buttons blocking the native tutorial.
+- Fixed native action-panel presentation scaling drawing over the tutorial.
+- Fixed Retro 640x480 bottom-panel and merc-portrait touch mapping by remapping touches to the visible 4:3 game area.
+- Fixed crash-report formatting on Android by avoiding a recursive `std::string_view` formatter path in the C++17 compatibility patch.
+
+### Verified
+
+- Built and checked `:app:compileDebugKotlin`.
+- Built and checked `:app:compileDebugJavaWithJavac`.
+- Built and checked `:app:externalNativeBuildDebug`.
+- Ran `:app:testDebugUnitTest`.
+- Built the release APK with `:app:assembleRelease`.
+- Installed the signed 1.0.3 APK successfully on Android hardware during local verification.
+
 ## 2026-05-14
 
 ### Added

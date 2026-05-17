@@ -2,6 +2,7 @@ package com.ja2.reborn.touch
 
 import android.content.Context
 import android.util.Log
+import com.ja2.reborn.ResolutionMode
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -13,7 +14,8 @@ import java.util.Locale
 
 class TouchButtonStore(
     private val filesDir: File,
-    private val context: Context
+    private val context: Context,
+    private val resolutionMode: ResolutionMode = ResolutionMode.DEFAULT
 ) {
 
     private val jsonFormat = Json {
@@ -46,9 +48,15 @@ class TouchButtonStore(
                     layoutLocked = true
                 )
                 if (isBundledDefaultLayout(config) || isLegacyGeneratedDefaultLayout(config)) {
-                    normalized = TouchOverlayAdaptiveDefaults.apply(context, normalized)
+                    normalized = TouchOverlayAdaptiveDefaults.apply(context, normalized, resolutionMode)
                 }
                 save(normalized)
+                normalized
+            } else if (isBundledDefaultLayout(config) || isLegacyGeneratedDefaultLayout(config)) {
+                val normalized = TouchOverlayAdaptiveDefaults.apply(context, config, resolutionMode)
+                if (normalized != config) {
+                    save(normalized)
+                }
                 normalized
             } else {
                 config
@@ -70,7 +78,7 @@ class TouchButtonStore(
     }
 
     fun loadDefaultFromRaw(): TouchOverlayConfig {
-        return TouchOverlayAdaptiveDefaults.apply(context, loadBundledDefaultFromRaw())
+        return TouchOverlayAdaptiveDefaults.apply(context, loadBundledDefaultFromRaw(), resolutionMode)
     }
 
     private fun loadBundledDefaultFromRaw(): TouchOverlayConfig {
