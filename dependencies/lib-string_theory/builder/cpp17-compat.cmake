@@ -29,6 +29,6 @@ replace_once("${FORMATTER}"
     inline void format_type(const ST::format_spec &format, ST::format_writer &output,
                             std::string_view value)
     {
-        format_type(format, output, std::string{value}.c_str());
+        ST::format_string(format, output, value.data(), value.size());
     }
 ]=])

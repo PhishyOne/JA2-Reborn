@@ -120,6 +120,15 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     private boolean mTeamPanelPortraitLongPressed;
     private float mTeamPanelPortraitDownXNorm;
     private float mTeamPanelPortraitDownYNorm;
+    private static final class LogicalPoint {
+        final float xNorm;
+        final float yNorm;
+
+        LogicalPoint(float xNorm, float yNorm) {
+            this.xNorm = xNorm;
+            this.yNorm = yNorm;
+        }
+    }
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Runnable mTeamPanelPortraitLongPressRunnable = new Runnable() {
         @Override
@@ -523,17 +532,55 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             return false;
         }
 
-        float xNorm = event.getX(0) / mWidth;
-        float yNorm = event.getY(0) / mHeight;
-        if (SDLActivity.isTeamPanelMercPortraitAt(xNorm, yNorm)) {
+        LogicalPoint logicalPoint = toLogicalGamePoint(event.getX(0), event.getY(0));
+        if (logicalPoint == null) {
+            return false;
+        }
+        if (SDLActivity.isTeamPanelMercPortraitAt(logicalPoint.xNorm, logicalPoint.yNorm)) {
             mTeamPanelPortraitPointerId = event.getPointerId(0);
             mTeamPanelPortraitLongPressed = false;
-            mTeamPanelPortraitDownXNorm = xNorm;
-            mTeamPanelPortraitDownYNorm = yNorm;
+            mTeamPanelPortraitDownXNorm = logicalPoint.xNorm;
+            mTeamPanelPortraitDownYNorm = logicalPoint.yNorm;
             mHandler.postDelayed(mTeamPanelPortraitLongPressRunnable, PORTRAIT_LONG_PRESS_MS);
             return true;
         }
         return false;
+    }
+
+    private LogicalPoint toLogicalGamePoint(float surfaceX, float surfaceY) {
+        if (mWidth <= 0.0f || mHeight <= 0.0f) {
+            return null;
+        }
+
+        int logicalWidth;
+        int logicalHeight;
+        try {
+            logicalWidth = SDLActivity.getJa2ScreenWidth();
+            logicalHeight = SDLActivity.getJa2ScreenHeight();
+        } catch (Throwable ignored) {
+            logicalWidth = 0;
+            logicalHeight = 0;
+        }
+
+        if (logicalWidth <= 0 || logicalHeight <= 0) {
+            return new LogicalPoint(surfaceX / mWidth, surfaceY / mHeight);
+        }
+
+        float scale = Math.min(mWidth / (float) logicalWidth, mHeight / (float) logicalHeight);
+        float viewportWidth = logicalWidth * scale;
+        float viewportHeight = logicalHeight * scale;
+        float viewportX = (mWidth - viewportWidth) * 0.5f;
+        float viewportY = (mHeight - viewportHeight) * 0.5f;
+
+        if (surfaceX < viewportX || surfaceX >= viewportX + viewportWidth ||
+                surfaceY < viewportY || surfaceY >= viewportY + viewportHeight) {
+            return null;
+        }
+
+        return new LogicalPoint(
+                (surfaceX - viewportX) / viewportWidth,
+                (surfaceY - viewportY) / viewportHeight
+        );
     }
 
     private boolean handleBottomUITouch(MotionEvent event) {

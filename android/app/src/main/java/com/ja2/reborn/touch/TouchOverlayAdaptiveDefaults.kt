@@ -2,13 +2,16 @@ package com.ja2.reborn.touch
 
 import android.content.Context
 import android.content.res.Configuration
+import com.ja2.reborn.ResolutionMode
 import kotlin.math.max
 import kotlin.math.min
 
 object TouchOverlayAdaptiveDefaults {
-    fun apply(context: Context, config: TouchOverlayConfig): TouchOverlayConfig {
+    fun apply(context: Context, config: TouchOverlayConfig, resolutionMode: ResolutionMode = ResolutionMode.DEFAULT): TouchOverlayConfig {
         val profile = DeviceProfile.from(context)
         val panelScale = when {
+            resolutionMode == ResolutionMode.RETRO -> 100
+            resolutionMode == ResolutionMode.HIGH_RES -> 180
             profile.isTablet -> 100
             profile.aspect >= 2.05f -> 130
             profile.aspect >= 1.80f -> 120

@@ -188,23 +188,23 @@ class LauncherActivity : AppCompatActivity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
-    fun getRecommendedResolution(): Resolution {
+    private fun getNativeMetrics(): Pair<Int, Int> {
         val metrics = DisplayMetrics()
         @Suppress("DEPRECATION")
         (getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay.getRealMetrics(metrics)
-
         val nativeWidth = Integer.max(metrics.widthPixels, metrics.heightPixels)
         val nativeHeight = Integer.min(metrics.widthPixels, metrics.heightPixels)
-        val halfWidth = (nativeWidth / 2).toUInt()
-        val halfHeight = (nativeHeight / 2).toUInt()
-        val width = halfWidth - (halfWidth % 2u)
-        val height = halfHeight - (halfHeight % 2u)
+        return Pair(nativeWidth, nativeHeight)
+    }
 
-        return if (width > Resolution.DEFAULT.width && height > Resolution.DEFAULT.height) {
-            Resolution(width, height)
-        } else {
-            Resolution.DEFAULT
-        }
+    fun getRecommendedResolution(): Resolution {
+        val (nativeW, nativeH) = getNativeMetrics()
+        return ResolutionPolicy.calculate(ResolutionMode.DEFAULT, nativeW, nativeH)
+    }
+
+    fun calculateResolutionForMode(mode: ResolutionMode): Resolution {
+        val (nativeW, nativeH) = getNativeMetrics()
+        return ResolutionPolicy.calculate(mode, nativeW, nativeH)
     }
 
     fun persistJA2Configuration() {
@@ -387,20 +387,35 @@ class LauncherActivity : AppCompatActivity() {
             } else {
                 configurationModel.setVanillaGameVersion(VanillaVersion.DEFAULT)
             }
-            if (json.scalingQuality != null) {
+
+            // Resolution mode migration
+            val resolvedMode = when {
+                json.resolutionMode != null -> json.resolutionMode
+                json.resolution != null && json.resolution.width == 640u && json.resolution.height == 480u ->
+                    ResolutionMode.RETRO
+                else -> ResolutionMode.MODERN
+            }
+            configurationModel.setResolutionMode(resolvedMode)
+            val expertSettings = json.expertSettings == true
+            configurationModel.setExpertSettings(expertSettings)
+
+            val (nativeW, nativeH) = getNativeMetrics()
+            if (expertSettings && json.resolution != null) {
+                configurationModel.setResolution(json.resolution)
+            } else {
+                configurationModel.setResolution(ResolutionPolicy.calculate(resolvedMode, nativeW, nativeH))
+            }
+
+            if (expertSettings && json.scalingQuality != null) {
                 configurationModel.setScalingQuality(json.scalingQuality)
             } else {
                 configurationModel.setScalingQuality(ScalingQuality.DEFAULT)
             }
-            if (json.mouseMode != null) {
+
+            if (expertSettings && json.mouseMode != null) {
                 configurationModel.setMouseMode(json.mouseMode)
             } else {
                 configurationModel.setMouseMode(MouseMode.DEFAULT)
-            }
-            if (json.resolution != null) {
-                configurationModel.setResolution(json.resolution)
-            } else {
-                configurationModel.setResolution(getRecommendedResolution())
             }
             if (json.debug != null) {
                 configurationModel.setDebug(json.debug)
@@ -413,6 +428,7 @@ class LauncherActivity : AppCompatActivity() {
             configurationModel.setScalingQuality(ScalingQuality.DEFAULT)
             configurationModel.setMouseMode(MouseMode.DEFAULT)
             configurationModel.setResolution(getRecommendedResolution())
+            configurationModel.setExpertSettings(false)
             configurationModel.setDebug(false)
         } catch (e: IOException) {
             Log.w(activityLogTag, "Could not read $ja2JsonPath: ${e.message}")
@@ -420,6 +436,7 @@ class LauncherActivity : AppCompatActivity() {
             configurationModel.setScalingQuality(ScalingQuality.DEFAULT)
             configurationModel.setMouseMode(MouseMode.DEFAULT)
             configurationModel.setResolution(getRecommendedResolution())
+            configurationModel.setExpertSettings(false)
             configurationModel.setDebug(false)
         }
     }
@@ -445,13 +462,22 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun saveJA2Json() {
+        if (configurationModel.expertSettings.value != true) {
+            val mode = configurationModel.resolutionMode.value ?: ResolutionMode.DEFAULT
+            configurationModel.setResolution(calculateResolutionForMode(mode))
+            configurationModel.setScalingQuality(ScalingQuality.DEFAULT)
+            configurationModel.setMouseMode(MouseMode.DEFAULT)
+        }
+
         val json = Ja2Json(
             configurationModel.vanillaGameDir.value,
             configurationModel.vanillaGameVersion.value,
             configurationModel.saveGameDir.value,
             configurationModel.resolution.value,
+            configurationModel.resolutionMode.value,
             configurationModel.scalingQuality.value,
             configurationModel.mouseMode.value,
+            configurationModel.expertSettings.value,
             configurationModel.debug.value
         )
         val parentDir = File(ja2JsonPath).parentFile

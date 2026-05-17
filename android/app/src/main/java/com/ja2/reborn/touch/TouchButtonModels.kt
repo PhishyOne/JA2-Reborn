@@ -3,7 +3,7 @@ package com.ja2.reborn.touch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val TOUCH_OVERLAY_CONFIG_VERSION = 8
+const val TOUCH_OVERLAY_CONFIG_VERSION = 9
 
 @Serializable
 data class TouchOverlayConfig(
@@ -13,6 +13,7 @@ data class TouchOverlayConfig(
     @SerialName("layout_locked") val layoutLocked: Boolean = true,
     @SerialName("relative_mouse_speed") val relativeMouseSpeed: Float = 1.0f,
     @SerialName("scroll_speed_ms") val scrollSpeedMs: Int = 27,
+    @SerialName("disable_mouse_scrolling") val disableMouseScrolling: Boolean = false,
     @SerialName("hide_overlay_on_non_game_screens") val hideOverlayOnNonGameScreens: Boolean = true,
     @SerialName("tactical_map_fov_percent") val tacticalMapFovPercent: Int = 100,
     @SerialName("tactical_action_panel_scale_percent") val tacticalActionPanelScalePercent: Int = 100,

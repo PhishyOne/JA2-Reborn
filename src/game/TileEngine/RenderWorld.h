@@ -100,6 +100,8 @@ extern BOOLEAN gfIgnoreScrollDueToCenterAdjust;
 
 
 void ScrollWorld(void);
+void SetMouseScrollingDisabled(bool disabled);
+bool IsMouseScrollingDisabled(void);
 void InitRenderParams(UINT8 ubRestrictionID);
 void RenderWorld(void);
 

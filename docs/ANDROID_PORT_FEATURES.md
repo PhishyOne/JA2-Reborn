@@ -19,6 +19,20 @@ Modern Controls mode supports mobile-friendly gestures:
 - Bottom-panel touches are routed directly to the tactical interface for buttons, inventory movement, and portrait interaction.
 - Long-press on a merc portrait selects the whole active team.
 
+## Resolution Modes
+
+The Android launcher provides safe resolution presets instead of asking most users to choose raw internal pixel dimensions:
+
+- `Modern`: recommended default with readable UI.
+- `High Res (More Map)`: smaller UI with more tactical map visible.
+- `Retro`: fixed classic `640x480` mode.
+
+Modern and High Res calculate aspect-correct internal resolutions from the current landscape display size. Ultrawide phones remain classified as phones even when they have high pixel height, so they do not receive tablet-style UI sizing.
+
+Expert Settings can be enabled when a user wants manual resolution, scaling, or legacy control mode choices. In standard mode the launcher keeps safe defaults for scaling and controls.
+
+Menus, splash screens, videos, and the map screen are presented in a centered `640x480` area when the game is running at wide Modern or High Res internal resolutions. This keeps classic screens from being stretched or horizontally squeezed.
+
 ## Touch Overlay
 
 The original fixed Android mouse buttons were replaced by a modular in-game overlay. Overlay buttons are stored as data and can be edited without rebuilding the app.
@@ -32,6 +46,8 @@ The overlay provides:
 - Persistent layout storage in `touch_buttons.json`.
 - Robust release handling for held mouse, keyboard, combo, and DPAD inputs.
 - Import and export of overlay presets.
+- Mode-aware action panel scaling defaults.
+- An option to disable mouse-edge map scrolling while keeping keyboard and drag scrolling available.
 
 Overlay button positions and sizes are normalized relative to the screen, so layouts survive different screen sizes and orientation changes.
 
@@ -95,6 +111,10 @@ The tutorial system provides:
 
 Tutorial visibility is persisted in `tutorial.set` under the game profile directory. The tutorial can auto-open on first tactical screen entry and can also be opened manually from the Android overlay controls.
 
+The main menu also has a separate one-time touch-control hint panel. Its visibility is stored in `mainmenu_tutorial.set` and does not affect the tactical tutorial.
+
+While the native tutorial is visible, the Android touch overlay is hidden and native action-panel presentation scaling is suspended so tutorial controls remain tappable.
+
 ## Localization
 
 The Android launcher and overlay UI use Android string resources for English and German. The native JA2 game text continues to use the upstream Stracciatella translation data.
@@ -121,6 +141,8 @@ ja2.json              Launcher and game configuration
 touch_buttons.json    Touch overlay layout and actions
 cheats.json           Optional cheat settings
 tutorial.set          Tutorial visibility preference
+mainmenu_tutorial.set Main menu hint visibility preference
+crashlog-latest.txt   Latest crash report when native crash handling can write one
 ```
 
 These files are user configuration and should not be committed to the repository.
@@ -136,6 +158,9 @@ Recommended manual checks before publishing a release APK:
 - Toggle layout lock and confirm positions persist.
 - Switch launcher language between English and German and inspect launcher, settings, overlay, and cheat dialogs.
 - Open the tutorial automatically on first tactical entry and manually through the help button.
+- Verify the main menu touch hint appears once and respects "do not show again".
+- Check Modern, High Res, and Retro resolution presets on phone and tablet-class displays.
+- Verify Retro bottom-panel and merc portrait touch mapping at 640x480.
 - Toggle cheats from launcher and in-game overlay, then verify player-only behavior in tactical gameplay.
 - Build a release APK after deleting caches when native, CMake, SDL Java, or Gradle integration changes were made.
 

@@ -13,10 +13,14 @@ data class Ja2Json(
     val saveGameDir: String? = null,
     @SerialName("res")
     val resolution: Resolution? = null,
+    @SerialName("resolution_mode")
+    val resolutionMode: ResolutionMode? = null,
     @SerialName("scaling")
     val scalingQuality: ScalingQuality? = null,
     @SerialName("mouse_mode")
     val mouseMode: MouseMode? = null,
+    @SerialName("expert_settings")
+    val expertSettings: Boolean? = null,
     @SerialName("debug")
     val debug: Boolean? = null
 )

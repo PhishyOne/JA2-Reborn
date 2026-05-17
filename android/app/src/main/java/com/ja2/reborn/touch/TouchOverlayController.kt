@@ -19,6 +19,7 @@ import android.widget.Toast
 import android.widget.LinearLayout
 import com.ja2.reborn.Ja2GuiStyle
 import com.ja2.reborn.R
+import com.ja2.reborn.ResolutionMode
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.libsdl.app.SDLActivity
@@ -30,10 +31,11 @@ class TouchOverlayController(
     private val activity: Activity,
     private val root: ViewGroup,
     private val surface: SDLSurface,
+    private val resolutionMode: ResolutionMode = ResolutionMode.DEFAULT,
     private val onCheatButtonTapped: () -> Unit = {},
     private val onImportPreset: () -> Unit = {}
 ) {
-    private val store = TouchButtonStore(filesDir, activity)
+    private val store = TouchButtonStore(filesDir, activity, resolutionMode)
     private val dispatcher = TouchInputDispatcher(surface)
     private var config: TouchOverlayConfig? = null
     private val buttonViews = mutableListOf<TouchOverlayButtonView>()
@@ -109,7 +111,8 @@ class TouchOverlayController(
 
     fun reloadFromStore() {
         config = store.loadOrDefault()
-        config = config!!.copy(layoutLocked = true, editMode = false)
+        config = config!!.copy(layoutLocked = true, editMode = false,
+            tacticalActionPanelScalePercent = effectivePanelScale(config!!.tacticalActionPanelScalePercent))
         applyRuntimeSpeeds(config!!)
         root.post {
             removeAllButtonViews()
@@ -123,6 +126,8 @@ class TouchOverlayController(
 
     fun resetToDefaults() {
         config = store.loadDefaultFromRaw()
+        config = config!!.copy(
+            tacticalActionPanelScalePercent = effectivePanelScale(config!!.tacticalActionPanelScalePercent))
         applyRuntimeSpeeds(config!!)
         store.save(persistableConfig(config!!))
         root.post {
@@ -379,12 +384,15 @@ class TouchOverlayController(
             onImportPreset = { onImportPreset() },
             autoHideEnabled = cfg?.hideOverlayOnNonGameScreens ?: true,
             onAutoHideToggled = { enabled -> toggleAutoHide(enabled) },
+            disableMouseScrolling = cfg?.disableMouseScrolling ?: false,
+            onDisableMouseScrollingToggled = { disabled -> persistDisableMouseScrolling(disabled) },
             onScrollSpeedChanged = { ms -> persistScrollSpeed(ms) },
             onMouseSpeedChanged = { speed -> persistMouseSpeed(speed) },
             mapFovPercent = cfg?.tacticalMapFovPercent ?: 100,
             onMapFovChanged = { v -> persistMapFov(v) },
-            panelScalePercent = cfg?.tacticalActionPanelScalePercent ?: 100,
-            onPanelScaleChanged = { v -> persistPanelScale(v) }
+            panelScalePercent = effectivePanelScale(cfg?.tacticalActionPanelScalePercent ?: 100),
+            onPanelScaleChanged = { v -> persistPanelScale(v) },
+            resolutionMode = resolutionMode
         )
         dialog.show()
     }
@@ -399,13 +407,15 @@ class TouchOverlayController(
             saveCurrentPositions()
         }
         SDLActivity.showTutorial()
+        root.post { autoHidePoll() }
     }
 
     private fun applyRuntimeSpeeds(cfg: TouchOverlayConfig) {
         SDLSurface.setTouchpadMouseSpeed(cfg.relativeMouseSpeed)
         try {
             SDLActivity.setScrollSpeed(cfg.scrollSpeedMs)
-            SDLActivity.setTacticalActionPanelScalePercent(cfg.tacticalActionPanelScalePercent)
+            SDLActivity.setMouseScrollingDisabled(cfg.disableMouseScrolling)
+            SDLActivity.setTacticalActionPanelScalePercent(effectivePanelScale(cfg.tacticalActionPanelScalePercent))
         } catch (e: Exception) {
             Log.w(TAG, "Could not apply runtime settings: ${e.message}")
         }
@@ -426,9 +436,18 @@ class TouchOverlayController(
             layoutLocked = true,
             relativeMouseSpeed = SDLSurface.getTouchpadMouseSpeed(),
             scrollSpeedMs = currentScrollSpeed(),
+            disableMouseScrolling = currentDisableMouseScrolling(),
             tacticalMapFovPercent = currentMapFovPercent(),
-            tacticalActionPanelScalePercent = currentPanelScalePercent()
+            tacticalActionPanelScalePercent = effectivePanelScale(currentPanelScalePercent())
         )
+
+    private fun currentDisableMouseScrolling(): Boolean {
+        return try {
+            SDLActivity.isMouseScrollingDisabled()
+        } catch (e: Exception) {
+            config?.disableMouseScrolling ?: false
+        }
+    }
 
     private fun currentMapFovPercent(): Int {
         return 100
@@ -439,6 +458,14 @@ class TouchOverlayController(
             SDLActivity.getTacticalActionPanelScalePercent()
         } catch (e: Exception) {
             config?.tacticalActionPanelScalePercent ?: 100
+        }
+    }
+
+    private fun effectivePanelScale(raw: Int): Int {
+        return when (resolutionMode) {
+            ResolutionMode.RETRO -> 100
+            ResolutionMode.HIGH_RES -> raw.coerceIn(100, 180)
+            else -> raw.coerceIn(100, 130)
         }
     }
 
@@ -461,6 +488,18 @@ class TouchOverlayController(
         store.save(persistableConfig(updated))
     }
 
+    private fun persistDisableMouseScrolling(disabled: Boolean) {
+        val cfg = config ?: return
+        try {
+            SDLActivity.setMouseScrollingDisabled(disabled)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not set mouse scrolling flag: ${e.message}")
+        }
+        val updated = cfg.copy(disableMouseScrolling = disabled)
+        config = updated
+        store.save(persistableConfig(updated))
+    }
+
     private fun persistMapFov(v: Int) {
         val cfg = config ?: return
         val updated = cfg.copy(tacticalMapFovPercent = v)
@@ -470,7 +509,7 @@ class TouchOverlayController(
 
     private fun persistPanelScale(v: Int) {
         val cfg = config ?: return
-        val updated = cfg.copy(tacticalActionPanelScalePercent = v)
+        val updated = cfg.copy(tacticalActionPanelScalePercent = effectivePanelScale(v))
         config = updated
         store.save(persistableConfig(updated))
     }
@@ -537,7 +576,8 @@ class TouchOverlayController(
         val normalized = importedConfig.copy(
             schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
             layoutLocked = true,
-            editMode = false
+            editMode = false,
+            tacticalActionPanelScalePercent = effectivePanelScale(importedConfig.tacticalActionPanelScalePercent)
         )
         applyRuntimeSpeeds(normalized)
         store.save(persistableConfig(normalized))
@@ -714,7 +754,15 @@ class TouchOverlayController(
 
     private fun autoHidePoll() {
         val cfg = config ?: return
-        if (!cfg.hideOverlayOnNonGameScreens) return
+
+        val tutorialVisible = try {
+            SDLActivity.isTutorialVisible()
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to query tutorial visibility: ${e.message}")
+            false
+        }
+
+        if (!cfg.hideOverlayOnNonGameScreens && !tutorialVisible) return
 
         val screenId = try {
             SDLActivity.getJa2ScreenId()
@@ -723,11 +771,13 @@ class TouchOverlayController(
             SAFE_SCREEN_ID
         }
 
-        val isGameScreen = screenId in VISIBLE_SCREEN_WHITELIST
-        if (isGameScreen == !overlayAutoHidden) return
+        val shouldShowOverlay = !tutorialVisible && (
+            !cfg.hideOverlayOnNonGameScreens || screenId in VISIBLE_SCREEN_WHITELIST
+        )
+        if (shouldShowOverlay == !overlayAutoHidden) return
 
-        overlayAutoHidden = !isGameScreen
-        applyAutoHideVisibility(isGameScreen)
+        overlayAutoHidden = !shouldShowOverlay
+        applyAutoHideVisibility(shouldShowOverlay)
     }
 
     private fun applyAutoHideVisibility(visible: Boolean) {

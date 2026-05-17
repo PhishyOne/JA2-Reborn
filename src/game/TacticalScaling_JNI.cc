@@ -14,8 +14,8 @@ static int clampMapFov(int v) {
 }
 
 static int clampPanelScale(int v) {
-	if (v < 100) return 100;
-	if (v > 130) return 130;
+	if (v < TacticalScaling::kMinPanelScalePercent) return TacticalScaling::kMinPanelScalePercent;
+	if (v > TacticalScaling::kMaxPanelScalePercent) return TacticalScaling::kMaxPanelScalePercent;
 	return v;
 }
 

@@ -32,6 +32,17 @@ object LocalizationHelper {
     }
 
     @JvmStatic
+    fun getResolutionModeLabel(context: Context, mode: ResolutionMode): String {
+        return context.getString(
+            when (mode) {
+                ResolutionMode.MODERN -> R.string.resolution_mode_modern
+                ResolutionMode.HIGH_RES -> R.string.resolution_mode_high_res
+                ResolutionMode.RETRO -> R.string.resolution_mode_retro
+            }
+        )
+    }
+
+    @JvmStatic
     fun getMouseModeLabel(context: Context, mode: MouseMode): String {
         return context.getString(
             when (mode) {

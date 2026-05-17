@@ -134,10 +134,15 @@ static void QueueKeyEvent(UINT16 ubInputEvent, SDL_Keycode Key, SDL_Keymod Mod, 
 
 void SetSafeMousePosition(int x, int y) {
 	SDL_Rect presentationSource;
-	if (VideoGetPresentationSourceRect(presentationSource))
+	SDL_Rect presentationDest;
+	if (VideoGetPresentationRects(presentationSource, presentationDest))
 	{
-		x = presentationSource.x + x * presentationSource.w / SCREEN_WIDTH;
-		y = presentationSource.y + y * presentationSource.h / SCREEN_HEIGHT;
+		if (x < presentationDest.x) x = presentationDest.x;
+		if (y < presentationDest.y) y = presentationDest.y;
+		if (x > presentationDest.x + presentationDest.w) x = presentationDest.x + presentationDest.w;
+		if (y > presentationDest.y + presentationDest.h) y = presentationDest.y + presentationDest.h;
+		x = presentationSource.x + (x - presentationDest.x) * presentationSource.w / presentationDest.w;
+		y = presentationSource.y + (y - presentationDest.y) * presentationSource.h / presentationDest.h;
 	}
 
 	if (x < 0) x = 0;

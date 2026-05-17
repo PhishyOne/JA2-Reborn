@@ -138,6 +138,13 @@ namespace TacticalScaling {
 		int scale = GetActionPanelScalePercent();
 		int destW = src.w * scale / 100;
 		int destH = src.h * scale / 100;
+		int maxDestH = static_cast<int>(SCREEN_HEIGHT) * kMaxPanelHeightPercent / 100;
+		if (maxDestH < src.h) maxDestH = src.h;
+		if (destH > maxDestH && src.h > 0)
+		{
+			destH = maxDestH;
+			destW = src.w * destH / src.h;
+		}
 
 		int destX = (static_cast<int>(SCREEN_WIDTH) - destW) / 2;
 		int destY = static_cast<int>(SCREEN_HEIGHT) - destH;

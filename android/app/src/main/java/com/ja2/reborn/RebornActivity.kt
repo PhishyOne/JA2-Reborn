@@ -38,11 +38,14 @@ open class RebornActivity : SDLActivity() {
         super.onCreate(savedInstanceState)
         SDLActivity.setTutorialLanguage(LanguageManager.getSavedLanguage(this) == LanguageManager.Language.GERMAN)
 
+        val resolutionMode = loadResolutionMode()
+
         touchOverlayController = TouchOverlayController(
             filesDir = applicationContext.filesDir,
             activity = this,
             root = getContentView() as ViewGroup,
             surface = mSurface,
+            resolutionMode = resolutionMode,
             onCheatButtonTapped = {
                 CheatOverlayDialog(this, applicationContext.filesDir).show()
             },
@@ -138,6 +141,20 @@ open class RebornActivity : SDLActivity() {
         } catch (e: IOException) {
             Log.w(TAG, "Could not read mouse mode from ja2.json: ${e.message}")
             MouseMode.DEFAULT
+        }
+    }
+
+    private fun loadResolutionMode(): ResolutionMode {
+        return try {
+            val path = "${applicationContext.filesDir.absolutePath}/$ja2JsonFilename"
+            val json: Ja2Json = jsonFormat.decodeFromString(File(path).readText())
+            json.resolutionMode ?: ResolutionMode.DEFAULT
+        } catch (e: SerializationException) {
+            Log.w(TAG, "Could not decode resolution mode from ja2.json: ${e.message}")
+            ResolutionMode.DEFAULT
+        } catch (e: IOException) {
+            Log.w(TAG, "Could not read resolution mode from ja2.json: ${e.message}")
+            ResolutionMode.DEFAULT
         }
     }
 

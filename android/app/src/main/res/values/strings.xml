@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">JA2 Reborn</string>
-    <string name="launcher_header_title">JA2 Reborn - Stracciatella with Sprinkles</string>
+    <string name="launcher_header_title">JA2 Reborn - Stracciatella with Sprinkles v1.0.3 beta</string>
     <string name="title_activity_launcher">JA2 Reborn</string>
     <string name="floating_action_button_start_text">Start the game</string>
     <string name="tab_text_data">Data</string>
@@ -35,9 +35,18 @@
     <string name="scaling_quality_info_text">Choose a scaling mode to stretch the game video to fit the screen. Linear and Near-Perfect modes stretch the video to match any window sizes, but the image may look blurred. Pixel-Perfect can only scale up by integer (1x, 2x and so on) but gives sharp images.</string>
     <string name="mouse_mode_info_title_text">Mouse Mode</string>
     <string name="mouse_mode_info_text">Use Modern Controls for the best experience. Absolute Mouse and Touchscreen are legacy controls, left for experimenting.</string>
-    <string name="resolution_info_title_text">Internal Resolution</string>
-    <string name="resolution_info_text">On modern devices, half of the actual screen resolution usually yields the best results. This value is the default and is applied via the \'Detect\' button. Higher resolutions will shrink the game\'s display.</string>
-    <string name="resolution_auto_button">Detect</string>
+    <string name="resolution_info_title_text">Resolution Mode</string>
+    <string name="resolution_info_text">Modern Mode provides sharp visuals with a readable UI. High Res Mode fits more of the tactical map on screen with smaller interface elements. Retro Mode uses classic 640x480 resolution.</string>
+    <string name="resolution_mode_modern">Modern Mode (recommended)</string>
+    <string name="resolution_mode_high_res">High Res (More Map)</string>
+    <string name="resolution_mode_retro">Retro Mode (640x480)</string>
+    <string name="expert_settings_label">Expert Settings</string>
+    <string name="expert_settings_warning_title">Expert Settings</string>
+    <string name="expert_settings_warning_message">Choose your own settings, but things may break.</string>
+    <string name="expert_settings_confirm">Confirm</string>
+    <string name="manual_resolution_label">Manual Resolution</string>
+    <string name="manual_resolution_width_hint">Width</string>
+    <string name="manual_resolution_height_hint">Height</string>
     <string name="logs_description_text">The logs of your latest run of the game are shown below. In case of any issues, you can check the logs for errors. If you create a bug report, please include the logs.</string>
     <string name="logs_copy_to_clipboard_button">Copy all logs to clipboard</string>
     <string name="logs_copied_to_clipboard_name">JA2 Reborn logs</string>
@@ -93,6 +102,7 @@
     <string name="touch_speed_slow">Slow</string>
     <string name="touch_speed_fast">Fast</string>
     <string name="touch_auto_hide_label">Hide overlay in videos and menus</string>
+    <string name="touch_disable_mouse_scrolling_label">Disable Mouse Scrolling</string>
     <string name="touch_section_map_fov">Map View</string>
     <string name="touch_map_fov_smaller">Larger</string>
     <string name="touch_map_fov_larger">More Map</string>
@@ -100,6 +110,7 @@
     <string name="touch_panel_scale_normal">Normal</string>
     <string name="touch_panel_scale_smaller">Smaller</string>
     <string name="touch_panel_scale_larger">Larger</string>
+    <string name="touch_panel_scale_retro_locked">Panel scale is locked at 100% in Retro mode</string>
     <string name="touch_close">Close</string>
 
     <!-- Touch Overlay Edit Dialog -->

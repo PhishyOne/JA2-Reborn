@@ -2,6 +2,7 @@
 #include "VSurface.h"
 #include "Timer_Control.h"
 #include "MainMenuScreen.h"
+#include "UILayout.h"
 #include "Video.h"
 #include "GameRes.h"
 
@@ -21,7 +22,7 @@ void InitJA2SplashScreen(void)
 	else
 	{
 		const char* const ImageFile = GetMLGFilename(MLG_SPLASH);
-		BltVideoSurfaceOnceWithStretch(FRAME_BUFFER, ImageFile);
+		BltVideoSurfaceOnce(FRAME_BUFFER, ImageFile, STD_SCREEN_X, STD_SCREEN_Y);
 	}
 
 	InvalidateScreen();

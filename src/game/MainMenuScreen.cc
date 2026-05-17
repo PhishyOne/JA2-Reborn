@@ -23,6 +23,7 @@
 #include "SysUtil.h"
 #include "Text.h"
 #include "Timer_Control.h"
+#include "TutorialSystem.h"
 #include "VObject.h"
 #include "VSurface.h"
 #include "Video.h"
@@ -161,6 +162,17 @@ ScreenID MainMenuScreenHandle(void)
 	RedrawActiveButtonBackgrounds();
 
 	RenderButtons();
+
+	if (ShouldShowMainMenuTutorial())
+	{
+		EnterMainMenuTutorial();
+	}
+
+	if (gTutorial.fVisible)
+	{
+		RenderTutorial();
+		return MAINMENU_SCREEN;
+	}
 
 	HandleMainMenuInput();
 	HandleMainMenuScreen();

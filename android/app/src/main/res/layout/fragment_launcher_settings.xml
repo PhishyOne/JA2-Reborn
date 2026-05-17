@@ -43,58 +43,79 @@
                 android:textColor="#DDE7D6C4"
                 android:textSize="14sp" />
 
-            <LinearLayout
+            <CheckBox
+                android:id="@+id/expertSettingsCheckbox"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="14dp"
-                android:baselineAligned="false"
-                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:buttonTint="#FFD4A84F"
+                android:text="@string/expert_settings_label"
+                android:textColor="#FFFFF3E6"
+                android:textSize="15sp" />
+
+            <Spinner
+                android:id="@+id/resolutionModeSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/launcher_surface"
+                android:contentDescription="@string/resolution_info_title_text"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp" />
+
+            <TextView
+                android:id="@+id/manualResolutionLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/manual_resolution_label"
+                android:textColor="#DDE7D6C4"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/manualResolutionFields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/resolutionWidthEdit"
+                    android:id="@+id/resolutionWidthEditText"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:background="@drawable/launcher_surface"
-                    android:gravity="center"
+                    android:hint="@string/manual_resolution_width_hint"
                     android:inputType="number"
-                    android:maxLines="1"
-                    android:textColor="#FFF3E6D7"
-                    android:textColorHint="#99FFF3E6" />
+                    android:maxLength="5"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:selectAllOnFocus="true"
+                    android:textColor="#FFFFF3E6"
+                    android:textColorHint="#88E7D6C4" />
 
                 <TextView
-                    android:id="@+id/resolutionXText"
                     android:layout_width="32dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="48dp"
                     android:gravity="center"
                     android:text="x"
                     android:textColor="#DDE7D6C4"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textSize="18sp" />
 
                 <EditText
-                    android:id="@+id/resolutionHeightEdit"
+                    android:id="@+id/resolutionHeightEditText"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:background="@drawable/launcher_surface"
-                    android:gravity="center"
+                    android:hint="@string/manual_resolution_height_hint"
                     android:inputType="number"
-                    android:maxLines="1"
-                    android:textColor="#FFF3E6D7"
-                    android:textColorHint="#99FFF3E6" />
-
-                <Button
-                    android:id="@+id/resolutionAutoButton"
-                    android:layout_width="128dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="12dp"
-                    android:background="@drawable/launcher_button"
-                    android:maxLines="1"
-                    android:text="@string/resolution_auto_button"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFF3E6" />
+                    android:maxLength="5"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:selectAllOnFocus="true"
+                    android:textColor="#FFFFF3E6"
+                    android:textColorHint="#88E7D6C4" />
             </LinearLayout>
         </LinearLayout>
 
@@ -132,7 +153,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="14dp"
                 android:background="@drawable/launcher_surface"
-                android:contentDescription="@string/game_version_empty_text"
+                android:contentDescription="@string/scaling_quality_info_title_text"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp" />
         </LinearLayout>
