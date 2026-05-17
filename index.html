@@ -307,6 +307,47 @@
             font-size: 0.82rem; border: 1px solid var(--border);
         }
 
+        /* ── Changelog ── */
+        .changelog { background: var(--bg); }
+        .changelog .release-card {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 2rem; max-width: 900px; margin: 0 auto;
+            border-radius: 4px;
+        }
+        .changelog .release-header {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem; padding-bottom: 1rem; margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .changelog .version {
+            color: #fff; font-size: 1rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+        }
+        .changelog .release-header a {
+            color: var(--accent-glow); text-decoration: none;
+            font-size: 0.82rem; white-space: nowrap;
+        }
+        .changelog .release-header a:hover { text-decoration: underline; }
+        .changelog h4 {
+            color: #fff; margin-bottom: 0.75rem;
+            letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.9rem;
+        }
+        .changelog ul { list-style: none; }
+        .changelog li {
+            position: relative; color: var(--text-dim); font-size: 0.86rem;
+            padding-left: 1rem; margin-bottom: 0.65rem;
+        }
+        .changelog li::before {
+            content: ""; position: absolute; left: 0; top: 0.58em;
+            width: 5px; height: 5px; background: var(--accent);
+            transform: rotate(45deg);
+        }
+        .changelog code {
+            background: var(--bg); padding: 0.08rem 0.4rem;
+            color: var(--accent-glow); font-size: 0.78rem;
+            border: 1px solid var(--border);
+        }
+
         /* ── Footer ── */
         footer {
             text-align: center; padding: 3rem 1.5rem;
@@ -326,6 +367,11 @@
             section { padding: 3rem 1rem; }
             section h2 { font-size: 1.3rem; }
             .screenshots .grid { grid-template-columns: 1fr; }
+            .changelog .release-card { padding: 1.25rem; }
+            .changelog .release-header {
+                align-items: flex-start; flex-direction: column;
+            }
+            .changelog .release-header a { white-space: normal; }
         }
     </style>
 
@@ -343,6 +389,7 @@
         <ul class="links">
             <li><a href="https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.3/JA2RebornRelease1.0.3.apk">Download</a></li>
             <li><a href="#install">Install</a></li>
+            <li><a href="#changelog">Changelog</a></li>
             <li><a href="#support">Support Me</a></li>
             <li><a href="#screenshots">Screenshots</a></li>
         </ul>
@@ -423,6 +470,32 @@
                     Unfinished Business, Wildfire, JA2 1.13, and other standalone
                     or heavily modified JA2 data sets are not supported.</p>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Update Changelog ── -->
+<section class="changelog" id="changelog">
+    <div class="inner">
+        <h2>Update Changelog</h2>
+        <span class="section-accent"></span>
+        <p class="lead">JA2 Reborn 1.0.3 focuses on safer Android display defaults, better widescreen presentation, improved touch behavior, and more useful crash diagnostics.</p>
+        <div class="release-card">
+            <div class="release-header">
+                <span class="version">Version 1.0.3</span>
+                <a href="https://github.com/RealTommyGreen/JA2-Reborn/releases/tag/v1.0.3" target="_blank" rel="noopener">View release on GitHub</a>
+            </div>
+            <div class="change-group">
+                <h4>Highlights</h4>
+                <ul>
+                    <li>New launcher resolution presets: Modern for the recommended readable UI, High Res (More Map) for more tactical map area with a smaller UI, and Retro for fixed classic 640x480 mode.</li>
+                    <li>Expert Settings now gate manual resolution, scaling, and legacy control mode choices.</li>
+                    <li>Menus, splash screens, videos, and map screens are presented in a centered 4:3 area so they are no longer stretched on wide displays.</li>
+                    <li>High Res mode supports larger action panel defaults for phones.</li>
+                    <li>Retro touch mapping was corrected for bottom-panel controls and merc portrait selection.</li>
+                    <li>Crash reports now include <code>crashlog-latest.txt</code> next to the emergency savegame when possible.</li>
+                </ul>
             </div>
         </div>
     </div>
