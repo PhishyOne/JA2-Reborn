@@ -34,7 +34,7 @@
     <string name="scaling_quality_info_title_text">Scaling Mode</string>
     <string name="scaling_quality_info_text">Choose a scaling mode to stretch the game video to fit the screen. Linear and Near-Perfect modes stretch the video to match any window sizes, but the image may look blurred. Pixel-Perfect can only scale up by integer (1x, 2x and so on) but gives sharp images.</string>
     <string name="mouse_mode_info_title_text">Mouse Mode</string>
-    <string name="mouse_mode_info_text">Use Modern Controls for the best experience. Absolute Mouse and Touchscreen are legacy controls, left for experimenting.</string>
+    <string name="mouse_mode_info_text">Use Modern Controls for the best experience. Absolute Mouse and Touchscreen are legacy controls, left for experimenting. Hardware mode bypasses touch processing for use with a physical mouse and keyboard.</string>
     <string name="resolution_info_title_text">Resolution Mode</string>
     <string name="resolution_info_text">Modern Mode provides sharp visuals with a readable UI. High Res Mode fits more of the tactical map on screen with smaller interface elements. Retro Mode uses classic 640x480 resolution.</string>
     <string name="resolution_mode_modern">Modern Mode (recommended)</string>
@@ -88,6 +88,9 @@
     <string name="touch_section_scroll_speed">Scroll Speed</string>
     <string name="touch_section_mouse_speed">Mouse Speed</string>
     <string name="touch_section_auto_hide">Auto-Hide</string>
+    <string name="touch_section_direct_tap">Touchpad Direct-Tap</string>
+    <string name="touch_direct_tap_fast">Fast</string>
+    <string name="touch_direct_tap_slow">Slow</string>
     <string name="touch_section_presets">Presets</string>
     <string name="touch_preset_export">Export Preset</string>
     <string name="touch_preset_import">Import Preset</string>
@@ -119,6 +122,7 @@
     <string name="touch_edit_field_size">Size</string>
     <string name="touch_edit_field_shape">Shape</string>
     <string name="touch_edit_field_opacity">Opacity</string>
+    <string name="touch_edit_field_icon_size">Icon Size</string>
     <string name="touch_shape_circle">Circle</string>
     <string name="touch_shape_square">Square</string>
     <string name="touch_shape_rectangle">Rectangle</string>
@@ -175,6 +179,7 @@
     <string name="mouse_mode_touchpad">Modern Controls (recommended)</string>
     <string name="mouse_mode_absolute">Absolute Mouse (legacy)</string>
     <string name="mouse_mode_touchscreen">Touchscreen (legacy)</string>
+    <string name="mouse_mode_hardware">Hardware mouse/keyboard</string>
 
     <!-- Touch Button Action Display -->
     <string name="touch_action_left">Left</string>

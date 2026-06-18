@@ -47,6 +47,9 @@ class TouchButtonStore(
                     editMode = false,
                     layoutLocked = true
                 )
+                if (config.schemaVersion < 12 || normalized.mapScreenButtons.isEmpty()) {
+                    normalized = normalized.copy(mapScreenButtons = defaultMapScreenButtons())
+                }
                 if (isBundledDefaultLayout(config) || isLegacyGeneratedDefaultLayout(config)) {
                     normalized = TouchOverlayAdaptiveDefaults.apply(context, normalized, resolutionMode)
                 }

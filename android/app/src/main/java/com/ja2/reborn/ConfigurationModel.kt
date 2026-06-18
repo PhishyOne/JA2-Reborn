@@ -82,7 +82,9 @@ enum class MouseMode(val value: String) {
     @SerialName("absolute")
     ABSOLUTE("absolute"),
     @SerialName("touchscreen")
-    TOUCHSCREEN("touchscreen");
+    TOUCHSCREEN("touchscreen"),
+    @SerialName("hardware")
+    HARDWARE("hardware");
 
     companion object {
         val DEFAULT = TOUCHPAD

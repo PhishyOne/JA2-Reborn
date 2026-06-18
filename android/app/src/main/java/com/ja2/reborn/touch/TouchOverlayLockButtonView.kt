@@ -3,6 +3,7 @@ package com.ja2.reborn.touch
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import android.view.View
 
@@ -29,7 +30,6 @@ class TouchOverlayLockButtonView(context: Context) : View(context) {
         color = 0xFFFFFFFF.toInt()
         style = Paint.Style.FILL
     }
-    private val rect = RectF()
 
     fun setLocked(value: Boolean) {
         if (locked != value) {
@@ -39,11 +39,22 @@ class TouchOverlayLockButtonView(context: Context) : View(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
-        val minDim = minOf(width, height).toFloat()
-        rect.set(1f, 1f, width - 1f, height - 1f)
-        canvas.drawOval(rect, backgroundPaint)
-        canvas.drawOval(rect, borderPaint)
+        val outerBounds = computeOuterShapeBounds()
+        canvas.drawOval(outerBounds, backgroundPaint)
+        canvas.drawOval(outerBounds, borderPaint)
 
+        val iconName = if (locked) "lock_closed" else "lock_open"
+        val shapeBounds = computeIconShapeBounds()
+        canvas.save()
+        canvas.clipPath(iconClipPath(outerBounds))
+        if (SvgIconManager.renderIcon(canvas, context, iconName, shapeBounds, fillPaint)) {
+            canvas.restore()
+            return
+        }
+        canvas.restore()
+
+        val minDim = minOf(outerBounds.width(), outerBounds.height())
+        iconPaint.strokeWidth = minDim * 0.07f
         val cx = width / 2f
         val cy = height / 2f
         val s = minDim * 0.28f
@@ -63,4 +74,23 @@ class TouchOverlayLockButtonView(context: Context) : View(context) {
             canvas.drawLine(cx + s * 0.8f, cy - s * 0.08f, cx + s * 0.8f, cy + s * 0.1f, iconPaint)
         }
     }
+
+    private fun computeOuterShapeBounds(): RectF {
+        val w = width.toFloat()
+        val h = height.toFloat()
+        val buttonHeight = minOf(h, w / 1.8f)
+        val radius = minOf(h / 2f, buttonHeight / 2f)
+        return RectF(w / 2 - radius, h / 2 - radius, w / 2 + radius, h / 2 + radius)
+    }
+
+    private fun computeIconShapeBounds(): RectF {
+        val w = width.toFloat()
+        val h = height.toFloat()
+        val buttonHeight = minOf(h, w / 1.8f)
+        val r = buttonHeight / 2f * 0.85f
+        return RectF(w / 2 - r, h / 2 - r, w / 2 + r, h / 2 + r)
+    }
+
+    private fun iconClipPath(bounds: RectF): Path =
+        Path().apply { addOval(bounds, Path.Direction.CW) }
 }

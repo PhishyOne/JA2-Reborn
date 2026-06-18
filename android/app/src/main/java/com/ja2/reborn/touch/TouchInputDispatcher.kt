@@ -11,6 +11,7 @@ class TouchInputDispatcher(private val surface: SDLSurface) {
     private val heldMouseButtons = mutableSetOf<Int>()
     private val heldKeyCodes = mutableSetOf<Int>()
     private val heldComboKeys = mutableMapOf<String, MutableList<Int>>()
+    private val heldToggleKeys = mutableSetOf<Int>()
     private var heldDpadDirection: String? = null
 
     fun performAction(action: TouchButtonAction, pressed: Boolean) {
@@ -23,6 +24,14 @@ class TouchInputDispatcher(private val surface: SDLSurface) {
             "cheat_menu" -> Unit
             "sector_exit" -> dispatchSectorExitAction(action, pressed)
             else -> Log.w(TAG, "Unknown action type: ${action.type}")
+        }
+    }
+
+    fun forceReleaseToggle(action: TouchButtonAction) {
+        val keyCode = resolveKeyCode(action) ?: return
+        if (heldToggleKeys.contains(keyCode)) {
+            SDLActivity.onNativeKeyUp(keyCode)
+            heldToggleKeys.remove(keyCode)
         }
     }
 
@@ -44,7 +53,37 @@ class TouchInputDispatcher(private val surface: SDLSurface) {
             SDLActivity.onNativeKeyUp(keyCode)
         }
         heldKeyCodes.clear()
+
+        heldToggleKeys.toList().forEach { keyCode ->
+            SDLActivity.onNativeKeyUp(keyCode)
+        }
+        heldToggleKeys.clear()
+
         heldDpadDirection = null
+    }
+
+    fun performToggle(actions: List<TouchButtonAction>): Boolean {
+        for (action in actions) {
+            if (action.type != "key") continue
+            val keyCode = resolveKeyCode(action) ?: continue
+            if (heldToggleKeys.contains(keyCode)) {
+                SDLActivity.onNativeKeyUp(keyCode)
+                heldToggleKeys.remove(keyCode)
+                return false
+            } else {
+                val modifiers = action.modifiers
+                sendModifiersDown(modifiers)
+                SDLActivity.onNativeKeyDown(keyCode)
+                heldToggleKeys.add(keyCode)
+                return true
+            }
+        }
+        return false
+    }
+
+    fun isToggleActive(action: TouchButtonAction): Boolean {
+        val keyCode = resolveKeyCode(action) ?: return false
+        return heldToggleKeys.contains(keyCode)
     }
 
     fun performDpadDirection(direction: String?) {
@@ -239,6 +278,7 @@ class TouchInputDispatcher(private val surface: SDLSurface) {
             "PAUSE", "BREAK" -> KeyEvent.KEYCODE_BREAK
             "BACKSPACE" -> KeyEvent.KEYCODE_DEL
             "DELETE" -> KeyEvent.KEYCODE_FORWARD_DEL
+            "INSERT" -> KeyEvent.KEYCODE_INSERT
             "UP" -> KeyEvent.KEYCODE_DPAD_UP
             "DOWN" -> KeyEvent.KEYCODE_DPAD_DOWN
             "LEFT" -> KeyEvent.KEYCODE_DPAD_LEFT

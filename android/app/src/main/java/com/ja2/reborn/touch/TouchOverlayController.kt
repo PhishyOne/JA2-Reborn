@@ -51,6 +51,7 @@ class TouchOverlayController(
     private var gridView: TouchOverlayGridView? = null
     private var autoHideRunnable: Runnable? = null
     private var overlayAutoHidden = false
+    private var currentActiveScreen = SAFE_SCREEN_ID
 
     fun attach() {
         if (attached) return
@@ -105,8 +106,8 @@ class TouchOverlayController(
     }
 
     fun releasePressedInputs() {
-        dispatcher.releaseAll()
         buttonViews.forEach { it.releaseIfHeld() }
+        dispatcher.releaseAll()
     }
 
     fun reloadFromStore() {
@@ -142,7 +143,9 @@ class TouchOverlayController(
     }
 
     fun deleteAllButtons() {
-        config = TouchOverlayConfig().copy(buttons = emptyList())
+        val cfg = config ?: return
+        config = if (currentActiveScreen == MAP_SCREEN) cfg.copy(mapScreenButtons = emptyList())
+        else cfg.copy(buttons = emptyList())
         store.save(persistableConfig(config!!))
         root.post {
             removeAllButtonViews()
@@ -318,7 +321,7 @@ class TouchOverlayController(
             shape = BUTTON_SHAPE_CIRCLE,
             x = clampFloat(0.45f, 0f, 1f),
             y = clampFloat(0.75f, 0f, 1f),
-            size = 0.090f,
+            size = 0.140f,
             alpha = 0.45f,
             visible = true,
             actions = emptyList()
@@ -367,8 +370,7 @@ class TouchOverlayController(
         buttonViews.add(buttonView)
 
         ensureSystemButtonsOnTop()
-        val updatedButtons = cfg.buttons + buttonConfig
-        config = cfg.copy(buttons = updatedButtons)
+        updateActiveButtons(activeButtons() + buttonConfig)
         saveConfig()
 
         Log.i(TAG, "Created new button: ${buttonConfig.id}")
@@ -392,6 +394,8 @@ class TouchOverlayController(
             onMapFovChanged = { v -> persistMapFov(v) },
             panelScalePercent = effectivePanelScale(cfg?.tacticalActionPanelScalePercent ?: 100),
             onPanelScaleChanged = { v -> persistPanelScale(v) },
+            directTouchArbitrationMs = cfg?.directTouchArbitrationMs ?: 1800,
+            onDirectTouchArbitrationChanged = { ms -> persistDirectTouchArbitration(ms) },
             resolutionMode = resolutionMode
         )
         dialog.show()
@@ -414,6 +418,7 @@ class TouchOverlayController(
 
     private fun applyRuntimeSpeeds(cfg: TouchOverlayConfig) {
         SDLSurface.setTouchpadMouseSpeed(cfg.relativeMouseSpeed)
+        SDLSurface.setDirectTouchArbitrationMs(cfg.directTouchArbitrationMs)
         try {
             SDLActivity.setScrollSpeed(cfg.scrollSpeedMs)
             SDLActivity.setMouseScrollingDisabled(cfg.disableMouseScrolling)
@@ -440,7 +445,8 @@ class TouchOverlayController(
             scrollSpeedMs = currentScrollSpeed(),
             disableMouseScrolling = currentDisableMouseScrolling(),
             tacticalMapFovPercent = currentMapFovPercent(),
-            tacticalActionPanelScalePercent = effectivePanelScale(currentPanelScalePercent())
+            tacticalActionPanelScalePercent = effectivePanelScale(currentPanelScalePercent()),
+            directTouchArbitrationMs = SDLSurface.getDirectTouchArbitrationMs()
         )
 
     private fun currentDisableMouseScrolling(): Boolean {
@@ -516,6 +522,13 @@ class TouchOverlayController(
         store.save(persistableConfig(updated))
     }
 
+    private fun persistDirectTouchArbitration(ms: Int) {
+        val cfg = config ?: return
+        val updated = cfg.copy(directTouchArbitrationMs = ms)
+        config = updated
+        store.save(persistableConfig(updated))
+    }
+
     fun exportPreset() {
         val cfg = config ?: return
         val jsonFormat = Json { ignoreUnknownKeys = true }
@@ -584,8 +597,8 @@ class TouchOverlayController(
         applyRuntimeSpeeds(normalized)
         store.save(persistableConfig(normalized))
         reloadFromStore()
-        Toast.makeText(activity, activity.getString(R.string.touch_import_success, normalized.buttons.size), Toast.LENGTH_LONG).show()
-        Log.i(TAG, "Imported touch layout with ${normalized.buttons.size} buttons")
+        Toast.makeText(activity, activity.getString(R.string.touch_import_success, normalized.buttons.size + normalized.mapScreenButtons.size), Toast.LENGTH_LONG).show()
+        Log.i(TAG, "Imported touch layout with ${normalized.buttons.size} tactical + ${normalized.mapScreenButtons.size} map screen buttons")
     }
 
     private fun showImportError(message: String) {
@@ -790,10 +803,38 @@ class TouchOverlayController(
         val shouldShowOverlay = !tutorialVisible && (
             !cfg.hideOverlayOnNonGameScreens || screenId in VISIBLE_SCREEN_WHITELIST
         )
-        if (shouldShowOverlay == !overlayAutoHidden) return
+        val visibilityChanged = shouldShowOverlay == overlayAutoHidden
+        val screenChanged = screenId != currentActiveScreen
 
-        overlayAutoHidden = !shouldShowOverlay
-        applyAutoHideVisibility(shouldShowOverlay)
+        if (!visibilityChanged && !screenChanged) return
+
+        if (shouldShowOverlay && overlayAutoHidden) {
+            // Becoming visible — show with correct button set
+            overlayAutoHidden = false
+            switchToScreen(screenId)
+        } else if (!shouldShowOverlay && !overlayAutoHidden) {
+            // Becoming hidden
+            overlayAutoHidden = true
+            currentActiveScreen = screenId
+            applyAutoHideVisibility(false)
+        } else if (shouldShowOverlay && !overlayAutoHidden && screenChanged) {
+            // Screen changed while overlay stays visible — swap button sets
+            switchToScreen(screenId)
+        }
+    }
+
+    private fun switchToScreen(screenId: Int) {
+        currentActiveScreen = screenId
+        releasePressedInputs()
+        removeAllButtonViews()
+        if (containerWidth <= 0 || containerHeight <= 0) {
+            captureContainerSize()
+        }
+        createButtonViews()
+        updateSchlossButtonState()
+        updateGridViewState()
+        updateButtonDraggable()
+        applyAutoHideVisibility(true)
     }
 
     private fun applyAutoHideVisibility(visible: Boolean) {
@@ -848,12 +889,24 @@ class TouchOverlayController(
 
     // ---- Normal button views ----
 
+    private fun activeButtons(): List<TouchButtonConfig> {
+        val cfg = config ?: return emptyList()
+        return if (currentActiveScreen == MAP_SCREEN) cfg.mapScreenButtons else cfg.buttons
+    }
+
+    private fun updateActiveButtons(newButtons: List<TouchButtonConfig>) {
+        val cfg = config ?: return
+        config = if (currentActiveScreen == MAP_SCREEN) cfg.copy(mapScreenButtons = newButtons)
+        else cfg.copy(buttons = newButtons)
+    }
+
     private fun createButtonViews() {
         val cfg = config ?: return
         val container = overlayContainer ?: return
+        val buttons = activeButtons()
 
-        if (cfg.buttons.isEmpty()) {
-            Log.w(TAG, "No buttons in config, nothing to create")
+        if (buttons.isEmpty()) {
+            Log.w(TAG, "No buttons for screen $currentActiveScreen, nothing to create")
             return
         }
 
@@ -868,7 +921,7 @@ class TouchOverlayController(
 
         val minDim = minOf(containerWidth, containerHeight)
 
-        for (btnConfig in cfg.buttons) {
+        for (btnConfig in buttons) {
             if (!btnConfig.visible) continue
 
             val buttonView = TouchOverlayButtonView(
@@ -904,11 +957,11 @@ class TouchOverlayController(
     }
 
     private fun repositionAllButtons() {
-        val cfg = config ?: return
+        val buttons = activeButtons()
         val minDim = minOf(containerWidth, containerHeight)
 
         for (view in buttonViews) {
-            val btnConfig = cfg.buttons.firstOrNull { it.id == view.config.id } ?: continue
+            val btnConfig = buttons.firstOrNull { it.id == view.config.id } ?: continue
             val (buttonWidth, buttonHeight) = dimensionsFor(btnConfig, minDim)
             val leftPx = (btnConfig.x * containerWidth).toInt()
                 .coerceIn(0, (containerWidth - buttonWidth).coerceAtLeast(0))
@@ -960,13 +1013,11 @@ class TouchOverlayController(
     }
 
     private fun onButtonEditSaved(updatedConfig: TouchButtonConfig) {
-        val cfg = config ?: return
-
-        val updatedButtons = cfg.buttons.map {
+        val updatedButtons = activeButtons().map {
             if (it.id == updatedConfig.id) updatedConfig else it
         }
 
-        config = cfg.copy(buttons = updatedButtons)
+        updateActiveButtons(updatedButtons)
         saveConfig()
 
         val view = buttonViews.firstOrNull { it.config.id == updatedConfig.id } ?: return
@@ -992,7 +1043,6 @@ class TouchOverlayController(
     }
 
     private fun onButtonDeleted(buttonId: String) {
-        val cfg = config ?: return
         val container = overlayContainer ?: return
 
         val view = buttonViews.firstOrNull { it.config.id == buttonId } ?: return
@@ -1001,8 +1051,7 @@ class TouchOverlayController(
         container.removeView(view)
         buttonViews.remove(view)
 
-        val updatedButtons = cfg.buttons.filter { it.id != buttonId }
-        config = cfg.copy(buttons = updatedButtons)
+        updateActiveButtons(activeButtons().filter { it.id != buttonId })
         saveConfig()
 
         Log.i(TAG, "Deleted button: $buttonId")
@@ -1015,7 +1064,8 @@ class TouchOverlayController(
             return
         }
 
-        val updatedButtons = cfg.buttons.map { btnConfig ->
+        val currentButtons = activeButtons()
+        val updatedButtons = currentButtons.map { btnConfig ->
             val view = buttonViews.firstOrNull { it.config.id == btnConfig.id }
             if (view != null) {
                 val (xNorm, yNorm) = view.getNormalizedPosition(containerWidth, containerHeight)
@@ -1025,8 +1075,8 @@ class TouchOverlayController(
             }
         }
 
-        config = cfg.copy(
-            buttons = updatedButtons,
+        updateActiveButtons(updatedButtons)
+        config = config!!.copy(
             relativeMouseSpeed = SDLSurface.getTouchpadMouseSpeed(),
             scrollSpeedMs = currentScrollSpeed()
         )
@@ -1098,9 +1148,11 @@ class TouchOverlayController(
         private const val AUTO_HIDE_POLL_MS = 250L
 
         // Screen IDs from src/game/ScreenIDs.h
-        // GAME_SCREEN = 5. Map, menus, and the modal native tutorial hide the overlay.
-        private val VISIBLE_SCREEN_WHITELIST = setOf(5)
-        private const val SAFE_SCREEN_ID = 5 // GAME_SCREEN; fallback when JNI fails
+        // GAME_SCREEN = 5, MAP_SCREEN = 9, FADE_SCREEN = 13
+        private const val GAME_SCREEN = 5
+        private const val MAP_SCREEN = 9
+        private val VISIBLE_SCREEN_WHITELIST = setOf(GAME_SCREEN, MAP_SCREEN)
+        private const val SAFE_SCREEN_ID = GAME_SCREEN
 
         fun clampFloat(value: Float, min: Float, max: Float): Float =
             value.coerceIn(min, max)

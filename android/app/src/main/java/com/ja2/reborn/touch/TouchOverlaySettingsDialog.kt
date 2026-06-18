@@ -37,11 +37,14 @@ class TouchOverlaySettingsDialog(
     private val onMapFovChanged: (Int) -> Unit = {},
     private val panelScalePercent: Int = 100,
     private val onPanelScaleChanged: (Int) -> Unit = {},
+    private val directTouchArbitrationMs: Int = 1800,
+    private val onDirectTouchArbitrationChanged: (Int) -> Unit = {},
     private val resolutionMode: ResolutionMode = ResolutionMode.DEFAULT
 ) {
     // Inverted: left=slow (80ms), right=fast (5ms)
     private val scrollSpeedValues = intArrayOf(80, 60, 45, 35, 27, 20, 15, 10, 5)
     private val mouseSpeedValues = floatArrayOf(0.50f, 0.65f, 0.80f, 1.00f, 1.20f, 1.45f, 1.75f, 2.10f, 2.50f)
+    private val arbitrationMsValues = intArrayOf(200, 400, 600, 900, 1200, 1500, 1800, 2100, 2500)
     private val panelScaleValues: IntArray
         get() = when (resolutionMode) {
             ResolutionMode.HIGH_RES -> intArrayOf(100, 120, 140, 160, 180)
@@ -114,6 +117,30 @@ class TouchOverlaySettingsDialog(
         layout.addView(disableMouseScrollingSwitch())
         layout.addView(section(R.string.touch_section_mouse_speed))
         layout.addView(sliderWithLabels(mouseSeekBar))
+
+        val arbitrationIndex = findClosestIndex(arbitrationMsValues, directTouchArbitrationMs.coerceIn(200, 2500))
+        val arbitrationSeekBar = SeekBar(context).apply {
+            max = arbitrationMsValues.size - 1
+            progress = arbitrationIndex
+            thumbTintList = ColorStateList.valueOf(ACCENT)
+            progressTintList = ColorStateList.valueOf(ACCENT)
+            progressBackgroundTintList = ColorStateList.valueOf(0x667D8DA0)
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        val ms = arbitrationMsValues[progress.coerceIn(0, arbitrationMsValues.size - 1)]
+                        SDLSurface.setDirectTouchArbitrationMs(ms)
+                        onDirectTouchArbitrationChanged(ms)
+                    }
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }
+
+        layout.addView(section(R.string.touch_section_direct_tap))
+        layout.addView(sliderWithDirectionalLabels(arbitrationSeekBar,
+            R.string.touch_direct_tap_fast, R.string.touch_direct_tap_slow))
 
         val activePanelScaleValues = panelScaleValues
         val effectivePanelScalePercent = if (resolutionMode == ResolutionMode.RETRO) 100 else panelScalePercent

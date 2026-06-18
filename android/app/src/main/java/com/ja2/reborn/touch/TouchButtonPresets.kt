@@ -28,6 +28,8 @@ val TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
     keyPreset("stealth_toggle", "Schleichmodus an/aus", "stealth_toggle", "Z", "Bewegung"),
     keyPreset("swap_places", "Pl\u00e4tze tauschen", "swap_places", "X", "Bewegung"),
     keyPreset("alt_movement_hold", "R\u00fcckw\u00e4rtsgang / Seitw\u00e4rtsschritte", "alt_movement_hold", "ALT", "Bewegung", mode = "hold"),
+    keyPreset("strafe_hold", "Strafe (Halten)", "alt_movement_hold", "CTRL", "Bewegung", mode = "hold"),
+    keyPreset("strafe_toggle", "Strafe (An/Aus)", "alt_movement_hold", "CTRL", "Bewegung", mode = "toggle"),
 
     keyPreset("fire_mode", "Feuermodus wechseln", "fire_mode", "B", "Kampf"),
     keyPreset("range_cursor", "Reichweite zum Cursor anzeigen", "range_cursor", "F", "Kampf"),

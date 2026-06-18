@@ -2,6 +2,7 @@ package com.ja2.reborn
 
 import android.app.Application
 import android.content.Context
+import com.ja2.reborn.touch.SvgIconManager
 
 class Ja2Application : Application() {
     override fun attachBaseContext(base: Context) {
@@ -11,5 +12,6 @@ class Ja2Application : Application() {
     override fun onCreate() {
         super.onCreate()
         LanguageManager.applyLanguage(this)
+        SvgIconManager.init(this)
     }
 }
