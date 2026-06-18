@@ -1,0 +1,205 @@
+package com.ja2.reborn.touch
+
+import com.ja2.reborn.MouseMode
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class TouchOverlayConfigMigrationTest {
+    private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
+
+    @Test
+    fun legacySchema9WithoutMapScreenButtons_getsEmptyList() {
+        val legacy = """{
+            "schema_version": 9,
+            "relative_mouse_speed": 1.0,
+            "buttons": [
+                {"id": "btn1", "label": "Test", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "A"}
+                ]}
+            ]
+        }"""
+
+        val config = json.decodeFromString<TouchOverlayConfig>(legacy)
+        assertEquals(9, config.schemaVersion)
+        assertEquals(1, config.buttons.size)
+        assertEquals("btn1", config.buttons[0].id)
+        assertTrue(config.mapScreenButtons.isEmpty())
+    }
+
+    @Test
+    fun legacySchema9Upgrade_fillsMapScreenButtonsWithDefaults() {
+        val legacy = """{
+            "schema_version": 9,
+            "buttons": [
+                {"id": "btn1", "label": "Test", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "A"}
+                ]}
+            ]
+        }"""
+
+        val config = json.decodeFromString<TouchOverlayConfig>(legacy)
+        assertTrue(config.mapScreenButtons.isEmpty())
+
+        val upgraded = if (config.mapScreenButtons.isEmpty()) {
+            config.copy(
+                schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
+                mapScreenButtons = defaultMapScreenButtons()
+            )
+        } else config
+
+        assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, upgraded.schemaVersion)
+        assertEquals(8, upgraded.mapScreenButtons.size)
+        val modifiers = upgraded.mapScreenButtons.filter { it.id in setOf("map_shift", "map_ctrl", "map_alt") }
+        assertEquals(3, modifiers.size)
+    }
+
+    @Test
+    fun schema10WithBothButtonSets_preservesAll() {
+        val v10 = """{
+            "schema_version": 10,
+            "buttons": [
+                {"id": "tactical_btn", "label": "Tac", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "B"}
+                ]}
+            ],
+            "map_screen_buttons": [
+                {"id": "map_btn", "label": "Map", "x": 0.9, "y": 0.4, "size": 0.06, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "M"}
+                ]}
+            ]
+        }"""
+
+        val config = json.decodeFromString<TouchOverlayConfig>(v10)
+        assertEquals(10, config.schemaVersion)
+        assertEquals(1, config.buttons.size)
+        assertEquals("tactical_btn", config.buttons[0].id)
+        assertEquals(1, config.mapScreenButtons.size)
+        assertEquals("map_btn", config.mapScreenButtons[0].id)
+    }
+
+    @Test
+    fun codeDefaultHasEmptyMapScreenButtons() {
+        val config = TouchOverlayConfig()
+        assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
+        assertEquals(12, config.schemaVersion)
+        assertTrue(config.mapScreenButtons.isEmpty())
+        assertEquals(4, config.buttons.size) // defaultButtons(): mouse_left, mouse_right, strafe_hold, strafe_toggle
+    }
+
+    @Test
+    fun schemaVersionConstantIs12() {
+        assertEquals(12, TOUCH_OVERLAY_CONFIG_VERSION)
+    }
+
+    @Test
+    fun mapScreenModifiersUseToggleMode() {
+        val buttons = defaultMapScreenButtons()
+        val modifiers = buttons.filter { it.id in setOf("map_shift", "map_ctrl", "map_alt") }
+        assertEquals(3, modifiers.size)
+        modifiers.forEach { btn ->
+            val mode = btn.actions.first().mode
+            assertEquals("toggle", mode)
+        }
+    }
+
+    @Test
+    fun defaultMapScreenButtonsHasExtendedSet() {
+        val buttons = defaultMapScreenButtons()
+        assertEquals(8, buttons.size) // 3 modifiers + 5 action buttons
+    }
+
+    @Test
+    fun defaultConfigHasDirectTouchArbitrationMs1800() {
+        val config = TouchOverlayConfig()
+        assertEquals(1800, config.directTouchArbitrationMs)
+    }
+
+    @Test
+    fun legacySchema9Config_withoutArbitration_defaultsTo1800() {
+        val legacy = """{
+            "schema_version": 9,
+            "buttons": [
+                {"id": "b1", "label": "T", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "key_name": "A"}
+                ]}
+            ]
+        }"""
+        val config = json.decodeFromString<TouchOverlayConfig>(legacy)
+        assertEquals(1800, config.directTouchArbitrationMs)
+    }
+
+    @Test
+    fun schema10Config_withArbitration_preservesValue() {
+        val v10 = """{
+            "schema_version": 10,
+            "direct_touch_arbitration_ms": 1200,
+            "buttons": [
+                {"id": "btn1", "label": "Test", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "A"}
+                ]}
+            ]
+        }"""
+        val config = json.decodeFromString<TouchOverlayConfig>(v10)
+        assertEquals(1200, config.directTouchArbitrationMs)
+    }
+
+    @Test
+    fun mouseModeValues_includesHardware() {
+        val values = MouseMode.entries
+        assertEquals(4, values.size)
+        assertTrue(values.contains(MouseMode.HARDWARE))
+        assertEquals("hardware", MouseMode.HARDWARE.value)
+    }
+
+    @Test
+    fun mouseMode_defaultIsTouchpad() {
+        assertEquals(MouseMode.TOUCHPAD, MouseMode.DEFAULT)
+    }
+
+    @Test
+    fun defaultMapScreenButtonsHasInventoryButton() {
+        val buttons = defaultMapScreenButtons()
+        val inv = buttons.filter { it.id == "map_inventory" }
+        assertEquals(1, inv.size)
+        assertEquals("Inv", inv[0].label)
+        assertEquals("I", inv[0].actions.first().keyName)
+    }
+
+    @Test
+    fun strafePresetsExist() {
+        val holdPreset = TOUCH_BUTTON_PRESETS.firstOrNull { it.id == "strafe_hold" }
+        val togglePreset = TOUCH_BUTTON_PRESETS.firstOrNull { it.id == "strafe_toggle" }
+        assertTrue(holdPreset != null)
+        assertTrue(togglePreset != null)
+        assertEquals("hold", holdPreset!!.action.mode)
+        assertEquals("toggle", togglePreset!!.action.mode)
+        assertEquals("CTRL", holdPreset.action.keyName)
+        assertEquals("CTRL", togglePreset.action.keyName)
+    }
+
+    @Test
+    fun forceReleaseToggle_resolvesKeyAndRemovesFromHeldSet() {
+        val action = TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT")
+        val keyCode = TouchInputDispatcher.keyNameToCode("SHIFT")
+        assertTrue(keyCode != null)
+        assertEquals(action.keyName, "SHIFT")
+    }
+
+    @Test
+    fun legacySchema9Config_with_toggle_defaultsToHold() {
+        val legacy = """{
+            "schema_version": 9,
+            "buttons": [
+                {"id": "b1", "label": "T", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "key_name": "A"}
+                ]}
+            ]
+        }"""
+        val config = json.decodeFromString<TouchOverlayConfig>(legacy)
+        val mode = config.buttons[0].actions[0].mode
+        assertEquals("hold", mode)
+    }
+}

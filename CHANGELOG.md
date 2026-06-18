@@ -6,12 +6,39 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ## Unreleased
 
+### Added
+
+- Added 37 SVG touch overlay icons from IconConverter (Batches 01–06: Tactical Core, Stances, Combat, Actions, MapScreen Nav, MapScreen Display).
+- Added `SvgIconManager` with canonical 512 px rendering pipeline (`documentViewBox`-based aspect ratio, 430 px inner + 8% padding, white tint via `PorterDuff.Mode.SRC_IN`).
+- Added `iconset.json` and `iconmappings.json` for IconConverter export integration.
+- Added per-button `iconFill` override field to `TouchButtonConfig` with -1 sentinel for iconset default.
+- Added Icon Size runtime slider (30%–200%) to the button editor dialog.
+- Added `lock_closed`/`lock_open` SVG rendering to the lock button.
+
 ### Changed
 
+- Rewired `drawIcon()`: SVGs now render first via `SvgIconManager`, Canvas drawing is fallback only.
+- Replaced 27 Canvas-fallback branches in `drawIcon()` with SVG-first render-and-return.
+- Reworked map screen button defaults: removed 12 legacy buttons (directional nav, map section hotkeys, ESC/Enter/Space), reduced from 20 to 8 SVG-backed buttons with `icon` fields.
+- `strafe_hold` and `strafe_toggle` now share `alt_movement_hold` SVG icon.
+- Bumped `TOUCH_OVERLAY_CONFIG_VERSION` to 12; migration replaces outdated map screen buttons on version change.
+- Updated lock button to use `computeOuterShapeBounds`/`computeIconShapeBounds` geometry model, matching regular buttons.
+- All default touch preset button sizes scaled per OverlayIconManual Section 3.7.
 - Reworked the public project documentation.
 - Moved Android build instructions into `docs/BUILDING_ANDROID.md`.
 - Added public release documentation, release notes, third-party notices, and a repository sanity workflow.
 - Clarified that clean release builds produce `app-release-unsigned.apk` unless signing is configured locally.
+
+### Fixed
+
+- Fixed map screen buttons not showing SVG icons because `icon` fields were missing in `default_touch_preset.json`.
+- Fixed outdated map screen buttons persisting across reinstalls because migration only replaced empty `mapScreenButtons` lists.
+- Fixed lock button still using hardcoded Canvas padlock instead of SVG icons.
+
+### Known issues
+
+- Map screen Inventory button (`map_inventory`) toggles item highlight (key I) instead of opening the inventory panel — needs a different key mapping or action type.
+- Batches 02 (Tactical Stances) and 03 (Tactical Combat) icons have alignment issues in-game — likely per-icon `iconFill`/`iconOffset` values need tuning from IconConverter export.
 
 ## 2026-05-17
 

@@ -34,31 +34,34 @@ open class RebornActivity : SDLActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-        SDLSurface.setTouchscreenMouseMode(loadMouseMode().value)
+        val mouseMode = loadMouseMode()
+        SDLSurface.setTouchscreenMouseMode(mouseMode.value)
         super.onCreate(savedInstanceState)
         SDLActivity.setTutorialLanguage(LanguageManager.getSavedLanguage(this) == LanguageManager.Language.GERMAN)
 
         val resolutionMode = loadResolutionMode()
 
-        touchOverlayController = TouchOverlayController(
-            filesDir = applicationContext.filesDir,
-            activity = this,
-            root = getContentView() as ViewGroup,
-            surface = mSurface,
-            resolutionMode = resolutionMode,
-            onCheatButtonTapped = {
-                CheatOverlayDialog(this, applicationContext.filesDir).show()
-            },
-            onImportPreset = {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/json"
-                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "*/*"))
+        if (mouseMode != MouseMode.HARDWARE) {
+            touchOverlayController = TouchOverlayController(
+                filesDir = applicationContext.filesDir,
+                activity = this,
+                root = getContentView() as ViewGroup,
+                surface = mSurface,
+                resolutionMode = resolutionMode,
+                onCheatButtonTapped = {
+                    CheatOverlayDialog(this, applicationContext.filesDir).show()
+                },
+                onImportPreset = {
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "application/json"
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "*/*"))
+                    }
+                    startActivityForResult(intent, REQUEST_CODE_IMPORT_PRESET)
                 }
-                startActivityForResult(intent, REQUEST_CODE_IMPORT_PRESET)
-            }
-        )
-        touchOverlayController?.attach()
+            )
+            touchOverlayController?.attach()
+        }
         writeGameSessionFile()
     }
 

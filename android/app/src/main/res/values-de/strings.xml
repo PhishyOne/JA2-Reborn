@@ -81,10 +81,13 @@
     <string name="cheat_one_hit_kill_label">One-Hit Kill</string>
     <string name="cheat_perfect_hit_chance_label">Perfekte Trefferchance</string>
     <string name="mouse_mode_info_title_text">Maus-Modus</string>
-    <string name="mouse_mode_info_text">Moderne Steuerung bietet die beste Spielerfahrung. Absolute Maus und Touchscreen sind veraltet und experimentell.</string>
+    <string name="mouse_mode_info_text">Moderne Steuerung bietet die beste Spielerfahrung. Absolute Maus und Touchscreen sind veraltet und experimentell. Hardware-Modus umgeht die Touch-Verarbeitung für physische Maus und Tastatur.</string>
 
     <!-- Touch Overlay Settings Dialog -->
     <string name="touch_settings_title">Einstellungen</string>
+    <string name="touch_section_direct_tap">Touchpad Direkt-Tipp</string>
+    <string name="touch_direct_tap_fast">Schnell</string>
+    <string name="touch_direct_tap_slow">Langsam</string>
     <string name="touch_section_scroll_speed">Scroll-Geschwindigkeit</string>
     <string name="touch_section_mouse_speed">Maus-Geschwindigkeit</string>
     <string name="touch_section_auto_hide">Automatisch ausblenden</string>
@@ -119,6 +122,7 @@
     <string name="touch_edit_field_size">Größe</string>
     <string name="touch_edit_field_shape">Form</string>
     <string name="touch_edit_field_opacity">Deckkraft</string>
+    <string name="touch_edit_field_icon_size">Icon-Größe</string>
     <string name="touch_shape_circle">Kreis</string>
     <string name="touch_shape_square">Quadrat</string>
     <string name="touch_shape_rectangle">Rechteck</string>
@@ -175,6 +179,7 @@
     <string name="mouse_mode_touchpad">Moderne Steuerung (Empfohlen)</string>
     <string name="mouse_mode_absolute">Absolute Maus (veraltet)</string>
     <string name="mouse_mode_touchscreen">Touchscreen (veraltet)</string>
+    <string name="mouse_mode_hardware">Hardware-Maus/Tastatur</string>
 
     <!-- Touch Button Action Display -->
     <string name="touch_action_left">Links</string>

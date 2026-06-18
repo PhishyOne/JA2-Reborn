@@ -29,7 +29,13 @@ object TouchOverlayAdaptiveDefaults {
 
     fun isSameButtonLayout(a: TouchOverlayConfig, b: TouchOverlayConfig): Boolean {
         if (a.buttons.size != b.buttons.size) return false
+        if (a.mapScreenButtons.size != b.mapScreenButtons.size) return false
         return a.buttons.zip(b.buttons).all { (left, right) ->
+            left.id == right.id &&
+                near(left.x, right.x) &&
+                near(left.y, right.y) &&
+                near(left.size, right.size)
+        } && a.mapScreenButtons.zip(b.mapScreenButtons).all { (left, right) ->
             left.id == right.id &&
                 near(left.x, right.x) &&
                 near(left.y, right.y) &&

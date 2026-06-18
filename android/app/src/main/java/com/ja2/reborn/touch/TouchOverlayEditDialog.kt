@@ -36,6 +36,9 @@ class TouchOverlayEditDialog(
     private val alphaValues = floatArrayOf(
         0.15f, 0.25f, 0.35f, 0.45f, 0.55f, 0.65f, 0.75f, 0.85f, 1.00f
     )
+    private val iconFillMin = 0.3f
+    private val iconFillMax = 2.0f
+    private val iconFillMaxProgress = 170
 
     fun show() {
         val selectedPreset = touchButtonPresetFor(buttonConfig) ?: presetOptions.first()
@@ -94,6 +97,26 @@ class TouchOverlayEditDialog(
         container.addView(labeledField(context.getString(R.string.touch_edit_field_shape), shapeSpinner))
         container.addView(labeledField(context.getString(R.string.touch_edit_field_opacity), sliderRow(alphaSeekBar, alphaLabel)))
 
+        val iconFillLabel = valueText()
+        val resolvedFill = resolveIconFill()
+        val iconFillSeekBar = SeekBar(context).apply {
+            max = iconFillMaxProgress
+            progress = ((resolvedFill - iconFillMin) / (iconFillMax - iconFillMin) * iconFillMaxProgress).toInt()
+                .coerceIn(0, iconFillMaxProgress)
+            thumbTintList = tint(ACCENT)
+            progressTintList = tint(ACCENT)
+            progressBackgroundTintList = tint(SURFACE_STROKE)
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    iconFillLabel.text = iconFillFormat(progress)
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }
+        iconFillLabel.text = iconFillFormat(iconFillSeekBar.progress)
+        container.addView(labeledField(context.getString(R.string.touch_edit_field_icon_size), sliderRow(iconFillSeekBar, iconFillLabel)))
+
         scrollView.addView(container)
 
         sizeLabel.text = sizeFormat(sizeValues[sizeSeekBar.progress])
@@ -105,11 +128,13 @@ class TouchOverlayEditDialog(
                 val shapes = shapeOptions()
                 val preset = presetEntries[presetSpinner.selectedItemPosition.coerceIn(0, presetEntries.size - 1)].preset
                     ?: selectedPreset
+                val iconFillVal = iconFillMin + (iconFillSeekBar.progress.toFloat() / iconFillMaxProgress) * (iconFillMax - iconFillMin)
                 val updated = preset.applyTo(buttonConfig).copy(
                     shape = shapes[shapeSpinner.selectedItemPosition.coerceIn(0, shapes.size - 1)].value
                         ?: BUTTON_SHAPE_CIRCLE,
                     size = sizeValues[sizeSeekBar.progress],
-                    alpha = alphaValues[alphaSeekBar.progress]
+                    alpha = alphaValues[alphaSeekBar.progress],
+                    iconFill = iconFillVal
                 )
                 onSave(updated)
             }
@@ -301,6 +326,16 @@ class TouchOverlayEditDialog(
 
     private val sizeFormat: (Float) -> String = { v -> String.format("%.3f", v) }
     private val alphaFormat: (Float) -> String = { v -> "${(v * 100).toInt()}%" }
+
+    private fun resolveIconFill(): Float {
+        return if (buttonConfig.iconFill > 0f) buttonConfig.iconFill
+        else buttonConfig.icon?.let { SvgIconManager.getIconFill(it) } ?: 1.0f
+    }
+
+    private val iconFillFormat: (Int) -> String = { progress ->
+        val value = iconFillMin + (progress.toFloat() / iconFillMaxProgress) * (iconFillMax - iconFillMin)
+        "${(value * 100).toInt()}%"
+    }
 
     private fun findClosestIndex(values: FloatArray, target: Float): Int {
         var best = 0

@@ -49,6 +49,7 @@ object LocalizationHelper {
                 MouseMode.TOUCHPAD -> R.string.mouse_mode_touchpad
                 MouseMode.ABSOLUTE -> R.string.mouse_mode_absolute
                 MouseMode.TOUCHSCREEN -> R.string.mouse_mode_touchscreen
+                MouseMode.HARDWARE -> R.string.mouse_mode_hardware
             }
         )
     }

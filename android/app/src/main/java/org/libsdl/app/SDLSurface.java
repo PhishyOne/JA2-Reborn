@@ -45,6 +45,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     private static final String TOUCHSCREEN_MOUSE_MODE_TOUCHSCREEN = "touchscreen";
     private static final String TOUCHSCREEN_MOUSE_MODE_ABSOLUTE = "absolute";
     private static final String TOUCHSCREEN_MOUSE_MODE_TOUCHPAD = "touchpad";
+    private static final String TOUCHSCREEN_MOUSE_MODE_HARDWARE = "hardware";
     private static String mTouchscreenMouseMode = TOUCHSCREEN_MOUSE_MODE_TOUCHSCREEN;
 
     private static final int TOUCHPAD_TAP_TIMEOUT_MS = 250;
@@ -61,6 +62,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     private static final float TOUCHPAD_DOUBLE_TAP_SLOP_DP = 64.0f;
     private static final float TOUCHPAD_DIRECT_TAP_ARBITRATION_DP = 72.0f;
     private static float sTouchpadSpeed = 1.0f;
+    private static int sDirectTouchArbitrationMs = 1800;
     private static boolean sOverlayEditModeActive = false;
 
     public static void setOverlayEditModeActive(boolean active) {
@@ -77,6 +79,14 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     public static float getTouchpadMouseSpeed() {
         return sTouchpadSpeed;
+    }
+
+    public static void setDirectTouchArbitrationMs(int ms) {
+        sDirectTouchArbitrationMs = Math.max(200, Math.min(2500, ms));
+    }
+
+    public static int getDirectTouchArbitrationMs() {
+        return sDirectTouchArbitrationMs;
     }
 
     private int mTouchpadPointerId = -1;
@@ -184,12 +194,18 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     };
 
     public static void setTouchscreenMouseMode(String mode) {
-        if (TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mode) || TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mode)) {
+        if (TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mode)
+                || TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mode)
+                || TOUCHSCREEN_MOUSE_MODE_HARDWARE.equals(mode)) {
             mTouchscreenMouseMode = mode;
         } else {
             mTouchscreenMouseMode = TOUCHSCREEN_MOUSE_MODE_TOUCHSCREEN;
         }
         Log.v("SDL", "Touchscreen mouse mode: " + mTouchscreenMouseMode);
+    }
+
+    public static String getTouchscreenMouseMode() {
+        return mTouchscreenMouseMode;
     }
 
     // Startup
@@ -416,16 +432,18 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             if (!forceNativeTouch && handleTeamPanelPortraitTouch(event)) {
                 return;
             }
-            if (!forceNativeTouch && TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode) && handleBottomUITouch(event)) {
-                return;
-            }
-            if (!forceNativeTouch && TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mTouchscreenMouseMode)) {
-                handleAbsoluteMouseTouch(event);
-                return;
-            }
-            if (!forceNativeTouch && TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
-                handleTouchpadMouseTouch(event);
-                return;
+            if (!forceNativeTouch && !TOUCHSCREEN_MOUSE_MODE_HARDWARE.equals(mTouchscreenMouseMode)) {
+                if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode) && handleBottomUITouch(event)) {
+                    return;
+                }
+                if (TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mTouchscreenMouseMode)) {
+                    handleAbsoluteMouseTouch(event);
+                    return;
+                }
+                if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+                    handleTouchpadMouseTouch(event);
+                    return;
+                }
             }
 
             switch(action) {
@@ -953,7 +971,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         }
 
         long elapsedSinceRelativeMove = event.getEventTime() - mTouchpadLastRelativeMoveTime;
-        if (elapsedSinceRelativeMove > TOUCHPAD_DIRECT_TAP_ARBITRATION_MS) {
+        if (elapsedSinceRelativeMove > sDirectTouchArbitrationMs) {
             return true;
         }
 
@@ -1128,6 +1146,9 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     }
 
     public void performOverlayMouseButton(int mouseButton, boolean pressed) {
+        if (!TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+            return;
+        }
         ensureTouchpadCursorInitialized();
         if (pressed) {
             flushDeferredTouchpadClick();

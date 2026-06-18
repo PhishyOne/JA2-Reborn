@@ -8,7 +8,7 @@
             "icon": "mouse_left",
             "x": 0.035,
             "y": 0.27222222,
-            "size": 0.12,
+            "size": 0.187,
             "actions": [
                 {
                     "type": "mouse_button",
@@ -22,7 +22,7 @@
             "icon": "mouse_right",
             "x": 0.0875,
             "y": 0.15555556,
-            "size": 0.12,
+            "size": 0.187,
             "actions": [
                 {
                     "type": "mouse_button",
@@ -36,7 +36,7 @@
             "icon": "end_turn",
             "x": 0.0175,
             "y": 0.15555556,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -64,7 +64,7 @@
             "icon": "cheats",
             "x": 0.875,
             "y": 0.89444447,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "cheat_menu",
@@ -78,7 +78,7 @@
             "icon": "quick_save",
             "x": 0.8225,
             "y": 0.7777778,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key_combo",
@@ -96,7 +96,7 @@
             "icon": "quick_load",
             "x": 0.8225,
             "y": 0.89444447,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key_combo",
@@ -114,7 +114,7 @@
             "icon": "map",
             "x": 0.875,
             "y": 0.7777778,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -129,7 +129,7 @@
             "icon": "cancel_action",
             "x": 0.9275,
             "y": 0.7777778,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -144,7 +144,7 @@
             "icon": "auto_bandage",
             "x": 0.9275,
             "y": 0.89444447,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -159,7 +159,7 @@
             "icon": "stance_stand",
             "x": 0.8575,
             "y": 0.27222222,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -174,7 +174,7 @@
             "icon": "stance_crouch",
             "x": 0.875,
             "y": 0.3888889,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -189,7 +189,7 @@
             "icon": "stance_prone",
             "x": 0.8925,
             "y": 0.50555557,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -204,7 +204,7 @@
             "icon": "stealth_toggle",
             "x": 0.9275,
             "y": 0.35,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -219,11 +219,43 @@
             "icon": "alt_movement_hold",
             "x": 0.945,
             "y": 0.46666667,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
                     "key_name": "ALT"
+                }
+            ]
+        },
+        {
+            "id": "strafe_hold",
+            "label": "STR",
+            "icon": "alt_movement_hold",
+            "shape": "circle",
+            "x": 0.8575,
+            "y": 0.62222223,
+            "size": 0.14,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "hold",
+                    "key_name": "CTRL"
+                }
+            ]
+        },
+        {
+            "id": "strafe_toggle",
+            "label": "ST",
+            "icon": "alt_movement_hold",
+            "shape": "square",
+            "x": 0.8925,
+            "y": 0.62222223,
+            "size": 0.14,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "toggle",
+                    "key_name": "CTRL"
                 }
             ]
         },
@@ -233,7 +265,7 @@
             "icon": "fire_mode",
             "x": 0.91,
             "y": 0.23333333,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -248,7 +280,7 @@
             "icon": "look_direction",
             "x": 0.83958334,
             "y": 0.15555556,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
@@ -263,12 +295,142 @@
             "icon": "cycle_targets",
             "x": 0.8925,
             "y": 0.11666667,
-            "size": 0.09,
+            "size": 0.14,
             "actions": [
                 {
                     "type": "key",
                     "mode": "tap",
                     "key_name": "N"
+                }
+            ]
+        }
+    ],
+    "map_screen_buttons": [
+        {
+            "id": "map_shift",
+            "label": "SH",
+            "icon": "map_shift",
+            "shape": "square",
+            "x": 0.93,
+            "y": 0.35,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "toggle",
+                    "key_name": "SHIFT"
+                }
+            ]
+        },
+        {
+            "id": "map_ctrl",
+            "label": "CT",
+            "icon": "map_ctrl",
+            "shape": "square",
+            "x": 0.93,
+            "y": 0.44,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "toggle",
+                    "key_name": "CTRL"
+                }
+            ]
+        },
+        {
+            "id": "map_alt",
+            "label": "AL",
+            "icon": "map_alt",
+            "shape": "square",
+            "x": 0.93,
+            "y": 0.53,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "toggle",
+                    "key_name": "ALT"
+                }
+            ]
+        },
+        {
+            "id": "map_options",
+            "label": "Opt",
+            "icon": "map_options",
+            "shape": "rectangle",
+            "x": 0.02,
+            "y": 0.94,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "O"
+                }
+            ]
+        },
+        {
+            "id": "map_time_minus",
+            "label": "−",
+            "icon": "map_time_minus",
+            "shape": "square",
+            "x": 0.14,
+            "y": 0.94,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "MINUS"
+                }
+            ]
+        },
+        {
+            "id": "map_time_plus",
+            "label": "+",
+            "icon": "map_time_plus",
+            "shape": "square",
+            "x": 0.26,
+            "y": 0.94,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "EQUALS"
+                }
+            ]
+        },
+        {
+            "id": "map_inventory",
+            "label": "Inv",
+            "icon": "map_inventory",
+            "shape": "rectangle",
+            "x": 0.38,
+            "y": 0.94,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "I"
+                }
+            ]
+        },
+        {
+            "id": "map_laptop",
+            "label": "Lap",
+            "icon": "map_laptop",
+            "shape": "rectangle",
+            "x": 0.50,
+            "y": 0.94,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "L"
                 }
             ]
         }
