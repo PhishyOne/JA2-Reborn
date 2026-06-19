@@ -10,7 +10,7 @@
 
 ## Summary
 
-Die offenen Punkte betreffen drei Bereiche: Touch-Overlay-Konfiguration, Icon-/Button-Darstellung und native Screen-Skalierung. Die Touch-Overlay-Aenderungen werden mit Schema-Version `13` migriert, damit bestehende User-Layouts erhalten bleiben. Die nativen Skalierungsfixes werden zuerst fuer Auto-Bandage und Shopkeeper umgesetzt und danach ueber eine feste Screen-Audit-Matrix geprueft.
+Die offenen Punkte betreffen drei Bereiche: Touch-Overlay-Konfiguration, Icon-/Button-Darstellung und native Screen-Skalierung. Die Touch-Overlay-Aenderungen werden mit Schema-Version `13` migriert, damit bestehende User-Layouts erhalten bleiben. Die nativen Skalierungsfixes werden zuerst fuer Auto-Bandage und Shopkeeper umgesetzt und danach ueber eine feste Screen-Audit-Matrix geprueft. Das Widescreen-Problem betrifft nicht nur Auto-Bandage, sondern alle Situationen, in denen das Spiel Texteinblendungen ausgibt; diese Faelle muessen in den Widescreen-Modi intensiv geprueft werden. Menues und Map-Screen sollen weiterhin bewusst im 4:3-Layout bleiben.
 
 ## Phase 1: Touch Overlay Migration und Map Inventory
 
@@ -212,6 +212,8 @@ Auto-Bandage darf auf Widescreen-Displays keinen kurzen 4:3-Sprung mehr verursac
 
 ## Phase 6: Shopkeeper / Vendor Scaling
 
+**Status:** Abgeschlossen am 2026-06-19. Implementiert, codegeprueft und gebaut; manuelle Widescreen-Geraetepruefung steht fuer die Endverifikation aus.
+
 ### Ziel
 
 Vendor-/Shopkeeper-Screens duerfen auf breiten Displays nicht abgeschnitten oder falsch skaliert sein.
@@ -237,18 +239,35 @@ Vendor-/Shopkeeper-Screens duerfen auf breiten Displays nicht abgeschnitten oder
 - Manuell pruefen: Item-Beschreibung und Popups liegen innerhalb des sichtbaren Bereichs.
 - Danach Log und Plan aktualisieren, Ergebnisse erneut pruefen, committen und stoppen.
 
+### Ergebnis 2026-06-19
+
+- Shopkeeper-UI-Elemente verwenden einen gemeinsamen SKI-Origin ueber `STD_SCREEN_X/Y`.
+- `tradescreen.sti`, Buttons, Inventar-Slots, Mouse Regions, Restore-/Invalidate-Rects, Item-Description-Anker und Shopkeeper-Subtitles sind auf denselben Origin umgestellt.
+- Taktische Aussenbereiche um das Shopkeeper-Panel werden weiterhin ueber aktuelle `SCREEN_WIDTH` und `INV_INTERFACE_START_Y` restauriert und bleiben Widescreen.
+- Shopkeeper-Messageboxen werden innerhalb des 640er SKI-Panels zentriert; Item-Beschreibungen werden gegen aktuelle `SCREEN_WIDTH/HEIGHT` geklemmt.
+- `android\gradlew.bat externalNativeBuildDebug` aus dem Android-Gradle-Root: BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86` und `x86_64`.
+
 ## Phase 7: Gesamter Screen-Audit
+
+**Status:** Abgeschlossen am 2026-06-19 als Code-Audit und Build-Verifikation; vollstaendige manuelle 16:9-/Ultrawide-Geraetepruefung steht fuer die Endabnahme aus.
 
 ### Ziel
 
-Alle wichtigen Screens sollen gegen Widescreen-Geometrie, Klickbereiche, Dirty-Rects und Popups geprueft werden.
+Alle wichtigen Screens sollen gegen Widescreen-Geometrie, Klickbereiche, Dirty-Rects, Popups und Texteinblendungen geprueft werden. Das Widescreen-Problem ist nicht auf Auto-Bandage begrenzt, sondern kann immer auftreten, wenn das Spiel Text oder Untertitel einblendet. Menues und Map-Screen bleiben dabei bewusst 4:3.
 
 ### Umsetzung
 
 - Verbindliche Layout-Regel anwenden:
-  - klassische 640x480-Screens und Modals werden ueber `STD_SCREEN_X/Y` zentriert;
+  - klassische Menues, Map-Screen, 640x480-Screens und Modals werden ueber `STD_SCREEN_X/Y` zentriert und bleiben 4:3;
   - taktische Welt, Viewport und Bottom-UI verwenden `SCREEN_WIDTH/HEIGHT` und `INV_INTERFACE_START_Y`;
-  - Popup- und Dirty-Rects duerfen keine impliziten 640x480-Grenzen verwenden.
+  - Popup-, Text- und Dirty-Rects duerfen keine impliziten 640x480-Grenzen verwenden, wenn sie in Widescreen-Kontexten ueber taktischer Welt oder Viewport liegen.
+- Alle Texteinblendungen in Widescreen-Modi intensiv pruefen:
+  - Floating Text;
+  - Treffer-/Schadenszahlen;
+  - Status- und Aktionsmeldungen;
+  - NPC Dialog/Subtitles;
+  - Message Boxes und Bestaetigungsdialoge;
+  - Item-, Objekt- und Kontextbeschreibungen.
 - Screen-Audit-Matrix abarbeiten:
   - Tactical normal;
   - Tactical Inventory;
@@ -282,12 +301,25 @@ Alle wichtigen Screens sollen gegen Widescreen-Geometrie, Klickbereiche, Dirty-R
   - sichtbar;
   - korrekt zentriert oder bewusst full-width;
   - klickbar;
+  - Texteinblendungen bleiben vollstaendig sichtbar und korrekt positioniert;
   - keine abgeschnittenen Popups;
   - keine falschen Dirty-Rects;
   - Rueckkehr zum vorherigen Screen korrekt.
 - Danach Log und Plan aktualisieren, Ergebnisse erneut pruefen, committen und stoppen.
 
+### Ergebnis 2026-06-19
+
+- Taktische NPC-/Dialog-Texteinblendungen verwenden die zentrale Tactical-Textbox-Position und werden gegen `SCREEN_WIDTH` sowie `INV_INTERFACE_START_Y` geklemmt.
+- Map-Screen-Dialogpositionen bleiben unveraendert im 4:3-Kontext.
+- Zivilisten-Quotes werden robust gegen die aktuelle taktische Viewport-Hoehe geklemmt.
+- Sector-Exit-Dialog invalidiert jetzt das korrekte Dirty-Rect mit rechter/unterer Koordinate statt Breite/Hoehe.
+- Shopkeeper-Subtitles, Item-Description-Anker und Messageboxen wurden im Rahmen von Phase 6 in den Audit einbezogen.
+- `android\gradlew.bat testDebugUnitTest` aus dem Android-Gradle-Root: BUILD SUCCESSFUL.
+- `android\gradlew.bat externalNativeBuildDebug` aus dem Android-Gradle-Root: BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86` und `x86_64`.
+
 ## Phase 8: Final Verification und APK
+
+**Status:** Abgeschlossen am 2026-06-19. Tests, nativer Build-Check und lokale Debug-APK erfolgreich; Google-Drive-Upload steht bis zur Endabnahme aus.
 
 ### Ziel
 
@@ -312,3 +344,13 @@ Alle acht Punkte werden gemeinsam verifiziert. Eine APK darf fuer die Verifikati
 - Tests laufen erfolgreich oder bekannte Testausfaelle sind dokumentiert.
 - APK wurde nur lokal zur Verifikation erstellt.
 - Kein Google-Drive-Upload vor Endabnahme.
+
+### Ergebnis 2026-06-19
+
+- Branch ist `experimental`.
+- `android\gradlew.bat testDebugUnitTest` aus dem Android-Gradle-Root: BUILD SUCCESSFUL.
+- `android\gradlew.bat externalNativeBuildDebug` aus dem Android-Gradle-Root: BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86` und `x86_64`.
+- `android\gradlew.bat assembleDebug` aus dem Android-Gradle-Root: BUILD SUCCESSFUL.
+- Lokale Debug-APK: `android\app\build\outputs\apk\debug\app-debug.apk`.
+- Kein Google-Drive-Upload durchgefuehrt.
+- Manuelle Endabnahme auf 16:9-/Ultrawide-Geraet bleibt offen, insbesondere Shopkeeper, Texteinblendungen, Popups und Rueckkehr-Artefakte.

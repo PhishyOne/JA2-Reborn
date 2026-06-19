@@ -32,6 +32,7 @@
 #include <string_theory/format>
 #include <string_theory/string>
 
+#include <algorithm>
 
 #define CIV_QUOTE_TEXT_SIZE		160
 
@@ -356,14 +357,10 @@ void BeginCivQuote( SOLDIERTYPE *pCiv, UINT8 ubCivQuoteID, UINT8 ubEntryID, INT1
 			sX = SCREEN_WIDTH - gusCivQuoteBoxWidth;
 		}
 
-		// Now check for top
-		if ( sY < gsVIEWPORT_WINDOW_START_Y )
-		{
-			sY = gsVIEWPORT_WINDOW_START_Y;
-		}
-
-		// Check for bottom
-		sY = std::min(int(sY), gsVIEWPORT_WINDOW_END_Y - gusCivQuoteBoxHeight);
+		// Check vertical viewport bounds
+		const INT16 minY = gsVIEWPORT_WINDOW_START_Y;
+		const INT16 maxY = std::max<INT16>(minY, gsVIEWPORT_WINDOW_END_Y - gusCivQuoteBoxHeight);
+		sY = std::clamp<INT16>(sY, minY, maxY);
 	}
 
 	UINT16 const w = gusCivQuoteBoxWidth;
