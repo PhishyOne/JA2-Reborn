@@ -11,13 +11,13 @@ data class TouchOverlayConfig(
     val enabled: Boolean = true,
     @SerialName("edit_mode") val editMode: Boolean = false,
     @SerialName("layout_locked") val layoutLocked: Boolean = true,
-    @SerialName("relative_mouse_speed") val relativeMouseSpeed: Float = 1.0f,
-    @SerialName("scroll_speed_ms") val scrollSpeedMs: Int = 27,
+    @SerialName("relative_mouse_speed") val relativeMouseSpeed: Float = 1.45f,
+    @SerialName("scroll_speed_ms") val scrollSpeedMs: Int = 35,
     @SerialName("disable_mouse_scrolling") val disableMouseScrolling: Boolean = false,
     @SerialName("hide_overlay_on_non_game_screens") val hideOverlayOnNonGameScreens: Boolean = true,
     @SerialName("tactical_map_fov_percent") val tacticalMapFovPercent: Int = 100,
-    @SerialName("tactical_action_panel_scale_percent") val tacticalActionPanelScalePercent: Int = 100,
-    @SerialName("direct_touch_arbitration_ms") val directTouchArbitrationMs: Int = 1800,
+    @SerialName("tactical_action_panel_scale_percent") val tacticalActionPanelScalePercent: Int = 130,
+    @SerialName("direct_touch_arbitration_ms") val directTouchArbitrationMs: Int = 2500,
     val buttons: List<TouchButtonConfig> = defaultButtons(),
     @SerialName("map_screen_buttons") val mapScreenButtons: List<TouchButtonConfig> = emptyList()
 )
@@ -51,118 +51,38 @@ data class TouchButtonAction(
 )
 
 fun defaultButtons(): List<TouchButtonConfig> = listOf(
-    TouchButtonConfig(
-        id = "mouse_left",
-        label = "L",
-        icon = "mouse_left",
-        shape = BUTTON_SHAPE_CIRCLE,
-        x = 0.42f,
-        y = 0.82f,
-        size = 0.140f,
-        alpha = 0.45f,
-        visible = true,
-        actions = listOf(
-            TouchButtonAction(
-                type = "mouse_button",
-                button = "left",
-                mode = "hold"
-            )
-        )
-    ),
-    TouchButtonConfig(
-        id = "mouse_right",
-        label = "R",
-        icon = "mouse_right",
-        shape = BUTTON_SHAPE_CIRCLE,
-        x = 0.58f,
-        y = 0.82f,
-        size = 0.140f,
-        alpha = 0.45f,
-        visible = true,
-        actions = listOf(
-            TouchButtonAction(
-                type = "mouse_button",
-                button = "right",
-                mode = "hold"
-            )
-        )
-    ),
-    TouchButtonConfig(
-        id = "shift_toggle",
-        label = "SH",
-        icon = "map_shift",
-        shape = BUTTON_SHAPE_SQUARE,
-        x = 0.8925f,
-        y = 0.7556f,
-        size = 0.120f,
-        alpha = 0.45f,
-        visible = true,
-        actions = listOf(
-            TouchButtonAction(
-                type = "key",
-                mode = "toggle",
-                keyName = "SHIFT"
-            )
-        )
-    ),
-    TouchButtonConfig(
-        id = "stance_crouch",
-        label = "DU",
-        icon = "stance_crouch",
-        shape = BUTTON_SHAPE_CIRCLE,
-        x = 0.70f,
-        y = 0.82f,
-        size = 0.140f,
-        alpha = 0.45f,
-        visible = true,
-        actions = listOf(
-            TouchButtonAction(
-                type = "key",
-                mode = "tap",
-                keyName = "C"
-            )
-        )
-    )
+    TouchButtonConfig(id = "mouse_left", label = "Linke Maustaste", icon = "mouse_left", x = 0.035f, y = 0.2333333f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "mouse_button", button = "left"))),
+    TouchButtonConfig(id = "mouse_right", label = "Rechte Maustaste", icon = "mouse_right", x = 0.0875f, y = 0.1555556f, size = 0.187f, actions = listOf(TouchButtonAction(type = "mouse_button", button = "right"))),
+    TouchButtonConfig(id = "button_1778182255890", label = "Zug beenden", icon = "end_turn", x = 0.035f, y = 0.1166667f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "D"))),
+    TouchButtonConfig(id = "button_1778182274729", label = "DPAD Kartensteuerung", icon = "dpad_map", x = 0.0175f, y = 0.3888889f, size = 0.4f, actions = listOf(TouchButtonAction(type = "dpad"))),
+    TouchButtonConfig(id = "button_1778184454959", label = "Cheats", icon = "cheats", x = 0f, y = 0f, size = 0.16f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "cheat_menu", mode = "tap"))),
+    TouchButtonConfig(id = "button_1778184514061", label = "Schnellspeichern", icon = "quick_save", x = 0.8575f, y = 0.8166667f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key_combo", mode = "tap", keyNames = listOf("ALT", "S")))),
+    TouchButtonConfig(id = "button_1778184539401", label = "Schnellladen", icon = "quick_load", x = 0.91f, y = 0.8166667f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key_combo", mode = "tap", keyNames = listOf("ALT", "L")))),
+    TouchButtonConfig(id = "button_1778184559365", label = "Kartenbildschirm öffnen", icon = "map", x = 0.8575f, y = 0.7f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "M"))),
+    TouchButtonConfig(id = "button_1778184579274", label = "Aktuelle Aktion abbrechen", icon = "cancel_action", x = 0.91f, y = 0.7f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ESCAPE"))),
+    TouchButtonConfig(id = "button_1778184596324", label = "Automatisches Verbinden", icon = "auto_bandage", x = 0.7f, y = 0f, size = 0.18f, iconFill = 0.7900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "A"))),
+    TouchButtonConfig(id = "button_1778184614235", label = "Aufstehen", icon = "stance_stand", x = 0.8225f, y = 0.2333333f, size = 0.18f, iconFill = 1.14f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "S"))),
+    TouchButtonConfig(id = "button_1778184624719", label = "Ducken", icon = "stance_crouch", x = 0.8395833f, y = 0.35f, size = 0.18f, iconFill = 0.9f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "C"))),
+    TouchButtonConfig(id = "button_1778184641238", label = "Hinlegen", icon = "stance_prone", x = 0.8575f, y = 0.4666667f, size = 0.18f, iconFill = 1.1f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "P"))),
+    TouchButtonConfig(id = "button_1778184648490", label = "Schleichmodus an/aus", icon = "stealth_toggle", x = 0.8925f, y = 0.3111111f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "toggle_tap", keyName = "Z"))),
+    TouchButtonConfig(id = "button_1778184658218", label = "Seitwärts-/Rückwärtsschritte", icon = "alt_movement_hold", x = 0.91f, y = 0.4277778f, size = 0.18f, iconFill = 0.9400001f, actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "ALT"))),
+    TouchButtonConfig(id = "button_1778184673846", label = "Feuermodus wechseln", icon = "fire_mode", x = 0.7525f, y = 0f, size = 0.18f, iconFill = 0.9400001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "B"))),
+    TouchButtonConfig(id = "button_1778184682442", label = "Blickrichtung ändern", icon = "look_direction", x = 0.8575f, y = 0f, size = 0.18f, iconFill = 1.2f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "L"))),
+    TouchButtonConfig(id = "button_1778184701058", label = "Durch Ziele schalten", icon = "cycle_targets", x = 0.91f, y = 0f, size = 0.18f, iconFill = 1.1f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "N"))),
+    TouchButtonConfig(id = "button_1781876669884", label = "Auswahl nachladen", icon = "reload_selected", x = 0.875f, y = 0.1944444f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key_combo", mode = "tap", keyNames = listOf("ALT", "R")))),
+    TouchButtonConfig(id = "button_1781877119546", label = "Item Stacking", icon = "map_shift", x = 0.1225f, y = 0f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT"))),
+    TouchButtonConfig(id = "button_1781877195847", label = "Ebene wechseln", icon = "level_toggle", x = 0.175f, y = 0f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "TAB"))),
+    TouchButtonConfig(id = "button_1781879071413", label = "Plätze tauschen", icon = "swap_places", x = 0.805f, y = 0f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "X")))
 )
 
 fun defaultMapScreenButtons(): List<TouchButtonConfig> = listOf(
-    // Right column — sticky modifier toggles
-    TouchButtonConfig(
-        id = "map_shift", label = "SH", icon = "map_shift", shape = BUTTON_SHAPE_SQUARE,
-        x = 0.93f, y = 0.35f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT"))
-    ),
-    // Bottom row — map actions
-    TouchButtonConfig(
-        id = "map_options", label = "Opt", icon = "map_options", shape = BUTTON_SHAPE_RECTANGLE,
-        x = 0.02f, y = 0.94f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "O"))
-    ),
-    TouchButtonConfig(
-        id = "map_time_minus", label = "−", icon = "map_time_minus", shape = BUTTON_SHAPE_SQUARE,
-        x = 0.14f, y = 0.94f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "MINUS"))
-    ),
-    TouchButtonConfig(
-        id = "map_time_plus", label = "+", icon = "map_time_plus", shape = BUTTON_SHAPE_SQUARE,
-        x = 0.26f, y = 0.94f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "EQUALS"))
-    ),
-    TouchButtonConfig(
-        id = "map_inventory", label = "Inv", icon = "map_inventory", shape = BUTTON_SHAPE_RECTANGLE,
-        x = 0.38f, y = 0.94f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ENTER"))
-    ),
-    TouchButtonConfig(
-        id = "map_laptop", label = "Lap", icon = "map_laptop", shape = BUTTON_SHAPE_RECTANGLE,
-        x = 0.50f, y = 0.94f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "L"))
-    ),
-    TouchButtonConfig(
-        id = "map_tactical", label = "Exit", icon = "map_tactical", shape = BUTTON_SHAPE_RECTANGLE,
-        x = 0.62f, y = 0.94f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ESCAPE"))
-    )
+    TouchButtonConfig(id = "map_shift", label = "Item Stacking", icon = "map_shift", shape = BUTTON_SHAPE_SQUARE, x = 0.105f, y = 0.5055556f, size = 0.16f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT"))),
+    TouchButtonConfig(id = "map_options", label = "Opt", icon = "map_options", shape = BUTTON_SHAPE_RECTANGLE, x = 0.91f, y = 0.03888889f, size = 0.09f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "O"))),
+    TouchButtonConfig(id = "map_time_minus", label = "Slower Time", icon = "map_time_minus", shape = BUTTON_SHAPE_RECTANGLE, x = 0.035f, y = 0.03888889f, size = 0.09f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "MINUS"))),
+    TouchButtonConfig(id = "map_time_plus", label = "Faster Time", icon = "map_time_plus", shape = BUTTON_SHAPE_RECTANGLE, x = 0.105f, y = 0.03888889f, size = 0.09f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "EQUALS"))),
+    TouchButtonConfig(id = "map_inventory", label = "Inv", icon = "map_inventory", shape = BUTTON_SHAPE_RECTANGLE, x = 0.84f, y = 0.1555556f, size = 0.09f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ENTER"))),
+    TouchButtonConfig(id = "map_laptop", label = "Lap", icon = "map_laptop", shape = BUTTON_SHAPE_RECTANGLE, x = 0.84f, y = 0.03888889f, size = 0.09f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "L"))),
+    TouchButtonConfig(id = "button_1781881696617", label = "Leave Map", icon = "map_tactical", shape = BUTTON_SHAPE_RECTANGLE, x = 0.91f, y = 0.1555556f, size = 0.09f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ESCAPE")))
 )
 
 const val BUTTON_SHAPE_CIRCLE = "circle"
@@ -177,8 +97,8 @@ fun normalizeTouchOverlayConfig(config: TouchOverlayConfig): TouchOverlayConfig 
         .map { it.migrateMapInventoryEnterKey() }
         .filterNot { it.id in setOf("map_ctrl", "map_alt") }
         .let { buttons ->
-            if (config.schemaVersion < 14 && buttons.none { it.id == "map_tactical" }) {
-                buttons + defaultMapScreenButtons().first { it.id == "map_tactical" }
+            if (config.schemaVersion < 14 && buttons.none { it.id == "map_tactical" || it.icon == "map_tactical" }) {
+                buttons + defaultMapScreenButtons().first { it.icon == "map_tactical" }
             } else {
                 buttons
             }

@@ -84,7 +84,11 @@ class TouchOverlayConfigMigrationTest {
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
         assertEquals(15, config.schemaVersion)
         assertTrue(config.mapScreenButtons.isEmpty())
-        assertEquals(4, config.buttons.size)
+        assertEquals(22, config.buttons.size)
+        assertEquals(1.45f, config.relativeMouseSpeed)
+        assertEquals(35, config.scrollSpeedMs)
+        assertEquals(130, config.tacticalActionPanelScalePercent)
+        assertEquals(2500, config.directTouchArbitrationMs)
     }
 
     @Test
@@ -110,13 +114,36 @@ class TouchOverlayConfigMigrationTest {
     }
 
     @Test
-    fun defaultConfigHasDirectTouchArbitrationMs1800() {
-        val config = TouchOverlayConfig()
-        assertEquals(1800, config.directTouchArbitrationMs)
+    fun defaultButtonsIncludeNewPolishActions() {
+        val buttons = defaultButtons()
+        assertEquals(22, buttons.size)
+
+        val reload = buttons.first { it.icon == "reload_selected" }
+        assertEquals("key_combo", reload.actions.first().type)
+        assertEquals(listOf("ALT", "R"), reload.actions.first().keyNames)
+
+        val shift = buttons.first { it.icon == "map_shift" }
+        assertEquals("SHIFT", shift.actions.first().keyName)
+        assertEquals("toggle", shift.actions.first().mode)
+
+        val level = buttons.first { it.icon == "level_toggle" }
+        assertEquals("TAB", level.actions.first().keyName)
+
+        val swap = buttons.first { it.icon == "swap_places" }
+        assertEquals("X", swap.actions.first().keyName)
     }
 
     @Test
-    fun legacySchema9Config_withoutArbitration_defaultsTo1800() {
+    fun defaultConfigHasNewRuntimeDefaults() {
+        val config = TouchOverlayConfig()
+        assertEquals(1.45f, config.relativeMouseSpeed)
+        assertEquals(35, config.scrollSpeedMs)
+        assertEquals(130, config.tacticalActionPanelScalePercent)
+        assertEquals(2500, config.directTouchArbitrationMs)
+    }
+
+    @Test
+    fun legacySchema9Config_withoutArbitration_defaultsTo2500() {
         val legacy = """{
             "schema_version": 9,
             "buttons": [
@@ -126,7 +153,7 @@ class TouchOverlayConfigMigrationTest {
             ]
         }"""
         val config = json.decodeFromString<TouchOverlayConfig>(legacy)
-        assertEquals(1800, config.directTouchArbitrationMs)
+        assertEquals(2500, config.directTouchArbitrationMs)
     }
 
     @Test
@@ -342,7 +369,7 @@ class TouchOverlayConfigMigrationTest {
         assertEquals("tap", preset.action.mode)
         assertEquals("map_tactical", preset.icon)
 
-        val button = defaultMapScreenButtons().first { it.id == "map_tactical" }
+        val button = defaultMapScreenButtons().first { it.icon == "map_tactical" }
         assertEquals("ESCAPE", button.actions.first().keyName)
         assertEquals("map_tactical", button.icon)
     }
@@ -377,7 +404,10 @@ class TouchOverlayConfigMigrationTest {
         assertEquals("tap", preset.action.mode)
         assertEquals(listOf("ALT", "R"), preset.action.keyNames)
         assertEquals("reload_selected", preset.icon)
-        assertFalse(defaultButtons().any { it.id == "reload_selected" })
+        val button = defaultButtons().first { it.icon == "reload_selected" }
+        assertEquals("key_combo", button.actions.first().type)
+        assertEquals("tap", button.actions.first().mode)
+        assertEquals(listOf("ALT", "R"), button.actions.first().keyNames)
     }
 
     @Test

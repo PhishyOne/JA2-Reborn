@@ -207,3 +207,33 @@ Stand: 2026-06-19
 - Key-Abdeckung geprueft:
   alle Key-Namen aus dem Drive-Preset sind in `TouchInputDispatcher.keyNameToCode()` vorhanden.
 - Ergebnis: keine Code-Aenderung in Phase 0 noetig; Phase 1 kann mit Preset-/Fallback-Synchronisierung beginnen.
+
+### Phase 1 - Neues Default-Preset und Code-Fallback synchronisieren
+
+Stand: 2026-06-19
+
+- `android/app/src/main/res/raw/default_touch_preset.json` durch das Drive-Preset ersetzt und um
+  `schema_version = 15` sowie `default_preset_version = 20260619` ergaenzt.
+- Code-Fallback in `TouchButtonModels.kt` synchronisiert:
+  22 taktische Buttons, 7 Map-Buttons, neue Runtime-Defaults
+  `relativeMouseSpeed = 1.45f`, `scrollSpeedMs = 35`,
+  `tacticalActionPanelScalePercent = 130`, `directTouchArbitrationMs = 2500`.
+- Weitere Runtime-Fallbacks in `TouchOverlayController` und `TouchOverlaySettingsDialog`
+  auf die neuen Defaults gebracht.
+- Legacy-Normalisierung beibehalten:
+  `map_inventory` mit `I` wird zu `ENTER`, `map_ctrl`/`map_alt` werden entfernt,
+  `range_cursor` wird entfernt, `stealth_toggle` mit `tap` wird zu `toggle_tap`.
+- Map-Tactical-Ergaenzung in der alten Schema-Migration sucht jetzt auch nach
+  `icon == "map_tactical"`, weil das neue Preset eine generierte ID fuer diesen Button nutzt.
+- Tests aktualisiert:
+  Default-Zaehler, Runtime-Defaults, Reload/Shift/Level/Swap im taktischen Default,
+  Map-Inventory `ENTER` und Map-Tactical per Icon.
+- Zweitpruefung:
+  Raw-Preset gegen `G:\Meine Ablage\Claude\default_preset.json` verglichen;
+  Counts, Runtime-Werte und Button-Signaturen stimmen.
+- Suchlaeufe ausgefuehrt:
+  keine alten Default-Fallbacks fuer `directTouchArbitrationMs = 1800`,
+  `scrollSpeedMs = 27`, `tacticalActionPanelScalePercent = 100` oder alte
+  Default-Button-Count-Annahmen gefunden; verbleibendes `1800` ist nur ein Slider-Wert.
+- Verifikation:
+  `.\gradlew.bat testDebugUnitTest` im `android`-Ordner erfolgreich.
