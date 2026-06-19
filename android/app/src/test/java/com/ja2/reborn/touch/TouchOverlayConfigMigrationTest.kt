@@ -43,12 +43,7 @@ class TouchOverlayConfigMigrationTest {
         val config = json.decodeFromString<TouchOverlayConfig>(legacy)
         assertTrue(config.mapScreenButtons.isEmpty())
 
-        val upgraded = if (config.mapScreenButtons.isEmpty()) {
-            config.copy(
-                schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
-                mapScreenButtons = defaultMapScreenButtons()
-            )
-        } else config
+        val upgraded = normalizeTouchOverlayConfig(config)
 
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, upgraded.schemaVersion)
         assertEquals(8, upgraded.mapScreenButtons.size)
@@ -84,14 +79,14 @@ class TouchOverlayConfigMigrationTest {
     fun codeDefaultHasEmptyMapScreenButtons() {
         val config = TouchOverlayConfig()
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
-        assertEquals(12, config.schemaVersion)
+        assertEquals(13, config.schemaVersion)
         assertTrue(config.mapScreenButtons.isEmpty())
-        assertEquals(4, config.buttons.size) // defaultButtons(): mouse_left, mouse_right, strafe_hold, strafe_toggle
+        assertEquals(5, config.buttons.size)
     }
 
     @Test
-    fun schemaVersionConstantIs12() {
-        assertEquals(12, TOUCH_OVERLAY_CONFIG_VERSION)
+    fun schemaVersionConstantIs13() {
+        assertEquals(13, TOUCH_OVERLAY_CONFIG_VERSION)
     }
 
     @Test
@@ -165,7 +160,72 @@ class TouchOverlayConfigMigrationTest {
         val inv = buttons.filter { it.id == "map_inventory" }
         assertEquals(1, inv.size)
         assertEquals("Inv", inv[0].label)
-        assertEquals("I", inv[0].actions.first().keyName)
+        assertEquals("ENTER", inv[0].actions.first().keyName)
+    }
+
+    @Test
+    fun schema12MapInventoryWithI_migratesToEnter() {
+        val v12 = """{
+            "schema_version": 12,
+            "buttons": [
+                {"id": "tactical_btn", "label": "Tac", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "B"}
+                ]}
+            ],
+            "map_screen_buttons": [
+                {"id": "map_inventory", "label": "Inv", "icon": "map_inventory", "x": 0.38, "y": 0.94, "size": 0.09, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "I"}
+                ]}
+            ]
+        }"""
+
+        val config = json.decodeFromString<TouchOverlayConfig>(v12)
+        val normalized = normalizeTouchOverlayConfig(config)
+
+        assertEquals(13, normalized.schemaVersion)
+        assertEquals("ENTER", normalized.mapScreenButtons.first { it.id == "map_inventory" }.actions.first().keyName)
+    }
+
+    @Test
+    fun normalizeEmptyMapScreenButtons_fillsDefaults() {
+        val config = TouchOverlayConfig(mapScreenButtons = emptyList())
+        val normalized = normalizeTouchOverlayConfig(config)
+
+        assertEquals(defaultMapScreenButtons().size, normalized.mapScreenButtons.size)
+        assertEquals("ENTER", normalized.mapScreenButtons.first { it.id == "map_inventory" }.actions.first().keyName)
+    }
+
+    @Test
+    fun normalizeMapInventory_keepsTacticalButtonsUnchanged() {
+        val tacticalButtons = listOf(
+            TouchButtonConfig(
+                id = "tactical_inventory",
+                label = "I",
+                x = 0.5f,
+                y = 0.5f,
+                size = 0.1f,
+                actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "I"))
+            )
+        )
+        val config = TouchOverlayConfig(
+            schemaVersion = 12,
+            buttons = tacticalButtons,
+            mapScreenButtons = listOf(
+                TouchButtonConfig(
+                    id = "map_inventory",
+                    label = "Inv",
+                    x = 0.38f,
+                    y = 0.94f,
+                    size = 0.09f,
+                    actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "I"))
+                )
+            )
+        )
+
+        val normalized = normalizeTouchOverlayConfig(config)
+
+        assertEquals(tacticalButtons, normalized.buttons)
+        assertEquals("ENTER", normalized.mapScreenButtons.first().actions.first().keyName)
     }
 
     @Test
