@@ -47,7 +47,7 @@ class TouchOverlayLockButtonView(context: Context) : View(context) {
         val shapeBounds = computeIconShapeBounds()
         canvas.save()
         canvas.clipPath(iconClipPath(outerBounds))
-        if (SvgIconManager.renderIcon(canvas, context, iconName, shapeBounds, fillPaint)) {
+        if (SvgIconManager.renderIcon(canvas, context, iconName, shapeBounds, fillPaint, LOCK_ICON_FILL)) {
             canvas.restore()
             return
         }
@@ -93,4 +93,8 @@ class TouchOverlayLockButtonView(context: Context) : View(context) {
 
     private fun iconClipPath(bounds: RectF): Path =
         Path().apply { addOval(bounds, Path.Direction.CW) }
+
+    companion object {
+        private const val LOCK_ICON_FILL = 1.55f
+    }
 }

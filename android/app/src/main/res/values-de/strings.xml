@@ -233,6 +233,7 @@
     <string name="touch_preset_range_cursor">Reichweite zum Cursor anzeigen</string>
     <string name="touch_preset_keyring">Schlüsselbund öffnen</string>
     <string name="touch_preset_auto_bandage">Automatisches Verbinden</string>
+    <string name="touch_preset_reload_selected">Auswahl nachladen</string>
     <string name="touch_preset_target_enemy">Nächsten sichtbaren Feind fixieren</string>
     <string name="touch_preset_cycle_targets">Durch Ziele schalten</string>
     <string name="touch_preset_level_toggle">Ebene wechseln</string>

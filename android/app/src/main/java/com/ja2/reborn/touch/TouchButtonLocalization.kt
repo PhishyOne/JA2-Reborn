@@ -22,6 +22,7 @@ object TouchButtonLocalization {
             "range_cursor" -> R.string.touch_preset_range_cursor
             "keyring" -> R.string.touch_preset_keyring
             "auto_bandage" -> R.string.touch_preset_auto_bandage
+            "reload_selected" -> R.string.touch_preset_reload_selected
             "target_enemy" -> R.string.touch_preset_target_enemy
             "cycle_targets" -> R.string.touch_preset_cycle_targets
             "level_toggle" -> R.string.touch_preset_level_toggle

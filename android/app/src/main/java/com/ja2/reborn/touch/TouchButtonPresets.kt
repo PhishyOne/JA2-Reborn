@@ -35,6 +35,7 @@ val TACTICAL_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
     keyPreset("range_cursor", "Reichweite zum Cursor anzeigen", "range_cursor", "F", "Kampf"),
     keyPreset("keyring", "Schl\u00fcsselbund \u00f6ffnen", "keyring", "K", "Kampf"),
     keyPreset("auto_bandage", "Automatisches Verbinden", "auto_bandage", "A", "Kampf"),
+    comboPreset("reload_selected", "Auswahl nachladen", "reload_selected", listOf("ALT", "R"), "Kampf"),
     keyPreset("target_enemy", "N\u00e4chsten sichtbaren Feind fixieren", "target_enemy", "E", "Kampf"),
     keyPreset("cycle_targets", "Durch Ziele schalten", "cycle_targets", "N", "Kampf"),
     keyPreset("level_toggle", "Ebene wechseln", "level_toggle", "TAB", "Kampf"),

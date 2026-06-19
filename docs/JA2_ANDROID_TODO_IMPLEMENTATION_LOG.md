@@ -146,6 +146,24 @@
 - **Ergebnis**: Phase 2 abgeschlossen.
 - **Ende**: 2026-06-19
 
+## Update 104 Phase 3: Icon Alignment, Lock Button und Reload Preset
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Batch-02/03-SVGs aus `IconWork` fuer Tactical Stances und Combat uebernommen.
+  - Batch-02/03-Converter-Werte in `iconset.json` uebernommen; `iconOffsetY` fuer die Runtime invertiert.
+  - `SvgIconManager.IconSetEntry` um `iconRotation`, `iconFlipH` und `iconFlipV` erweitert.
+  - `SvgIconManager.renderIcon()` wendet Fill, Scale, Offset, Rotation und Flip an; verbose Debug-Logs liegen hinter `DEBUG_ICON_RENDERING`.
+  - Lock-Systembutton rendert sein SVG mit explizitem `1.55f`-Icon-Fill, ohne Button-Groesse oder Hitbox zu aendern.
+  - Reload-Preset `reload_selected` mit `ALT + R`, `icon_reload.svg` und Mapping-ID `2000000038` ergaenzt.
+  - Native Reload-Logik nicht geaendert; `ALT+R` fuehrt bereits zu `HandleTBReload()` und `AutoReload(selectedMerc)`.
+- **Tests**: `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+- **Zweitpruefung**: Native Reload-Route, Diff, Default-Layout-Suche und Resource-Compile geprueft; Reload wurde nicht in sichtbare Default-Layouts eingefuegt.
+- **Manuelle Pruefung**: Nicht am Geraet ausgefuehrt; Icon-Zentrierung, Lock-Groesse und Reload-Ausloesung muessen in der spaeteren Endverifikation visuell geprueft werden.
+- **Ergebnis**: Phase 3 abgeschlossen.
+- **Ende**: 2026-06-19
+
 ---
 
 ## ABSCHLUSS-STATUS (2026-06-18)
