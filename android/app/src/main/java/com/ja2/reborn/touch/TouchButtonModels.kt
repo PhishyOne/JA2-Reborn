@@ -78,6 +78,8 @@ fun defaultButtons(): List<TouchButtonConfig> = listOf(
 )
 
 fun defaultMapScreenButtons(): List<TouchButtonConfig> = listOf(
+    TouchButtonConfig(id = "mouse_left", label = "Linke Maustaste", icon = "mouse_left", x = 0.035f, y = 0.2333333f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "mouse_button", button = "left"))),
+    TouchButtonConfig(id = "mouse_right", label = "Rechte Maustaste", icon = "mouse_right", x = 0.0875f, y = 0.1555556f, size = 0.187f, actions = listOf(TouchButtonAction(type = "mouse_button", button = "right"))),
     TouchButtonConfig(id = "map_shift", label = "Item Stacking", icon = "map_shift", shape = BUTTON_SHAPE_SQUARE, x = 0.105f, y = 0.5055556f, size = 0.16f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT"))),
     TouchButtonConfig(id = "map_options", label = "Opt", icon = "map_options", shape = BUTTON_SHAPE_RECTANGLE, x = 0.91f, y = 0.03888889f, size = 0.09f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "O"))),
     TouchButtonConfig(id = "map_time_minus", label = "Slower Time", icon = "map_time_minus", shape = BUTTON_SHAPE_RECTANGLE, x = 0.035f, y = 0.03888889f, size = 0.09f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "MINUS"))),

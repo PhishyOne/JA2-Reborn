@@ -49,7 +49,7 @@ class TouchOverlayConfigMigrationTest {
         val upgraded = normalizeTouchOverlayConfig(config)
 
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, upgraded.schemaVersion)
-        assertEquals(7, upgraded.mapScreenButtons.size)
+        assertEquals(9, upgraded.mapScreenButtons.size)
         assertTrue(upgraded.mapScreenButtons.any { it.id == "map_shift" })
         assertFalse(upgraded.mapScreenButtons.any { it.id == "map_ctrl" })
         assertFalse(upgraded.mapScreenButtons.any { it.id == "map_alt" })
@@ -133,7 +133,7 @@ class TouchOverlayConfigMigrationTest {
     @Test
     fun defaultMapScreenButtonsHasExtendedSet() {
         val buttons = defaultMapScreenButtons()
-        assertEquals(7, buttons.size) // 1 modifier + 6 action buttons
+        assertEquals(9, buttons.size) // 2 mouse buttons + 1 modifier + 6 action buttons
     }
 
     @Test
@@ -222,6 +222,23 @@ class TouchOverlayConfigMigrationTest {
         assertEquals(1, inv.size)
         assertEquals("Inv", inv[0].label)
         assertEquals("ENTER", inv[0].actions.first().keyName)
+    }
+
+    @Test
+    fun defaultMapScreenButtonsIncludeMouseButtonsAtTacticalPositions() {
+        val tactical = defaultButtons()
+        val map = defaultMapScreenButtons()
+
+        listOf("mouse_left", "mouse_right").forEach { id ->
+            val tacticalMouse = tactical.first { it.id == id }
+            val mapMouse = map.first { it.id == id }
+
+            assertEquals(tacticalMouse.x, mapMouse.x)
+            assertEquals(tacticalMouse.y, mapMouse.y)
+            assertEquals(tacticalMouse.size, mapMouse.size)
+            assertEquals(tacticalMouse.actions.first().type, mapMouse.actions.first().type)
+            assertEquals(tacticalMouse.actions.first().button, mapMouse.actions.first().button)
+        }
     }
 
     @Test
@@ -366,9 +383,10 @@ class TouchOverlayConfigMigrationTest {
     @Test
     fun mapScreenPresetsDoNotContainTacticalPresets() {
         assertTrue(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "map_inventory" })
-        assertFalse(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "mouse_left" })
+        assertTrue(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "mouse_left" })
+        assertTrue(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "mouse_right" })
         assertFalse(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "stance_crouch" })
-        assertEquals(null, touchButtonPresetFor(defaultButtons().first { it.id == "mouse_left" }, MAP_SCREEN_TOUCH_BUTTON_PRESETS))
+        assertEquals("mouse_left", touchButtonPresetFor(defaultButtons().first { it.id == "mouse_left" }, MAP_SCREEN_TOUCH_BUTTON_PRESETS)?.id)
     }
 
     @Test
@@ -524,6 +542,30 @@ class TouchOverlayConfigMigrationTest {
         assertFalse(usesMapScreenTouchButtons(JA2_GAME_SCREEN))
         assertTrue(usesMapScreenTouchButtons(JA2_MAP_SCREEN))
         assertFalse(usesMapScreenTouchButtons(JA2_SHOPKEEPER_SCREEN))
+    }
+
+    @Test
+    fun shopkeeperUsesTacticalMousePositionsAndMapItemStackingPosition() {
+        val tactical = defaultButtons()
+        val map = defaultMapScreenButtons()
+        val shopkeeper = touchButtonsForScreen(JA2_SHOPKEEPER_SCREEN, tactical, map)
+
+        listOf("mouse_left", "mouse_right").forEach { id ->
+            val tacticalMouse = tactical.first { it.id == id }
+            val shopkeeperMouse = shopkeeper.first { it.id == id }
+
+            assertEquals(tacticalMouse.x, shopkeeperMouse.x)
+            assertEquals(tacticalMouse.y, shopkeeperMouse.y)
+            assertEquals(tacticalMouse.size, shopkeeperMouse.size)
+        }
+
+        val mapShift = map.first { it.id == "map_shift" }
+        val shopkeeperShift = shopkeeper.first { it.icon == "map_shift" }
+        assertEquals(mapShift.x, shopkeeperShift.x)
+        assertEquals(mapShift.y, shopkeeperShift.y)
+        assertEquals(mapShift.size, shopkeeperShift.size)
+        assertEquals(mapShift.shape, shopkeeperShift.shape)
+        assertEquals("SHIFT", shopkeeperShift.actions.first().keyName)
     }
 
     @Test
