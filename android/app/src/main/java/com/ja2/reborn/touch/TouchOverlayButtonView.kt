@@ -105,6 +105,7 @@ class TouchOverlayButtonView(
     }
 
     internal fun isPointInsideShape(localX: Float, localY: Float): Boolean {
+        if (isDpad) return true
         val bounds = computeOuterShapeBounds()
         if (localX < bounds.left || localX > bounds.right || localY < bounds.top || localY > bounds.bottom) return false
         return when (buttonConfig.shape.lowercase()) {
