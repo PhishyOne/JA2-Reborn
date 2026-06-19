@@ -211,6 +211,31 @@
 - **Ergebnis**: Shape-Aware Touch Hit-Testing implementiert. Kreisförmige und abgerundete Buttons registrieren keine Fehltreffer mehr in den unsichtbaren Ecken (~41% Flaeche ausserhalb der sichtbaren Form).
 - **Ende**: 2026-06-19
 
+## Shape-Aware Hit-Testing: Dpad-Ausnahme
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - `isPointInsideShape`: Gate `if (isDpad) return true` eingefuegt, da das Dpad eine Kreuzform rendert die nicht dem `buttonConfig.shape`-Schema folgt und korrekt die volle Bounding-Box braucht.
+- **Tests**: `.\gradlew.bat assembleRelease` in `android` -> BUILD SUCCESSFUL
+- **Manuelle Pruefung**: Am Geraet getestet, Dpad-Ecken reagieren wieder korrekt.
+- **Ergebnis**: Dpad von Shape-Aware Hit-Testing ausgenommen.
+- **Ende**: 2026-06-19
+
+## Icon X-Offset-Invertierung (Stand Stance Fix)
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Analyse: Codex hatte beim Kopieren der Batch-02/03-Iconverter-Daten in die finale `iconset.json` alle Y-Offsets invertiert (IconConverter Y-up → Android Canvas Y-down), aber X-Offsets unangetastet gelassen.
+  - Nur 3 von 38 Icons haben X-Offsets ≠ 0: `stance_stand` (-0.3), `run_toggle` (-0.1), `keyring` (0.023).
+  - Fix: Alle drei X-Offsets in `iconset.json` negiert. `stance_stand` war mit -0.3 der einzige sichtbar falsch alignierte Button.
+- **Known Issue #2** (Batch 02+03 Icon-Alignment) damit vollstaendig resolved.
+- **Tests**: `.\gradlew.bat assembleRelease` in `android` -> BUILD SUCCESSFUL
+- **Manuelle Pruefung**: Am Geraet getestet, Stand-Stance-Icon sitzt jetzt korrekt.
+- **Ergebnis**: Alle SVG-Icon-Offsets jetzt korrekt (X und Y).
+- **Ende**: 2026-06-19
+
 ---
 
 ## ABSCHLUSS-STATUS (2026-06-18)
@@ -222,7 +247,7 @@
 | # | Bug | Beschreibung |
 |---|-----|-------------|
 | 1 | `map_inventory`-Mapping | Button mapped auf `I` (Item-Highlight) statt Inventar-Panel zu öffnen. Korrekter Key: `Enter`. Auf Enter ummappen |
-| 2 | Batch 02+03 Icon-Alignment | Stance- und Combat-Icons sitzen nicht korrekt. Icons stammen aus `D:/Coding/Game-Icon-Converter/`, Vorgaben: `D:/Coding/OverlayIconManual.md`. `iconFill`/`iconOffset` per iconset.json-Export tunen |
+| 2 | ~~Batch 02+03 Icon-Alignment~~ | ✅ **RESOLVED (2026-06-19).** Y-Offsets durch Codex invertiert, X-Offset-Invertierung nachgeholt. Alle Icons korrekt aligned. |
 | 3 | Editor ohne Map-Screen-Presets | `TOUCH_BUTTON_PRESETS` enthält nur taktische Presets. Beim Editieren eines Map-Screen-Buttons (z.B. Laptop) findet `touchButtonPresetFor()` keinen Match und das Dropdown fällt auf den ersten taktischen Eintrag zurück — der Map-Button wird ungewollt zum taktischen Button. **Fix:** Preset-Liste nach Screen-Kontext trennen (In-Game vs. Map-Screen), Create-New-Dropdown zeigt nur die für den jeweiligen Screen relevanten Presets |
 | 4 | Export/Import ohne Screen-Trennung | Das Touch-Preset-Export-/Import-System muss `mapScreenButtons` und taktische `buttons` korrekt getrennt behandeln. Export darf beide nicht vermischen, Import muss in die richtigen Config-Felder zurückschreiben |
 | 5 | Lock-Button zu klein | Seit SVG-Umstellung ist der Lock-Button winzig im Vergleich zu den Canvas-Icons. Korrekte Größe wiederherstellen |
