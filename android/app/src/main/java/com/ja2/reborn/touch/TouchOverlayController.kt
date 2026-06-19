@@ -62,6 +62,9 @@ class TouchOverlayController(
         config = loadResult.config
         config = config!!.copy(layoutLocked = true, editMode = false)
         applyRuntimeSpeeds(config!!)
+        if (loadResult.defaultPresetWasReset) {
+            requestTouchPresetUpdateNotice()
+        }
 
         val container = FrameLayout(activity).apply {
             isClickable = false
@@ -417,6 +420,14 @@ class TouchOverlayController(
         applyAutoHideVisibility(false)
         SDLActivity.showTutorial()
         root.post { autoHidePoll() }
+    }
+
+    private fun requestTouchPresetUpdateNotice() {
+        try {
+            SDLActivity.requestTouchPresetUpdateNotice(DEFAULT_TOUCH_PRESET_VERSION)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not request touch preset update notice: ${e.message}")
+        }
     }
 
     private fun applyRuntimeSpeeds(cfg: TouchOverlayConfig) {

@@ -1334,6 +1334,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static native void showTutorial();
     public static native void setTutorialLanguage(boolean german);
     public static native boolean isTutorialVisible();
+    public static native void requestTouchPresetUpdateNotice(int version);
 
     public static boolean handleKeyEvent(View v, int keyCode, KeyEvent event, InputConnection ic) {
         int deviceId = event.getDeviceId();
