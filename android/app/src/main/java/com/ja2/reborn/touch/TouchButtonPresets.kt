@@ -15,7 +15,7 @@ data class TouchButtonPreset(
         )
 }
 
-val TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
+val TACTICAL_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
     mousePreset("mouse_left", "Linke Maustaste", "mouse_left", "left"),
     mousePreset("mouse_right", "Rechte Maustaste", "mouse_right", "right"),
     mousePreset("mouse_middle", "Mittlere Maustaste", "mouse_middle", "middle"),
@@ -77,17 +77,36 @@ val TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
     TouchButtonPreset("cheats", "Cheats", "cheats", TouchButtonAction(type = "cheat_menu", mode = "tap"), "UI")
 )
 
-fun touchButtonPresetById(id: String?): TouchButtonPreset? =
-    TOUCH_BUTTON_PRESETS.firstOrNull { it.id == id }
+val MAP_SCREEN_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
+    keyPreset("map_shift", "Map Shift", "map_shift", "SHIFT", "Map Screen", mode = "toggle"),
+    keyPreset("map_ctrl", "Map Ctrl", "map_ctrl", "CTRL", "Map Screen", mode = "toggle"),
+    keyPreset("map_alt", "Map Alt", "map_alt", "ALT", "Map Screen", mode = "toggle"),
+    keyPreset("map_options", "Map Options", "map_options", "O", "Map Screen"),
+    keyPreset("map_time_minus", "Slower Time", "map_time_minus", "MINUS", "Map Screen"),
+    keyPreset("map_time_plus", "Faster Time", "map_time_plus", "EQUALS", "Map Screen"),
+    keyPreset("map_inventory", "Sector Inventory", "map_inventory", "ENTER", "Map Screen"),
+    keyPreset("map_laptop", "Laptop", "map_laptop", "L", "Map Screen")
+)
 
-fun touchButtonPresetFor(config: TouchButtonConfig): TouchButtonPreset? =
-    touchButtonPresetById(config.icon)
-        ?: TOUCH_BUTTON_PRESETS.firstOrNull { preset ->
+val TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = TACTICAL_TOUCH_BUTTON_PRESETS
+
+fun touchButtonPresetById(id: String?, presets: List<TouchButtonPreset> = TACTICAL_TOUCH_BUTTON_PRESETS): TouchButtonPreset? =
+    presets.firstOrNull { it.id == id }
+
+fun touchButtonPresetFor(config: TouchButtonConfig, presets: List<TouchButtonPreset>): TouchButtonPreset? =
+    touchButtonPresetById(config.icon, presets)
+        ?: presets.firstOrNull { preset ->
             config.actions.firstOrNull()?.let { actionMatches(preset.action, it) } == true
         }
 
+fun touchButtonPresetFor(config: TouchButtonConfig): TouchButtonPreset? =
+    touchButtonPresetFor(config, TACTICAL_TOUCH_BUTTON_PRESETS)
+
+fun touchButtonPresetFor(action: TouchButtonAction, presets: List<TouchButtonPreset>): TouchButtonPreset? =
+    presets.firstOrNull { actionMatches(it.action, action) }
+
 fun touchButtonPresetFor(action: TouchButtonAction): TouchButtonPreset? =
-    TOUCH_BUTTON_PRESETS.firstOrNull { actionMatches(it.action, action) }
+    touchButtonPresetFor(action, TACTICAL_TOUCH_BUTTON_PRESETS)
 
 private fun mousePreset(id: String, label: String, icon: String, button: String): TouchButtonPreset =
     TouchButtonPreset(

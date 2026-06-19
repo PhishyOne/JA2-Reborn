@@ -19,10 +19,10 @@ import com.ja2.reborn.R
 class TouchOverlayEditDialog(
     private val context: Context,
     private val buttonConfig: TouchButtonConfig,
+    private val presetOptions: List<TouchButtonPreset>,
     private val onSave: (TouchButtonConfig) -> Unit,
     private val onDelete: (String) -> Unit
 ) {
-    private val presetOptions = TOUCH_BUTTON_PRESETS
     private val presetEntries = buildPresetEntries(presetOptions)
     private fun shapeOptions() = listOf(
         Option(BUTTON_SHAPE_CIRCLE, context.getString(R.string.touch_shape_circle)),
@@ -41,7 +41,7 @@ class TouchOverlayEditDialog(
     private val iconFillMaxProgress = 170
 
     fun show() {
-        val selectedPreset = touchButtonPresetFor(buttonConfig) ?: presetOptions.first()
+        val selectedPreset = touchButtonPresetFor(buttonConfig, presetOptions) ?: presetOptions.first()
 
         val scrollView = ScrollView(context).apply {
             isFillViewport = false

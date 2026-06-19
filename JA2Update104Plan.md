@@ -49,6 +49,8 @@ Der Map-Screen-Inventarbutton muss das Inventar-Panel korrekt ueber `ENTER` oeff
 
 ## Phase 2: Screen-Kontextgetrennte Presets und Export/Import
 
+**Status:** Abgeschlossen am 2026-06-19. Implementiert, zweitgeprueft und committed; manuelle Editorpruefung steht fuer die spaetere Endverifikation aus.
+
 ### Ziel
 
 Map-Screen-Buttons duerfen im Editor nicht mehr auf taktische Presets zurueckfallen. Export und Import muessen taktische Buttons und Map-Screen-Buttons dauerhaft getrennt halten.
@@ -79,6 +81,15 @@ Map-Screen-Buttons duerfen im Editor nicht mehr auf taktische Presets zurueckfal
 - Unit-Test: Import alter Presets ergaenzt fehlende Map-Buttons, ohne taktische Buttons zu veraendern.
 - Manuell pruefen: Map-Button bearbeiten veraendert keinen taktischen Button.
 - Danach Log und Plan aktualisieren, Ergebnisse erneut pruefen, committen und stoppen.
+
+### Ergebnis 2026-06-19
+
+- Presets sind in `TACTICAL_TOUCH_BUTTON_PRESETS` und `MAP_SCREEN_TOUCH_BUTTON_PRESETS` getrennt.
+- `TouchOverlayController` waehlt die Presetliste anhand des aktiven Screens.
+- `TouchOverlayEditDialog` sucht Presets nur innerhalb der uebergebenen Kontextliste.
+- Map-Screen-Presets fuer alle acht Map-Buttons inklusive `map_inventory` mit `ENTER` sind vorhanden.
+- Export/Import bleibt Full-Layout-basiert; Tests bestaetigen getrennten Erhalt von `buttons` und `map_screen_buttons`.
+- `android\gradlew.bat testDebugUnitTest` aus dem Android-Gradle-Root: BUILD SUCCESSFUL.
 
 ## Phase 3: Icon Alignment, Lock Button und Reload Preset
 

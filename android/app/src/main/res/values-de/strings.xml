@@ -197,6 +197,7 @@
     <string name="touch_preset_category_movement">Bewegung</string>
     <string name="touch_preset_category_combat">Kampf</string>
     <string name="touch_preset_category_ui">UI</string>
+    <string name="touch_preset_category_map_screen">Kartenbildschirm</string>
 
     <!-- Key Short Names (button face abbreviations) -->
     <string name="touch_key_escape">Esc</string>
@@ -270,4 +271,12 @@
     <string name="touch_preset_quick_load">Schnellladen</string>
     <string name="touch_preset_quit_game">Spiel beenden</string>
     <string name="touch_preset_cheats">Cheats</string>
+    <string name="touch_preset_map_shift">Karte Shift</string>
+    <string name="touch_preset_map_ctrl">Karte Ctrl</string>
+    <string name="touch_preset_map_alt">Karte Alt</string>
+    <string name="touch_preset_map_options">Kartenoptionen</string>
+    <string name="touch_preset_map_time_minus">Zeit langsamer</string>
+    <string name="touch_preset_map_time_plus">Zeit schneller</string>
+    <string name="touch_preset_map_inventory">Sektor-Inventar</string>
+    <string name="touch_preset_map_laptop">Laptop</string>
 </resources>

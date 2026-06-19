@@ -2,8 +2,10 @@ package com.ja2.reborn.touch
 
 import com.ja2.reborn.MouseMode
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -238,6 +240,84 @@ class TouchOverlayConfigMigrationTest {
         assertEquals("toggle", togglePreset!!.action.mode)
         assertEquals("CTRL", holdPreset.action.keyName)
         assertEquals("CTRL", togglePreset.action.keyName)
+    }
+
+    @Test
+    fun mapScreenPresetsDoNotContainTacticalPresets() {
+        assertTrue(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "map_inventory" })
+        assertFalse(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "mouse_left" })
+        assertFalse(MAP_SCREEN_TOUCH_BUTTON_PRESETS.any { it.id == "stance_crouch" })
+        assertEquals(null, touchButtonPresetFor(defaultButtons().first { it.id == "mouse_left" }, MAP_SCREEN_TOUCH_BUTTON_PRESETS))
+    }
+
+    @Test
+    fun tacticalPresetsDoNotContainMapOnlyPresets() {
+        assertTrue(TACTICAL_TOUCH_BUTTON_PRESETS.any { it.id == "mouse_left" })
+        assertFalse(TACTICAL_TOUCH_BUTTON_PRESETS.any { it.id == "map_inventory" })
+        assertEquals(null, touchButtonPresetFor(defaultMapScreenButtons().first { it.id == "map_inventory" }, TACTICAL_TOUCH_BUTTON_PRESETS))
+    }
+
+    @Test
+    fun mapInventoryPresetUsesEnter() {
+        val preset = MAP_SCREEN_TOUCH_BUTTON_PRESETS.first { it.id == "map_inventory" }
+        assertEquals("ENTER", preset.action.keyName)
+        assertEquals("tap", preset.action.mode)
+    }
+
+    @Test
+    fun fullLayoutExportImportRoundTripKeepsButtonSetsSeparated() {
+        val config = TouchOverlayConfig(
+            buttons = listOf(
+                TouchButtonConfig(
+                    id = "tactical_custom",
+                    label = "Tac",
+                    x = 0.5f,
+                    y = 0.5f,
+                    size = 0.1f,
+                    actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "B"))
+                )
+            ),
+            mapScreenButtons = listOf(
+                TouchButtonConfig(
+                    id = "map_inventory",
+                    label = "Inv",
+                    x = 0.38f,
+                    y = 0.94f,
+                    size = 0.09f,
+                    actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ENTER"))
+                )
+            )
+        )
+
+        val exported = json.encodeToString(config)
+        assertTrue(exported.contains("\"buttons\""))
+        assertTrue(exported.contains("\"map_screen_buttons\""))
+
+        val imported = normalizeTouchOverlayConfig(json.decodeFromString<TouchOverlayConfig>(exported))
+
+        assertEquals(listOf("tactical_custom"), imported.buttons.map { it.id })
+        assertEquals(listOf("map_inventory"), imported.mapScreenButtons.map { it.id })
+        assertEquals("B", imported.buttons.first().actions.first().keyName)
+        assertEquals("ENTER", imported.mapScreenButtons.first().actions.first().keyName)
+    }
+
+    @Test
+    fun importOldPresetAddsMapDefaultsWithoutChangingTacticalButtons() {
+        val legacy = """{
+            "schema_version": 12,
+            "buttons": [
+                {"id": "tactical_custom", "label": "Tac", "x": 0.5, "y": 0.5, "size": 0.1, "actions": [
+                    {"type": "key", "mode": "tap", "key_name": "I"}
+                ]}
+            ]
+        }"""
+
+        val imported = normalizeTouchOverlayConfig(json.decodeFromString<TouchOverlayConfig>(legacy))
+
+        assertEquals(listOf("tactical_custom"), imported.buttons.map { it.id })
+        assertEquals("I", imported.buttons.first().actions.first().keyName)
+        assertEquals(defaultMapScreenButtons().map { it.id }, imported.mapScreenButtons.map { it.id })
+        assertEquals("ENTER", imported.mapScreenButtons.first { it.id == "map_inventory" }.actions.first().keyName)
     }
 
     @Test
