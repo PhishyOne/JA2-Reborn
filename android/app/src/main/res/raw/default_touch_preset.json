@@ -215,7 +215,7 @@
         },
         {
             "id": "button_1778184658218",
-            "label": "Rückwärtsgang / Seitwärtsschritte",
+            "label": "Seitwärts-/Rückwärtsschritte",
             "icon": "alt_movement_hold",
             "x": 0.945,
             "y": 0.46666667,
@@ -223,39 +223,8 @@
             "actions": [
                 {
                     "type": "key",
-                    "key_name": "ALT"
-                }
-            ]
-        },
-        {
-            "id": "strafe_hold",
-            "label": "STR",
-            "icon": "alt_movement_hold",
-            "shape": "circle",
-            "x": 0.8575,
-            "y": 0.62222223,
-            "size": 0.14,
-            "actions": [
-                {
-                    "type": "key",
-                    "mode": "hold",
-                    "key_name": "CTRL"
-                }
-            ]
-        },
-        {
-            "id": "strafe_toggle",
-            "label": "ST",
-            "icon": "alt_movement_hold",
-            "shape": "square",
-            "x": 0.8925,
-            "y": 0.62222223,
-            "size": 0.14,
-            "actions": [
-                {
-                    "type": "key",
                     "mode": "toggle",
-                    "key_name": "CTRL"
+                    "key_name": "ALT"
                 }
             ]
         },
