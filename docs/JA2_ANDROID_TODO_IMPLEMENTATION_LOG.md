@@ -62,7 +62,7 @@
 - **Ergebnis**: Hardware Mouse/Keyboard Mode vollständig
 - **Ende**: 2026-05-21
 
-## Codex Endabnahme — Nacharbeit (FreeClaude)
+## Codex Endabnahme — Nacharbeit
 
 - **Start**: 2026-05-21
 - **Review**: Codex Endabnahme 2026-05-21, 5 fachliche Blocker
@@ -70,7 +70,7 @@
 - **Tests**: 20 Tests, alle grün. `assembleDebug` erfolgreich.
 - **Ende**: 2026-05-21
 
-## Codex Endabnahme — Nacharbeit Endbefund 2 (FreeClaude)
+## Codex Endabnahme — Nacharbeit Endbefund 2
 
 - **Start**: 2026-05-21
 - **Review**: Codex Endbefund 2 2026-05-21, 1 fachlicher Blocker
