@@ -21,7 +21,6 @@
   "fire_mode": "2000000020",
   "look_direction": "2000000021",
   "cycle_targets": "2000000022",
-  "range_cursor": "2000000023",
   "target_enemy": "2000000024",
   "auto_bandage": "2000000025",
   "keyring": "2000000026",

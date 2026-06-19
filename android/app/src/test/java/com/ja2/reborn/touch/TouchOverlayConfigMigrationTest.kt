@@ -82,14 +82,14 @@ class TouchOverlayConfigMigrationTest {
     fun codeDefaultHasEmptyMapScreenButtons() {
         val config = TouchOverlayConfig()
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
-        assertEquals(14, config.schemaVersion)
+        assertEquals(15, config.schemaVersion)
         assertTrue(config.mapScreenButtons.isEmpty())
         assertEquals(4, config.buttons.size)
     }
 
     @Test
-    fun schemaVersionConstantIs14() {
-        assertEquals(14, TOUCH_OVERLAY_CONFIG_VERSION)
+    fun schemaVersionConstantIs15() {
+        assertEquals(15, TOUCH_OVERLAY_CONFIG_VERSION)
     }
 
     @Test
@@ -193,7 +193,7 @@ class TouchOverlayConfigMigrationTest {
         val config = json.decodeFromString<TouchOverlayConfig>(v12)
         val normalized = normalizeTouchOverlayConfig(config)
 
-        assertEquals(14, normalized.schemaVersion)
+        assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, normalized.schemaVersion)
         assertEquals("ENTER", normalized.mapScreenButtons.first { it.id == "map_inventory" }.actions.first().keyName)
     }
 
@@ -245,6 +245,72 @@ class TouchOverlayConfigMigrationTest {
         assertTrue(togglePreset != null)
         assertEquals("toggle", togglePreset!!.action.mode)
         assertEquals("ALT", togglePreset.action.keyName)
+    }
+
+    @Test
+    fun tacticalRangeCursorPresetIsRemoved() {
+        assertFalse(TACTICAL_TOUCH_BUTTON_PRESETS.any { it.id == "range_cursor" })
+    }
+
+    @Test
+    fun normalizeRemovesLegacyTacticalRangeCursorButton() {
+        val config = TouchOverlayConfig(
+            schemaVersion = 14,
+            buttons = listOf(
+                TouchButtonConfig(
+                    id = "range_cursor",
+                    label = "Range",
+                    icon = "range_cursor",
+                    x = 0.5f,
+                    y = 0.5f,
+                    size = 0.1f,
+                    actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "F"))
+                ),
+                TouchButtonConfig(
+                    id = "target_enemy",
+                    label = "Target",
+                    x = 0.6f,
+                    y = 0.5f,
+                    size = 0.1f,
+                    actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "E"))
+                )
+            )
+        )
+
+        val normalized = normalizeTouchOverlayConfig(config)
+
+        assertEquals(listOf("target_enemy"), normalized.buttons.map { it.id })
+        assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, normalized.schemaVersion)
+    }
+
+    @Test
+    fun stealthPresetUsesLatchedTapMode() {
+        val preset = TACTICAL_TOUCH_BUTTON_PRESETS.first { it.id == "stealth_toggle" }
+        assertEquals("toggle_tap", preset.action.mode)
+        assertEquals("Z", preset.action.keyName)
+    }
+
+    @Test
+    fun normalizeMigratesLegacyStealthTapToLatchedTap() {
+        val config = TouchOverlayConfig(
+            schemaVersion = 14,
+            buttons = listOf(
+                TouchButtonConfig(
+                    id = "button_legacy_stealth",
+                    label = "Sneak",
+                    icon = "stealth_toggle",
+                    x = 0.5f,
+                    y = 0.5f,
+                    size = 0.1f,
+                    actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "Z"))
+                )
+            )
+        )
+
+        val normalized = normalizeTouchOverlayConfig(config)
+
+        assertEquals("toggle_tap", normalized.buttons.first().actions.first().mode)
+        assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, normalized.schemaVersion)
     }
 
     @Test

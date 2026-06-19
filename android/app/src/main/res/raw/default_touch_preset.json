@@ -208,7 +208,7 @@
             "actions": [
                 {
                     "type": "key",
-                    "mode": "tap",
+                    "mode": "toggle_tap",
                     "key_name": "Z"
                 }
             ]

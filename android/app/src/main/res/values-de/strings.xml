@@ -231,7 +231,6 @@
     <string name="touch_preset_alt_movement_hold">Seitwärts-/Rückwärtsschritte</string>
     <string name="touch_preset_shift_toggle">Item Stacking</string>
     <string name="touch_preset_fire_mode">Feuermodus wechseln</string>
-    <string name="touch_preset_range_cursor">Reichweite zum Cursor anzeigen</string>
     <string name="touch_preset_keyring">Schlüsselbund öffnen</string>
     <string name="touch_preset_auto_bandage">Automatisches Verbinden</string>
     <string name="touch_preset_reload_selected">Auswahl nachladen</string>

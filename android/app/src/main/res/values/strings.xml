@@ -231,7 +231,6 @@
     <string name="touch_preset_alt_movement_hold">Sidestep/Backstep</string>
     <string name="touch_preset_shift_toggle">Item Stacking</string>
     <string name="touch_preset_fire_mode">Switch Fire Mode</string>
-    <string name="touch_preset_range_cursor">Show Range to Cursor</string>
     <string name="touch_preset_keyring">Open Keyring</string>
     <string name="touch_preset_auto_bandage">Auto Bandage</string>
     <string name="touch_preset_reload_selected">Reload Selected</string>

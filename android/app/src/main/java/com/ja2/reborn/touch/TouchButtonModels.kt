@@ -3,7 +3,7 @@ package com.ja2.reborn.touch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val TOUCH_OVERLAY_CONFIG_VERSION = 14
+const val TOUCH_OVERLAY_CONFIG_VERSION = 15
 
 @Serializable
 data class TouchOverlayConfig(
@@ -170,6 +170,9 @@ const val BUTTON_SHAPE_SQUARE = "square"
 const val BUTTON_SHAPE_RECTANGLE = "rectangle"
 
 fun normalizeTouchOverlayConfig(config: TouchOverlayConfig): TouchOverlayConfig {
+    val tacticalButtons = config.buttons
+        .filterNot { it.id == "range_cursor" || it.icon == "range_cursor" }
+        .map { it.migrateStealthToggleTapMode() }
     val mapButtons = (config.mapScreenButtons.ifEmpty { defaultMapScreenButtons() })
         .map { it.migrateMapInventoryEnterKey() }
         .filterNot { it.id in setOf("map_ctrl", "map_alt") }
@@ -183,6 +186,7 @@ fun normalizeTouchOverlayConfig(config: TouchOverlayConfig): TouchOverlayConfig 
 
     return config.copy(
         schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
+        buttons = tacticalButtons,
         mapScreenButtons = mapButtons
     )
 }
@@ -193,6 +197,20 @@ private fun TouchButtonConfig.migrateMapInventoryEnterKey(): TouchButtonConfig {
     val migratedActions = actions.map { action ->
         if (action.type == "key" && action.keyName == "I") {
             action.copy(keyName = "ENTER")
+        } else {
+            action
+        }
+    }
+
+    return if (migratedActions == actions) this else copy(actions = migratedActions)
+}
+
+private fun TouchButtonConfig.migrateStealthToggleTapMode(): TouchButtonConfig {
+    if (id != "stealth_toggle" && icon != "stealth_toggle") return this
+
+    val migratedActions = actions.map { action ->
+        if (action.type == "key" && action.keyName == "Z" && action.mode == "tap") {
+            action.copy(mode = "toggle_tap")
         } else {
             action
         }

@@ -83,6 +83,7 @@ class TouchOverlayButtonView(
     private var isDraggable = draggable
     private var isHoldMode: Boolean = false
     private var isToggleMode: Boolean = false
+    private var isToggleTapMode: Boolean = false
     private var isToggled: Boolean = false
     private var isDpad: Boolean = false
     private var currentDpadDirection: String? = null
@@ -102,7 +103,11 @@ class TouchOverlayButtonView(
         val action = buttonConfig.actions.firstOrNull() ?: TouchButtonAction(type = "", mode = "hold")
         isHoldMode = action.mode == "hold"
         isToggleMode = action.mode == "toggle"
+        isToggleTapMode = action.mode == "toggle_tap"
         isDpad = buttonConfig.actions.any { it.type == "dpad" }
+        if (!isToggleMode && !isToggleTapMode) {
+            isToggled = false
+        }
     }
 
     internal fun isPointInsideShape(localX: Float, localY: Float): Boolean {
@@ -243,6 +248,10 @@ class TouchOverlayButtonView(
                     val nowActive = dispatcher.performToggle(buttonConfig.actions)
                     isToggled = nowActive
                     setPressedState(nowActive)
+                } else if (canDispatchInput() && isToggleTapMode) {
+                    dispatchTap()
+                    isToggled = !isToggled
+                    setPressedState(isToggled)
                 } else if (canDispatchInput()) {
                     dispatchTap()
                     setPressedState(false)
@@ -269,6 +278,9 @@ class TouchOverlayButtonView(
                     } else if (canDispatchInput() && isToggleMode) {
                         val nowActive = dispatcher.performToggle(buttonConfig.actions)
                         isToggled = nowActive
+                    } else if (canDispatchInput() && isToggleTapMode) {
+                        dispatchTap()
+                        isToggled = !isToggled
                     }
                     setPressedState(false)
                     activePointerId = -1
