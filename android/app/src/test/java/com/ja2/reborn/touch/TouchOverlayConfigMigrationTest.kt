@@ -492,6 +492,41 @@ class TouchOverlayConfigMigrationTest {
     }
 
     @Test
+    fun touchOverlayVisibleScreensIncludeShopkeeperForItemStacking() {
+        assertEquals(5, JA2_GAME_SCREEN)
+        assertEquals(9, JA2_MAP_SCREEN)
+        assertEquals(19, JA2_SHOPKEEPER_SCREEN)
+
+        assertTrue(shouldShowTouchOverlayForScreen(JA2_GAME_SCREEN, hideOverlayOnNonGameScreens = true, tutorialVisible = false))
+        assertTrue(shouldShowTouchOverlayForScreen(JA2_MAP_SCREEN, hideOverlayOnNonGameScreens = true, tutorialVisible = false))
+        assertTrue(shouldShowTouchOverlayForScreen(JA2_SHOPKEEPER_SCREEN, hideOverlayOnNonGameScreens = true, tutorialVisible = false))
+    }
+
+    @Test
+    fun touchOverlayHiddenOnOtherScreensWhenAutoHideIsEnabled() {
+        val laptopScreen = 10
+        val optionsScreen = 18
+
+        assertFalse(shouldShowTouchOverlayForScreen(laptopScreen, hideOverlayOnNonGameScreens = true, tutorialVisible = false))
+        assertFalse(shouldShowTouchOverlayForScreen(optionsScreen, hideOverlayOnNonGameScreens = true, tutorialVisible = false))
+    }
+
+    @Test
+    fun touchOverlayVisibilityStillHonorsTutorialAndAutoHideToggle() {
+        val laptopScreen = 10
+
+        assertTrue(shouldShowTouchOverlayForScreen(laptopScreen, hideOverlayOnNonGameScreens = false, tutorialVisible = false))
+        assertFalse(shouldShowTouchOverlayForScreen(JA2_SHOPKEEPER_SCREEN, hideOverlayOnNonGameScreens = false, tutorialVisible = true))
+    }
+
+    @Test
+    fun onlyMapScreenUsesMapButtonSet() {
+        assertFalse(usesMapScreenTouchButtons(JA2_GAME_SCREEN))
+        assertTrue(usesMapScreenTouchButtons(JA2_MAP_SCREEN))
+        assertFalse(usesMapScreenTouchButtons(JA2_SHOPKEEPER_SCREEN))
+    }
+
+    @Test
     fun forceReleaseToggle_resolvesKeyAndRemovesFromHeldSet() {
         val action = TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT")
         val keyCode = TouchInputDispatcher.keyNameToCode("SHIFT")
