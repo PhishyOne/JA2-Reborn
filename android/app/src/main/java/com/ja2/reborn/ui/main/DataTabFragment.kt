@@ -60,7 +60,7 @@ class DataTabFragment : Fragment() {
             ScalingQuality.PERFECT,
             ScalingQuality.LINEAR
         )
-        mouseModes = (MouseMode::values)()
+        mouseModes = MouseMode.DISPLAY_ORDER
 
         super.onCreate(savedInstanceState)
     }

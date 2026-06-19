@@ -157,6 +157,14 @@ class TouchOverlayConfigMigrationTest {
     }
 
     @Test
+    fun mouseModeDisplayOrder_placesHardwareBelowTouchpad() {
+        assertEquals(
+            listOf(MouseMode.TOUCHPAD, MouseMode.HARDWARE, MouseMode.ABSOLUTE, MouseMode.TOUCHSCREEN),
+            MouseMode.DISPLAY_ORDER.toList()
+        )
+    }
+
+    @Test
     fun defaultMapScreenButtonsHasInventoryButton() {
         val buttons = defaultMapScreenButtons()
         val inv = buttons.filter { it.id == "map_inventory" }

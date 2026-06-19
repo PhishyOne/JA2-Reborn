@@ -25,8 +25,9 @@
 Update 104 Phase 1 ist abgeschlossen. `map_inventory` verwendet nun `ENTER`; Schema 13 migriert alte Layouts zentral und ergaenzt fehlende Map-Screen-Buttons.
 Update 104 Phase 2 ist abgeschlossen. Tactical- und Map-Screen-Presets sind getrennt; Export/Import bleibt Full-Layout-basiert und erhaelt `buttons` und `map_screen_buttons`.
 Update 104 Phase 3 ist abgeschlossen. Batch-02/03-Icon-Transforms, Lock-Icon-Groesse und Reload-Preset sind umgesetzt.
+Update 104 Phase 4 ist abgeschlossen. `HARDWARE` steht in der gemeinsamen Mouse-Mode-Reihenfolge direkt unter Modern Controls.
 
-Status der **8 Known Issues**: 6 behoben, 2 offen.
+Status der **8 Known Issues**: 7 behoben, 1 offen.
 
 1. **`map_inventory`-Button mapped auf `I`** — Behoben in Update 104 Phase 1.
 2. **Batch 02+03 Icon-Alignment** - Behoben in Update 104 Phase 3.
@@ -34,7 +35,7 @@ Status der **8 Known Issues**: 6 behoben, 2 offen.
 4. **Touch-Preset-Export/Import trennt nicht nach Screen-Kontext** - Behoben in Update 104 Phase 2.
 5. **Lock-Button zu klein nach SVG-Umstellung** - Behoben in Update 104 Phase 3.
 6. **Reload-Button pruefen** - Behoben in Update 104 Phase 3.
-7. **Hardware Mouse/Keyboard-Mode an falscher Dropdown-Position** — Der HARDWARE-Mode bleibt in den Expert Settings, aber die Dropdown-Reihenfolge ist falsch. Er soll **direkt unter Modern Controls** im Dropdown stehen, nicht an letzter Stelle.
+7. **Hardware Mouse/Keyboard-Mode an falscher Dropdown-Position** - Behoben in Update 104 Phase 4.
 8. **Screen-Skalierung unvollständig** — Nicht alle Bildschirme skalieren korrekt. Auto-Aid-Button: Das Spiel springt während der Aktion aus dem Widescreen in den 4:3-Modus und danach zurück. Händler-Bildschirm: User berichten von gecroppter und falsch skalierter Darstellung. **Prüfauftrag:** Das gesamte Spiel auf sämtliche Bildschirme durchgehen, die bei der Widescreen-Anpassung möglicherweise übersehen wurden (alle Spiel-Modi, Menüs, Dialoge, Inventar-, Händler-, Laptop-, Vertrags- und sonstige UI-Screens).
 
 ## Regeln
