@@ -57,6 +57,7 @@
 #include "WCheck.h"
 #include "WordWrap.h"
 #include "WorldMan.h"
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <queue>
@@ -961,8 +962,8 @@ static void DisplayTextForExternalNPC(UINT8 ubCharacterNum, const ST::string& zQ
 	{
 		// on the tactical screen show message always in the same position (corner
 		// of the screen)
-		sLeft = 110;
-		sTop = 20;
+		sLeft = g_ui.getTacticalTextBoxX();
+		sTop = g_ui.getTacticalTextBoxY();
 	}
 
 	ExecuteTacticalTextBox( sLeft, sTop, gTalkPanel.zQuoteStr );
@@ -991,10 +992,16 @@ void ExecuteTacticalTextBox(INT16 sLeftPosition, INT16 sTopPosition, const ST::s
 	// Prepare text box
 	g_dialogue_box = PrepareMercPopupBox(g_dialogue_box, BASIC_MERC_POPUP_BACKGROUND, BASIC_MERC_POPUP_BORDER, pString, DIALOGUE_DEFAULT_SUBTITLE_WIDTH, 0, 0, 0, &gusSubtitleBoxWidth, &gusSubtitleBoxHeight);
 
-	INT16  const x = sLeftPosition;
-	INT16  const y = sTopPosition;
 	UINT16 const w = gusSubtitleBoxWidth;
 	UINT16 const h = gusSubtitleBoxHeight;
+	INT16        x = sLeftPosition;
+	INT16        y = sTopPosition;
+
+	if (guiCurrentScreen != MAP_SCREEN)
+	{
+		x = std::clamp<INT16>(x, 0, std::max<INT16>(0, SCREEN_WIDTH - w));
+		y = std::clamp<INT16>(y, 0, std::max<INT16>(0, INV_INTERFACE_START_Y - h));
+	}
 
 	g_text_box_overlay = RegisterVideoOverlay(RenderSubtitleBoxOverlay, x, y, w, h);
 

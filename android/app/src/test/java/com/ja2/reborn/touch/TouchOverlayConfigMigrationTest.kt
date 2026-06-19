@@ -83,7 +83,7 @@ class TouchOverlayConfigMigrationTest {
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
         assertEquals(13, config.schemaVersion)
         assertTrue(config.mapScreenButtons.isEmpty())
-        assertEquals(5, config.buttons.size)
+        assertEquals(4, config.buttons.size)
     }
 
     @Test
@@ -240,14 +240,10 @@ class TouchOverlayConfigMigrationTest {
 
     @Test
     fun strafePresetsExist() {
-        val holdPreset = TOUCH_BUTTON_PRESETS.firstOrNull { it.id == "strafe_hold" }
-        val togglePreset = TOUCH_BUTTON_PRESETS.firstOrNull { it.id == "strafe_toggle" }
-        assertTrue(holdPreset != null)
+        val togglePreset = TACTICAL_TOUCH_BUTTON_PRESETS.firstOrNull { it.id == "alt_movement_hold" }
         assertTrue(togglePreset != null)
-        assertEquals("hold", holdPreset!!.action.mode)
         assertEquals("toggle", togglePreset!!.action.mode)
-        assertEquals("CTRL", holdPreset.action.keyName)
-        assertEquals("CTRL", togglePreset.action.keyName)
+        assertEquals("ALT", togglePreset.action.keyName)
     }
 
     @Test

@@ -630,7 +630,7 @@ void RenderSectorExitMenu()
 	INT16 const y = gExitDialog.sY;
 
 	RenderMercPopUpBox(gExitDialog.box, x, y,  FRAME_BUFFER);
-	InvalidateRegion(x, y, gExitDialog.usWidth, gExitDialog.usHeight);
+	InvalidateRegion(x, y, x + gExitDialog.usWidth, y + gExitDialog.usHeight);
 
 	SetFont(FONT12ARIAL);
 	SetFontBackground(FONT_MCOLOR_BLACK);

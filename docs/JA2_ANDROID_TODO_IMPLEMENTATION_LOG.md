@@ -198,6 +198,61 @@
 - **Ergebnis**: Phase 5 abgeschlossen.
 - **Ende**: 2026-06-19
 
+## Update 104 Phase 6: Shopkeeper / Vendor Scaling
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Shopkeeper-UI auf einen gemeinsamen SKI-Origin relativ zu `STD_SCREEN_X/Y` umgestellt.
+  - `tradescreen.sti`, Buttons, Haendlergesicht, Inventar-Slots, Mouse Regions, Restore-/Invalidate-Rects und Shopkeeper-Subtitles ueber denselben Origin gefuehrt.
+  - Taktische Aussenbereiche um das Haendlerpanel bleiben Widescreen und werden ueber aktuelle `SCREEN_WIDTH` sowie `INV_INTERFACE_START_Y` restauriert.
+  - Shopkeeper-Messageboxen innerhalb des 640er SKI-Panels zentriert.
+  - Item-Description-Anker gegen aktuelle `SCREEN_WIDTH/HEIGHT` geklemmt.
+- **Tests**:
+  - `.\gradlew.bat externalNativeBuildDebug` in `android` -> BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`.
+- **Zweitpruefung**: Diff auf Vollscreen-4:3-Rueckfall geprueft; `SCREEN_WIDTH/HEIGHT` werden nicht global ersetzt, nur klassische SKI-Panel-Koordinaten bekommen den 4:3-Origin.
+- **Manuelle Pruefung**: Nicht am Geraet ausgefuehrt; Sichtbarkeit, Slot-Klickbarkeit und Popup-Position muessen in der Endverifikation auf breiter Android-Aufloesung geprueft werden.
+- **Ergebnis**: Phase 6 abgeschlossen.
+- **Ende**: 2026-06-19
+
+## Update 104 Phase 7: Widescreen Screen-/Text-Audit
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Plan geschaerft: Widescreen-Probleme betreffen alle Texteinblendungen, nicht nur Auto-Bandage; Menues und Map-Screen bleiben bewusst 4:3.
+  - Taktische NPC-/Dialog-Texteinblendungen auf zentrale Tactical-Textbox-Position umgestellt.
+  - Tactical-Textbox-Overlays gegen `SCREEN_WIDTH` und `INV_INTERFACE_START_Y` geklemmt.
+  - Map-Screen-Dialogpositionierung unveraendert im 4:3-Kontext belassen.
+  - Zivilisten-Quotes gegen die aktuelle taktische Viewport-Hoehe geklemmt.
+  - Sector-Exit-Dialog-Dirty-Rect korrigiert: Invalidate nutzt jetzt rechte/untere Koordinaten statt Breite/Hoehe.
+  - Shopkeeper-Subtitles, Item-Description-Anker und Messageboxen im Rahmen von Phase 6 mitgeprueft.
+- **Tests**:
+  - `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat externalNativeBuildDebug` in `android` -> BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`.
+- **Zweitpruefung**: Relevante Textpfade (`Dialogue_Control`, `Interface`, `Civ_Quotes`, `Strategic_Exit_GUI`, Shopkeeper) gesucht und Diff auf Map-/Menue-4:3-Abgrenzung geprueft.
+- **Manuelle Pruefung**: Vollstaendige 16:9-/Ultrawide-Geraetepruefung nicht ausgefuehrt; bleibt fuer Endabnahme offen.
+- **Ergebnis**: Phase 7 als Code-Audit abgeschlossen.
+- **Ende**: 2026-06-19
+
+## Update 104 Phase 8: Final Verification und APK
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Vollstaendige Android-Unit-Test-Suite ausgefuehrt.
+  - Native Debug-Build-Pruefung fuer alle Android-ABIs ausgefuehrt.
+  - Lokale Debug-APK zur Verifikation gebaut.
+  - Kein Google-Drive-Upload durchgefuehrt.
+- **Tests**:
+  - `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat externalNativeBuildDebug` in `android` -> BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`.
+  - `.\gradlew.bat assembleDebug` in `android` -> BUILD SUCCESSFUL.
+- **Artefakt**: `android\app\build\outputs\apk\debug\app-debug.apk`.
+- **Restbefund**: Manuelle Endabnahme auf 16:9-/Ultrawide-Geraet bleibt offen, insbesondere Shopkeeper, Texteinblendungen, Popups und Rueckkehr-Artefakte.
+- **Ergebnis**: Phase 8 abgeschlossen.
+- **Ende**: 2026-06-19
+
 ## Shape-Aware Touch Hit-Testing
 
 - **Start**: 2026-06-19
