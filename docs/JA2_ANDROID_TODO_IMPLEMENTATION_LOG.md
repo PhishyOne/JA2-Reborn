@@ -129,6 +129,23 @@
 - **Ergebnis**: Phase 1 abgeschlossen.
 - **Ende**: 2026-06-19
 
+## Update 104 Phase 2: Screen-Kontextgetrennte Presets und Export/Import
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Touch-Button-Presets in `TACTICAL_TOUCH_BUTTON_PRESETS` und `MAP_SCREEN_TOUCH_BUTTON_PRESETS` getrennt.
+  - Map-Screen-Presets fuer alle acht Map-Buttons ergaenzt, inklusive `map_inventory` mit `ENTER`.
+  - `TouchOverlayController` waehlt Presets anhand des aktiven Screens aus.
+  - `TouchOverlayEditDialog` erhaelt die aktive Presetliste explizit und sucht nur darin.
+  - Map-Preset-Labels und Kategorie in Englisch/Deutsch ergaenzt.
+  - Export/Import als Full-Layout bestaetigt: `buttons` und `map_screen_buttons` bleiben getrennt.
+- **Tests**: `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+- **Zweitpruefung**: Diff und Suche nach globaler Preset-Nutzung im Editorpfad geprueft; Unit-Tests decken getrennte Presets und Export/Import-Roundtrip ab.
+- **Manuelle Pruefung**: Nicht am Geraet ausgefuehrt; Map-Editor-Verhalten muss in der spaeteren Endverifikation geprueft werden.
+- **Ergebnis**: Phase 2 abgeschlossen.
+- **Ende**: 2026-06-19
+
 ---
 
 ## ABSCHLUSS-STATUS (2026-06-18)

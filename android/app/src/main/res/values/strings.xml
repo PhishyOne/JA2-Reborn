@@ -197,6 +197,7 @@
     <string name="touch_preset_category_movement">Movement</string>
     <string name="touch_preset_category_combat">Combat</string>
     <string name="touch_preset_category_ui">UI</string>
+    <string name="touch_preset_category_map_screen">Map Screen</string>
 
     <!-- Key Short Names (button face abbreviations) -->
     <string name="touch_key_escape">Esc</string>
@@ -270,4 +271,12 @@
     <string name="touch_preset_quick_load">Quick Load</string>
     <string name="touch_preset_quit_game">Quit Game</string>
     <string name="touch_preset_cheats">Cheats</string>
+    <string name="touch_preset_map_shift">Map Shift</string>
+    <string name="touch_preset_map_ctrl">Map Ctrl</string>
+    <string name="touch_preset_map_alt">Map Alt</string>
+    <string name="touch_preset_map_options">Map Options</string>
+    <string name="touch_preset_map_time_minus">Slower Time</string>
+    <string name="touch_preset_map_time_plus">Faster Time</string>
+    <string name="touch_preset_map_inventory">Sector Inventory</string>
+    <string name="touch_preset_map_laptop">Laptop</string>
 </resources>

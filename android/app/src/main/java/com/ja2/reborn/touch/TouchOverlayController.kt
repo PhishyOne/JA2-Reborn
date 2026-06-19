@@ -326,11 +326,12 @@ class TouchOverlayController(
             visible = true,
             actions = emptyList()
         )
-        val tempConfig = TOUCH_BUTTON_PRESETS.first().applyTo(baseButtonConfig)
+        val tempConfig = activeTouchButtonPresets().first().applyTo(baseButtonConfig)
 
         val dialog = TouchOverlayEditDialog(
             context = activity,
             buttonConfig = tempConfig,
+            presetOptions = activeTouchButtonPresets(),
             onSave = { updatedConfig ->
                 addNewButton(updatedConfig)
             },
@@ -900,6 +901,9 @@ class TouchOverlayController(
         else cfg.copy(buttons = newButtons)
     }
 
+    private fun activeTouchButtonPresets(): List<TouchButtonPreset> =
+        if (currentActiveScreen == MAP_SCREEN) MAP_SCREEN_TOUCH_BUTTON_PRESETS else TACTICAL_TOUCH_BUTTON_PRESETS
+
     private fun createButtonViews() {
         val cfg = config ?: return
         val container = overlayContainer ?: return
@@ -998,6 +1002,7 @@ class TouchOverlayController(
         val dialog = TouchOverlayEditDialog(
             context = activity,
             buttonConfig = btnConfig,
+            presetOptions = activeTouchButtonPresets(),
             onSave = { updatedConfig ->
                 val positionPreserved = if (capturedX != null && capturedY != null)
                     updatedConfig.copy(x = capturedX, y = capturedY)
