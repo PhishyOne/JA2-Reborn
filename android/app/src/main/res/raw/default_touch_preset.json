@@ -292,38 +292,6 @@
             ]
         },
         {
-            "id": "map_ctrl",
-            "label": "CT",
-            "icon": "map_ctrl",
-            "shape": "square",
-            "x": 0.93,
-            "y": 0.44,
-            "size": 0.09,
-            "actions": [
-                {
-                    "type": "key",
-                    "mode": "toggle",
-                    "key_name": "CTRL"
-                }
-            ]
-        },
-        {
-            "id": "map_alt",
-            "label": "AL",
-            "icon": "map_alt",
-            "shape": "square",
-            "x": 0.93,
-            "y": 0.53,
-            "size": 0.09,
-            "actions": [
-                {
-                    "type": "key",
-                    "mode": "toggle",
-                    "key_name": "ALT"
-                }
-            ]
-        },
-        {
             "id": "map_options",
             "label": "Opt",
             "icon": "map_options",
@@ -400,6 +368,22 @@
                     "type": "key",
                     "mode": "tap",
                     "key_name": "L"
+                }
+            ]
+        },
+        {
+            "id": "map_tactical",
+            "label": "Exit",
+            "icon": "map_tactical",
+            "shape": "rectangle",
+            "x": 0.62,
+            "y": 0.94,
+            "size": 0.09,
+            "actions": [
+                {
+                    "type": "key",
+                    "mode": "tap",
+                    "key_name": "ESCAPE"
                 }
             ]
         }

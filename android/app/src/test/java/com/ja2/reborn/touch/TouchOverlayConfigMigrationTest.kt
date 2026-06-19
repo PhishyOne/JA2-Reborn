@@ -48,9 +48,10 @@ class TouchOverlayConfigMigrationTest {
         val upgraded = normalizeTouchOverlayConfig(config)
 
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, upgraded.schemaVersion)
-        assertEquals(8, upgraded.mapScreenButtons.size)
-        val modifiers = upgraded.mapScreenButtons.filter { it.id in setOf("map_shift", "map_ctrl", "map_alt") }
-        assertEquals(3, modifiers.size)
+        assertEquals(7, upgraded.mapScreenButtons.size)
+        assertTrue(upgraded.mapScreenButtons.any { it.id == "map_shift" })
+        assertFalse(upgraded.mapScreenButtons.any { it.id == "map_ctrl" })
+        assertFalse(upgraded.mapScreenButtons.any { it.id == "map_alt" })
     }
 
     @Test
@@ -81,21 +82,21 @@ class TouchOverlayConfigMigrationTest {
     fun codeDefaultHasEmptyMapScreenButtons() {
         val config = TouchOverlayConfig()
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
-        assertEquals(13, config.schemaVersion)
+        assertEquals(14, config.schemaVersion)
         assertTrue(config.mapScreenButtons.isEmpty())
         assertEquals(4, config.buttons.size)
     }
 
     @Test
-    fun schemaVersionConstantIs13() {
-        assertEquals(13, TOUCH_OVERLAY_CONFIG_VERSION)
+    fun schemaVersionConstantIs14() {
+        assertEquals(14, TOUCH_OVERLAY_CONFIG_VERSION)
     }
 
     @Test
     fun mapScreenModifiersUseToggleMode() {
         val buttons = defaultMapScreenButtons()
-        val modifiers = buttons.filter { it.id in setOf("map_shift", "map_ctrl", "map_alt") }
-        assertEquals(3, modifiers.size)
+        val modifiers = buttons.filter { it.id == "map_shift" }
+        assertEquals(1, modifiers.size)
         modifiers.forEach { btn ->
             val mode = btn.actions.first().mode
             assertEquals("toggle", mode)
@@ -105,7 +106,7 @@ class TouchOverlayConfigMigrationTest {
     @Test
     fun defaultMapScreenButtonsHasExtendedSet() {
         val buttons = defaultMapScreenButtons()
-        assertEquals(8, buttons.size) // 3 modifiers + 5 action buttons
+        assertEquals(7, buttons.size) // 1 modifier + 6 action buttons
     }
 
     @Test
@@ -192,7 +193,7 @@ class TouchOverlayConfigMigrationTest {
         val config = json.decodeFromString<TouchOverlayConfig>(v12)
         val normalized = normalizeTouchOverlayConfig(config)
 
-        assertEquals(13, normalized.schemaVersion)
+        assertEquals(14, normalized.schemaVersion)
         assertEquals("ENTER", normalized.mapScreenButtons.first { it.id == "map_inventory" }.actions.first().keyName)
     }
 
@@ -266,6 +267,18 @@ class TouchOverlayConfigMigrationTest {
         val preset = MAP_SCREEN_TOUCH_BUTTON_PRESETS.first { it.id == "map_inventory" }
         assertEquals("ENTER", preset.action.keyName)
         assertEquals("tap", preset.action.mode)
+    }
+
+    @Test
+    fun mapTacticalPresetUsesEscapeAndCancelIcon() {
+        val preset = MAP_SCREEN_TOUCH_BUTTON_PRESETS.first { it.id == "map_tactical" }
+        assertEquals("ESCAPE", preset.action.keyName)
+        assertEquals("tap", preset.action.mode)
+        assertEquals("map_tactical", preset.icon)
+
+        val button = defaultMapScreenButtons().first { it.id == "map_tactical" }
+        assertEquals("ESCAPE", button.actions.first().keyName)
+        assertEquals("map_tactical", button.icon)
     }
 
     @Test

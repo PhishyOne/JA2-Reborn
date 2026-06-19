@@ -274,11 +274,10 @@
     <string name="touch_preset_quit_game">Spiel beenden</string>
     <string name="touch_preset_cheats">Cheats</string>
     <string name="touch_preset_map_shift">Item Stacking</string>
-    <string name="touch_preset_map_ctrl">Feinde markieren</string>
-    <string name="touch_preset_map_alt">Wegpunkt setzen</string>
     <string name="touch_preset_map_options">Optionen</string>
     <string name="touch_preset_map_time_minus">Zeit langsamer</string>
     <string name="touch_preset_map_time_plus">Zeit schneller</string>
     <string name="touch_preset_map_inventory">Inventar</string>
     <string name="touch_preset_map_laptop">Laptop</string>
+    <string name="touch_preset_map_tactical">Karte Verlassen</string>
 </resources>

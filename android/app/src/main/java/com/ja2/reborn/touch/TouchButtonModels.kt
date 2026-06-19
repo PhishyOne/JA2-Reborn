@@ -3,7 +3,7 @@ package com.ja2.reborn.touch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val TOUCH_OVERLAY_CONFIG_VERSION = 13
+const val TOUCH_OVERLAY_CONFIG_VERSION = 14
 
 @Serializable
 data class TouchOverlayConfig(
@@ -132,16 +132,6 @@ fun defaultMapScreenButtons(): List<TouchButtonConfig> = listOf(
         x = 0.93f, y = 0.35f, size = 0.090f,
         actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT"))
     ),
-    TouchButtonConfig(
-        id = "map_ctrl", label = "CT", icon = "map_ctrl", shape = BUTTON_SHAPE_SQUARE,
-        x = 0.93f, y = 0.44f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "CTRL"))
-    ),
-    TouchButtonConfig(
-        id = "map_alt", label = "AL", icon = "map_alt", shape = BUTTON_SHAPE_SQUARE,
-        x = 0.93f, y = 0.53f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "ALT"))
-    ),
     // Bottom row — map actions
     TouchButtonConfig(
         id = "map_options", label = "Opt", icon = "map_options", shape = BUTTON_SHAPE_RECTANGLE,
@@ -167,6 +157,11 @@ fun defaultMapScreenButtons(): List<TouchButtonConfig> = listOf(
         id = "map_laptop", label = "Lap", icon = "map_laptop", shape = BUTTON_SHAPE_RECTANGLE,
         x = 0.50f, y = 0.94f, size = 0.090f,
         actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "L"))
+    ),
+    TouchButtonConfig(
+        id = "map_tactical", label = "Exit", icon = "map_tactical", shape = BUTTON_SHAPE_RECTANGLE,
+        x = 0.62f, y = 0.94f, size = 0.090f,
+        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ESCAPE"))
     )
 )
 
@@ -177,6 +172,14 @@ const val BUTTON_SHAPE_RECTANGLE = "rectangle"
 fun normalizeTouchOverlayConfig(config: TouchOverlayConfig): TouchOverlayConfig {
     val mapButtons = (config.mapScreenButtons.ifEmpty { defaultMapScreenButtons() })
         .map { it.migrateMapInventoryEnterKey() }
+        .filterNot { it.id in setOf("map_ctrl", "map_alt") }
+        .let { buttons ->
+            if (config.schemaVersion < 14 && buttons.none { it.id == "map_tactical" }) {
+                buttons + defaultMapScreenButtons().first { it.id == "map_tactical" }
+            } else {
+                buttons
+            }
+        }
 
     return config.copy(
         schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,

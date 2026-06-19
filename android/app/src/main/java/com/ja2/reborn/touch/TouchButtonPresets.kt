@@ -79,13 +79,12 @@ val TACTICAL_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
 
 val MAP_SCREEN_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
     keyPreset("map_shift", "Item Stacking", "map_shift", "SHIFT", "Map Screen", mode = "toggle"),
-    keyPreset("map_ctrl", "Mark Enemies", "map_ctrl", "CTRL", "Map Screen", mode = "toggle"),
-    keyPreset("map_alt", "Waypoints", "map_alt", "ALT", "Map Screen", mode = "toggle"),
     keyPreset("map_options", "Options", "map_options", "O", "Map Screen"),
     keyPreset("map_time_minus", "Slower Time", "map_time_minus", "MINUS", "Map Screen"),
     keyPreset("map_time_plus", "Faster Time", "map_time_plus", "EQUALS", "Map Screen"),
     keyPreset("map_inventory", "Inventory", "map_inventory", "ENTER", "Map Screen"),
-    keyPreset("map_laptop", "Laptop", "map_laptop", "L", "Map Screen")
+    keyPreset("map_laptop", "Laptop", "map_laptop", "L", "Map Screen"),
+    keyPreset("map_tactical", "Leave Map", "map_tactical", "ESCAPE", "Map Screen")
 )
 
 val TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = TACTICAL_TOUCH_BUTTON_PRESETS
