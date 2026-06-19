@@ -219,6 +219,7 @@ class TouchOverlayController(
         val cfg = config ?: return
 
         schlossButton = TouchOverlayLockButtonView(activity).apply {
+            alpha = 0.45f
             setLocked(cfg.layoutLocked)
             setOnClickListener { onSchlossTapped() }
             isClickable = true
