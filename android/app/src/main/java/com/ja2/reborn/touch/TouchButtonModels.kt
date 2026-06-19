@@ -122,6 +122,24 @@ fun defaultButtons(): List<TouchButtonConfig> = listOf(
         )
     ),
     TouchButtonConfig(
+        id = "shift_toggle",
+        label = "SH",
+        icon = "map_shift",
+        shape = BUTTON_SHAPE_SQUARE,
+        x = 0.8925f,
+        y = 0.7556f,
+        size = 0.120f,
+        alpha = 0.45f,
+        visible = true,
+        actions = listOf(
+            TouchButtonAction(
+                type = "key",
+                mode = "toggle",
+                keyName = "SHIFT"
+            )
+        )
+    ),
+    TouchButtonConfig(
         id = "stance_crouch",
         label = "DU",
         icon = "stance_crouch",
