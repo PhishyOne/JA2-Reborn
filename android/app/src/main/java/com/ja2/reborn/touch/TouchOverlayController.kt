@@ -58,7 +58,8 @@ class TouchOverlayController(
         attached = true
         overlayAutoHidden = false
 
-        config = store.loadOrDefault()
+        val loadResult = store.loadOrDefaultWithResult()
+        config = loadResult.config
         config = config!!.copy(layoutLocked = true, editMode = false)
         applyRuntimeSpeeds(config!!)
 

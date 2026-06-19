@@ -12,6 +12,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+data class TouchOverlayLoadResult(
+    val config: TouchOverlayConfig,
+    val defaultPresetWasReset: Boolean
+)
+
 class TouchButtonStore(
     private val filesDir: File,
     private val context: Context,
@@ -29,17 +34,26 @@ class TouchButtonStore(
     private val invalidFile: File
         get() = File(filesDir, "$CONFIG_PATH.invalid.json")
 
-    fun loadOrDefault(): TouchOverlayConfig {
+    fun loadOrDefault(): TouchOverlayConfig = loadOrDefaultWithResult().config
+
+    fun loadOrDefaultWithResult(): TouchOverlayLoadResult {
         if (!configFile.exists()) {
             Log.i(TAG, "No existing config, loading bundled default preset")
             val defaults = loadDefaultFromRaw()
             save(defaults)
-            return defaults
+            return TouchOverlayLoadResult(defaults, defaultPresetWasReset = false)
         }
 
         return try {
             val raw = configFile.readText()
             val config = jsonFormat.decodeFromString<TouchOverlayConfig>(raw)
+            if (needsDefaultPresetReset(config)) {
+                Log.i(TAG, "Default touch preset version mismatch (${config.defaultPresetVersion} != $DEFAULT_TOUCH_PRESET_VERSION), replacing user layout with bundled default")
+                val defaults = loadDefaultFromRaw()
+                save(defaults)
+                return TouchOverlayLoadResult(defaults, defaultPresetWasReset = true)
+            }
+
             val migratedConfig = normalizeTouchOverlayConfig(config)
             if (config.schemaVersion != TOUCH_OVERLAY_CONFIG_VERSION || migratedConfig != config) {
                 Log.i(TAG, "Config version mismatch or legacy touch mapping found (${config.schemaVersion} != $TOUCH_OVERLAY_CONFIG_VERSION), normalizing with defaults")
@@ -51,15 +65,15 @@ class TouchButtonStore(
                     normalized = TouchOverlayAdaptiveDefaults.apply(context, normalized, resolutionMode)
                 }
                 save(normalized)
-                normalized
+                TouchOverlayLoadResult(normalized, defaultPresetWasReset = false)
             } else if (isBundledDefaultLayout(migratedConfig) || isLegacyGeneratedDefaultLayout(migratedConfig)) {
                 val normalized = TouchOverlayAdaptiveDefaults.apply(context, migratedConfig, resolutionMode)
                 if (normalized != migratedConfig) {
                     save(normalized)
                 }
-                normalized
+                TouchOverlayLoadResult(normalized, defaultPresetWasReset = false)
             } else {
-                migratedConfig
+                TouchOverlayLoadResult(migratedConfig, defaultPresetWasReset = false)
             }
         } catch (e: SerializationException) {
             Log.w(TAG, "Corrupt config, backing up and loading defaults: ${e.message}")
@@ -70,10 +84,10 @@ class TouchButtonStore(
             }
             val defaults = loadDefaultFromRaw()
             save(defaults)
-            defaults
+            TouchOverlayLoadResult(defaults, defaultPresetWasReset = false)
         } catch (e: Exception) {
             Log.w(TAG, "Could not read config, loading defaults: ${e.message}")
-            loadDefaultFromRaw()
+            TouchOverlayLoadResult(loadDefaultFromRaw(), defaultPresetWasReset = false)
         }
     }
 
@@ -121,7 +135,7 @@ class TouchButtonStore(
             if (parent != null && !parent.exists()) {
                 parent.mkdirs()
             }
-            configFile.writeText(jsonFormat.encodeToString(config))
+            configFile.writeText(jsonFormat.encodeToString(stampForPersistence(config)))
         } catch (e: Exception) {
             Log.e(TAG, "Failed to save config: ${e.message}")
         }
@@ -135,15 +149,21 @@ class TouchButtonStore(
         val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
         val timestamp = sdf.format(Date())
         val targetFile = File(targetDir, "ja2_touch_layout_$timestamp.json")
-        targetFile.writeText(jsonFormat.encodeToString(config))
+        targetFile.writeText(jsonFormat.encodeToString(stampForPersistence(config)))
         return targetFile
     }
 
     fun exportConfigToDir(config: TouchOverlayConfig, targetDir: File, baseName: String): File {
         val targetFile = File(targetDir, "$baseName.json")
-        targetFile.writeText(jsonFormat.encodeToString(config))
+        targetFile.writeText(jsonFormat.encodeToString(stampForPersistence(config)))
         return targetFile
     }
+
+    private fun stampForPersistence(config: TouchOverlayConfig): TouchOverlayConfig =
+        config.copy(
+            schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
+            defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION
+        )
 
     companion object {
         private const val TAG = "TouchButtonStore"

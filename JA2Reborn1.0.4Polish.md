@@ -237,3 +237,39 @@ Stand: 2026-06-19
   Default-Button-Count-Annahmen gefunden; verbleibendes `1800` ist nur ein Slider-Wert.
 - Verifikation:
   `.\gradlew.bat testDebugUnitTest` im `android`-Ordner erfolgreich.
+
+### Phase 2 - Default-Preset-Version und erzwungener einmaliger Reset
+
+Stand: 2026-06-19
+
+- `DEFAULT_TOUCH_PRESET_VERSION = 20260619` eingefuehrt.
+- `TouchOverlayConfig` um `default_preset_version` erweitert; fehlende Felder werden als `0`
+  gelesen, damit alte User-Dateien eindeutig als alt erkannt werden.
+- `normalizeTouchOverlayConfig()` stempelt normalisierte Konfigurationen mit
+  `schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION` und
+  `defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION`.
+- `TouchOverlayLoadResult(config, defaultPresetWasReset)` und
+  `loadOrDefaultWithResult()` in `TouchButtonStore` eingefuehrt;
+  `loadOrDefault()` bleibt als Wrapper erhalten.
+- Store-Reset-Logik umgesetzt:
+  fehlende User-Datei laedt und speichert das gebuendelte Default ohne Update-Reset-Hinweis,
+  vorhandene User-Datei mit abweichender Default-Preset-Version wird durch das aktuelle
+  gebuendelte Default ersetzt und meldet `defaultPresetWasReset = true`,
+  aktuelle Version bleibt im bestehenden Schema-/Legacy-Normalisierungspfad,
+  kaputte User-Datei wird wie bisher gesichert und laedt Defaults ohne erzwungenen Hinweis.
+- Import/Export/Persistenz:
+  Import laeuft weiter ueber Normalisierung und wird dadurch auf die aktuelle
+  Default-Preset-Version gestempelt; `save()` und Export stempeln defensiv Schema- und
+  Default-Preset-Version beim Schreiben.
+- `TouchOverlayController.attach()` nutzt die neue Ergebnis-API; die Hinweisverknuepfung folgt in Phase 3.
+- Tests aktualisiert:
+  fehlendes `default_preset_version` liest `0`,
+  alte/missing Version erzwingt Reset-Entscheidung,
+  aktuelle Version erzwingt keinen Reset,
+  Import alter Presets wird auf die aktuelle Version gestempelt,
+  bestehende Schema-Migrationen bleiben erhalten.
+- Zweitpruefung:
+  Store-Diff geprueft; User-Layouts werden nur bei Preset-Version-Abweichung ersetzt.
+  `rg "default_preset_version|DEFAULT_TOUCH_PRESET_VERSION|loadOrDefault"` ausgefuehrt.
+- Verifikation:
+  `.\gradlew.bat testDebugUnitTest` im `android`-Ordner erfolgreich.
