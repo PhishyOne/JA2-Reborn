@@ -88,40 +88,6 @@ fun defaultButtons(): List<TouchButtonConfig> = listOf(
         )
     ),
     TouchButtonConfig(
-        id = "strafe_hold",
-        label = "STR",
-        shape = BUTTON_SHAPE_CIRCLE,
-        x = 0.8575f,
-        y = 0.6222f,
-        size = 0.140f,
-        alpha = 0.45f,
-        visible = true,
-        actions = listOf(
-            TouchButtonAction(
-                type = "key",
-                mode = "hold",
-                keyName = "CTRL"
-            )
-        )
-    ),
-    TouchButtonConfig(
-        id = "strafe_toggle",
-        label = "ST",
-        shape = BUTTON_SHAPE_SQUARE,
-        x = 0.8925f,
-        y = 0.6222f,
-        size = 0.140f,
-        alpha = 0.45f,
-        visible = true,
-        actions = listOf(
-            TouchButtonAction(
-                type = "key",
-                mode = "toggle",
-                keyName = "CTRL"
-            )
-        )
-    ),
-    TouchButtonConfig(
         id = "shift_toggle",
         label = "SH",
         icon = "map_shift",

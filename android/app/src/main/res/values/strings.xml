@@ -228,7 +228,8 @@
     <string name="touch_preset_run_toggle">Toggle Run</string>
     <string name="touch_preset_stealth_toggle">Toggle Stealth</string>
     <string name="touch_preset_swap_places">Swap Places</string>
-    <string name="touch_preset_alt_movement_hold">Reverse/Strafe</string>
+    <string name="touch_preset_alt_movement_hold">Sidestep/Backstep</string>
+    <string name="touch_preset_shift_toggle">Item Stacking</string>
     <string name="touch_preset_fire_mode">Switch Fire Mode</string>
     <string name="touch_preset_range_cursor">Show Range to Cursor</string>
     <string name="touch_preset_keyring">Open Keyring</string>

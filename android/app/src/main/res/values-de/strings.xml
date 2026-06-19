@@ -228,7 +228,8 @@
     <string name="touch_preset_run_toggle">Laufen an/aus</string>
     <string name="touch_preset_stealth_toggle">Schleichmodus an/aus</string>
     <string name="touch_preset_swap_places">Plätze tauschen</string>
-    <string name="touch_preset_alt_movement_hold">Rückwärtsgang / Seitwärtsschritte</string>
+    <string name="touch_preset_alt_movement_hold">Seitwärts-/Rückwärtsschritte</string>
+    <string name="touch_preset_shift_toggle">Item Stacking</string>
     <string name="touch_preset_fire_mode">Feuermodus wechseln</string>
     <string name="touch_preset_range_cursor">Reichweite zum Cursor anzeigen</string>
     <string name="touch_preset_keyring">Schlüsselbund öffnen</string>
