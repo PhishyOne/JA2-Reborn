@@ -113,9 +113,9 @@ static const TUTORIAL_PANEL gMainMenuTutorialPanelEN = {
 
 static const TUTORIAL_PANEL gTouchPresetUpdatePanelDE = {
 	"Touch-Layout aktualisiert",
-	"Dein Touch-Layout wurde durch dieses Update zurueckgesetzt.\n\n"
-	"Der Grund sind grundlegende Aenderungen am Touch-System und am neuen Standard-Layout.\n\n"
-	"Weitere grosse Zuruecksetzungen dieser Art sind nicht erwartet."
+	"Dein Touch-Layout wurde durch dieses Update zurückgesetzt.\n\n"
+	"Der Grund sind grundlegende Änderungen am Touch-System und am neuen Standard-Layout.\n\n"
+	"Weitere große Zurücksetzungen dieser Art sind nicht erwartet."
 };
 
 static const TUTORIAL_PANEL gTouchPresetUpdatePanelEN = {
@@ -370,12 +370,19 @@ static bool PointInExpandedRect(int x, int y, int left, int top, int width, int 
 	return PointInRect(x, y, left - slop, top - slop, width + 2 * slop, height + 2 * slop);
 }
 
+static bool TutorialUsesMainMenuBounds()
+{
+	return gTutorial.mode == TutorialMode::MainMenu ||
+		(gTutorial.mode == TutorialMode::TouchPresetUpdate && guiCurrentScreen == MAINMENU_SCREEN);
+}
+
 static void RecalcCardLayout()
 {
-	const int layoutX = gTutorial.mode == TutorialMode::MainMenu ? STD_SCREEN_X : 0;
-	const int layoutY = gTutorial.mode == TutorialMode::MainMenu ? STD_SCREEN_Y : 0;
-	const int layoutW = gTutorial.mode == TutorialMode::MainMenu ? 640 : SCREEN_WIDTH;
-	const int layoutH = gTutorial.mode == TutorialMode::MainMenu ? 480 : SCREEN_HEIGHT;
+	const bool useMainMenuBounds = TutorialUsesMainMenuBounds();
+	const int layoutX = useMainMenuBounds ? STD_SCREEN_X : 0;
+	const int layoutY = useMainMenuBounds ? STD_SCREEN_Y : 0;
+	const int layoutW = useMainMenuBounds ? 640 : SCREEN_WIDTH;
+	const int layoutH = useMainMenuBounds ? 480 : SCREEN_HEIGHT;
 
 	gCardW = (layoutW * TUTORIAL_CARD_WIDTH_PCT) / 100;
 	if (gCardW < 300) gCardW = 300;
