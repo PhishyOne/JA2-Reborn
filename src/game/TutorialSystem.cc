@@ -32,6 +32,7 @@
 #define TUTORIAL_CONFIRM_W         124
 #define TUTORIAL_CONFIRM_H         28
 #define TUTORIAL_CHECKBOX_SIZE     13
+#define TUTORIAL_TOUCH_SLOP        18
 
 #define TUTORIAL_CLR_CARD_BG       Get16BPPColor(FROMRGB(24, 26, 38))
 #define TUTORIAL_CLR_CARD_BORDER   Get16BPPColor(FROMRGB(80, 90, 110))
@@ -119,6 +120,8 @@ static MOUSE_REGION gTutorialInputRegion;
 static bool gTutorialUIInitialized = false;
 static bool gTutorialPointerDown = false;
 static bool gTutorialSwipeHandled = false;
+static bool gTutorialConfirmPressed = false;
+static bool gTutorialCheckboxPressed = false;
 static int gTutorialSwipeStartX = 0;
 static int gTutorialSwipeStartY = 0;
 
@@ -283,6 +286,11 @@ static bool PointInRect(int x, int y, int left, int top, int width, int height)
 	return x >= left && x <= left + width && y >= top && y <= top + height;
 }
 
+static bool PointInExpandedRect(int x, int y, int left, int top, int width, int height, int slop)
+{
+	return PointInRect(x, y, left - slop, top - slop, width + 2 * slop, height + 2 * slop);
+}
+
 static void RecalcCardLayout()
 {
 	const int layoutX = gTutorial.mode == TutorialMode::MainMenu ? STD_SCREEN_X : 0;
@@ -357,6 +365,14 @@ static void TutorialButtonCallback(MOUSE_REGION* pRegion, UINT32 reason)
 		gTutorialSwipeHandled = false;
 		gTutorialSwipeStartX = pRegion->MouseXPos;
 		gTutorialSwipeStartY = pRegion->MouseYPos;
+		gTutorialConfirmPressed = PointInExpandedRect(
+			gTutorialSwipeStartX, gTutorialSwipeStartY,
+			gConfirmX, gConfirmY, gConfirmW, gConfirmH,
+			TUTORIAL_TOUCH_SLOP);
+		gTutorialCheckboxPressed = PointInExpandedRect(
+			gTutorialSwipeStartX, gTutorialSwipeStartY,
+			gCheckboxX - 4, gCheckboxY - 5, gCheckboxW + 170, gCheckboxH + 10,
+			TUTORIAL_TOUCH_SLOP);
 		return;
 	}
 
@@ -371,16 +387,21 @@ static void TutorialButtonCallback(MOUSE_REGION* pRegion, UINT32 reason)
 		const int y = pRegion->MouseYPos;
 		const int dx = x - gTutorialSwipeStartX;
 		const int dy = y - gTutorialSwipeStartY;
+		const bool isSwipe = std::abs(dx) >= TUTORIAL_SWIPE_THRESHOLD && std::abs(dx) >= std::abs(dy);
 
-		if (PointInRect(x, y, gConfirmX, gConfirmY, gConfirmW, gConfirmH))
+		if (!isSwipe &&
+			(gTutorialConfirmPressed ||
+			 PointInExpandedRect(x, y, gConfirmX, gConfirmY, gConfirmW, gConfirmH, TUTORIAL_TOUCH_SLOP)))
 		{
 			ExitTutorial();
 		}
-		else if (PointInRect(x, y, gCheckboxX - 4, gCheckboxY - 5, gCheckboxW + 170, gCheckboxH + 10))
+		else if (!isSwipe &&
+			(gTutorialCheckboxPressed ||
+			 PointInExpandedRect(x, y, gCheckboxX - 4, gCheckboxY - 5, gCheckboxW + 170, gCheckboxH + 10, TUTORIAL_TOUCH_SLOP)))
 		{
 			gTutorial.fCheckboxChecked = !gTutorial.fCheckboxChecked;
 		}
-		else if (std::abs(dx) >= TUTORIAL_SWIPE_THRESHOLD && std::abs(dx) >= std::abs(dy))
+		else if (isSwipe)
 		{
 			if (dx < 0) TutorialNextPanel();
 			else TutorialPrevPanel();
@@ -389,6 +410,8 @@ static void TutorialButtonCallback(MOUSE_REGION* pRegion, UINT32 reason)
 
 	gTutorialPointerDown = false;
 	gTutorialSwipeHandled = false;
+	gTutorialConfirmPressed = false;
+	gTutorialCheckboxPressed = false;
 }
 
 void EnterTutorial()
@@ -402,6 +425,8 @@ void EnterTutorial()
 	gTutorial.fCheckboxChecked = gTutorial.fDontShowAgain;
 	gTutorialPointerDown = false;
 	gTutorialSwipeHandled = false;
+	gTutorialConfirmPressed = false;
+	gTutorialCheckboxPressed = false;
 
 	RecalcCardLayout();
 
@@ -426,6 +451,8 @@ void EnterMainMenuTutorial()
 	gTutorial.fCheckboxChecked = gTutorial.fMainMenuDontShowAgain;
 	gTutorialPointerDown = false;
 	gTutorialSwipeHandled = false;
+	gTutorialConfirmPressed = false;
+	gTutorialCheckboxPressed = false;
 
 	RecalcCardLayout();
 
