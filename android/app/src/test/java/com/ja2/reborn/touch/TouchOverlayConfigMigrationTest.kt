@@ -26,6 +26,7 @@ class TouchOverlayConfigMigrationTest {
 
         val config = json.decodeFromString<TouchOverlayConfig>(legacy)
         assertEquals(9, config.schemaVersion)
+        assertEquals(0, config.defaultPresetVersion)
         assertEquals(1, config.buttons.size)
         assertEquals("btn1", config.buttons[0].id)
         assertTrue(config.mapScreenButtons.isEmpty())
@@ -83,6 +84,7 @@ class TouchOverlayConfigMigrationTest {
         val config = TouchOverlayConfig()
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
         assertEquals(15, config.schemaVersion)
+        assertEquals(0, config.defaultPresetVersion)
         assertTrue(config.mapScreenButtons.isEmpty())
         assertEquals(22, config.buttons.size)
         assertEquals(1.45f, config.relativeMouseSpeed)
@@ -94,6 +96,27 @@ class TouchOverlayConfigMigrationTest {
     @Test
     fun schemaVersionConstantIs15() {
         assertEquals(15, TOUCH_OVERLAY_CONFIG_VERSION)
+    }
+
+    @Test
+    fun defaultPresetVersionConstantIsCurrentPolishVersion() {
+        assertEquals(20260619, DEFAULT_TOUCH_PRESET_VERSION)
+    }
+
+    @Test
+    fun normalizeStampsDefaultPresetVersion() {
+        val config = TouchOverlayConfig(defaultPresetVersion = 0)
+        val normalized = normalizeTouchOverlayConfig(config)
+
+        assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, normalized.schemaVersion)
+        assertEquals(DEFAULT_TOUCH_PRESET_VERSION, normalized.defaultPresetVersion)
+    }
+
+    @Test
+    fun defaultPresetResetDecisionDetectsMissingOldAndCurrentVersions() {
+        assertTrue(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = 0)))
+        assertTrue(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION - 1)))
+        assertFalse(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION)))
     }
 
     @Test
@@ -441,6 +464,7 @@ class TouchOverlayConfigMigrationTest {
 
         val imported = normalizeTouchOverlayConfig(json.decodeFromString<TouchOverlayConfig>(exported))
 
+        assertEquals(DEFAULT_TOUCH_PRESET_VERSION, imported.defaultPresetVersion)
         assertEquals(listOf("tactical_custom"), imported.buttons.map { it.id })
         assertEquals(listOf("map_inventory"), imported.mapScreenButtons.map { it.id })
         assertEquals("B", imported.buttons.first().actions.first().keyName)
@@ -460,6 +484,7 @@ class TouchOverlayConfigMigrationTest {
 
         val imported = normalizeTouchOverlayConfig(json.decodeFromString<TouchOverlayConfig>(legacy))
 
+        assertEquals(DEFAULT_TOUCH_PRESET_VERSION, imported.defaultPresetVersion)
         assertEquals(listOf("tactical_custom"), imported.buttons.map { it.id })
         assertEquals("I", imported.buttons.first().actions.first().keyName)
         assertEquals(defaultMapScreenButtons().map { it.id }, imported.mapScreenButtons.map { it.id })

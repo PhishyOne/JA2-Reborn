@@ -4,10 +4,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 const val TOUCH_OVERLAY_CONFIG_VERSION = 15
+const val DEFAULT_TOUCH_PRESET_VERSION = 20260619
 
 @Serializable
 data class TouchOverlayConfig(
     @SerialName("schema_version") val schemaVersion: Int = TOUCH_OVERLAY_CONFIG_VERSION,
+    @SerialName("default_preset_version") val defaultPresetVersion: Int = 0,
     val enabled: Boolean = true,
     @SerialName("edit_mode") val editMode: Boolean = false,
     @SerialName("layout_locked") val layoutLocked: Boolean = true,
@@ -106,10 +108,14 @@ fun normalizeTouchOverlayConfig(config: TouchOverlayConfig): TouchOverlayConfig 
 
     return config.copy(
         schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
+        defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION,
         buttons = tacticalButtons,
         mapScreenButtons = mapButtons
     )
 }
+
+internal fun needsDefaultPresetReset(config: TouchOverlayConfig): Boolean =
+    config.defaultPresetVersion != DEFAULT_TOUCH_PRESET_VERSION
 
 private fun TouchButtonConfig.migrateMapInventoryEnterKey(): TouchButtonConfig {
     if (id != "map_inventory") return this
