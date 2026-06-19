@@ -3,7 +3,7 @@ package com.ja2.reborn.touch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val TOUCH_OVERLAY_CONFIG_VERSION = 12
+const val TOUCH_OVERLAY_CONFIG_VERSION = 13
 
 @Serializable
 data class TouchOverlayConfig(
@@ -177,7 +177,7 @@ fun defaultMapScreenButtons(): List<TouchButtonConfig> = listOf(
     TouchButtonConfig(
         id = "map_inventory", label = "Inv", icon = "map_inventory", shape = BUTTON_SHAPE_RECTANGLE,
         x = 0.38f, y = 0.94f, size = 0.090f,
-        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "I"))
+        actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "ENTER"))
     ),
     TouchButtonConfig(
         id = "map_laptop", label = "Lap", icon = "map_laptop", shape = BUTTON_SHAPE_RECTANGLE,
@@ -189,3 +189,27 @@ fun defaultMapScreenButtons(): List<TouchButtonConfig> = listOf(
 const val BUTTON_SHAPE_CIRCLE = "circle"
 const val BUTTON_SHAPE_SQUARE = "square"
 const val BUTTON_SHAPE_RECTANGLE = "rectangle"
+
+fun normalizeTouchOverlayConfig(config: TouchOverlayConfig): TouchOverlayConfig {
+    val mapButtons = (config.mapScreenButtons.ifEmpty { defaultMapScreenButtons() })
+        .map { it.migrateMapInventoryEnterKey() }
+
+    return config.copy(
+        schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
+        mapScreenButtons = mapButtons
+    )
+}
+
+private fun TouchButtonConfig.migrateMapInventoryEnterKey(): TouchButtonConfig {
+    if (id != "map_inventory") return this
+
+    val migratedActions = actions.map { action ->
+        if (action.type == "key" && action.keyName == "I") {
+            action.copy(keyName = "ENTER")
+        } else {
+            action
+        }
+    }
+
+    return if (migratedActions == actions) this else copy(actions = migratedActions)
+}

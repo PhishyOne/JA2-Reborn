@@ -40,29 +40,26 @@ class TouchButtonStore(
         return try {
             val raw = configFile.readText()
             val config = jsonFormat.decodeFromString<TouchOverlayConfig>(raw)
-            if (config.schemaVersion != TOUCH_OVERLAY_CONFIG_VERSION) {
-                Log.i(TAG, "Config version mismatch (${config.schemaVersion} != $TOUCH_OVERLAY_CONFIG_VERSION), normalizing with defaults")
-                var normalized = config.copy(
-                    schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
+            val migratedConfig = normalizeTouchOverlayConfig(config)
+            if (config.schemaVersion != TOUCH_OVERLAY_CONFIG_VERSION || migratedConfig != config) {
+                Log.i(TAG, "Config version mismatch or legacy touch mapping found (${config.schemaVersion} != $TOUCH_OVERLAY_CONFIG_VERSION), normalizing with defaults")
+                var normalized = migratedConfig.copy(
                     editMode = false,
                     layoutLocked = true
                 )
-                if (config.schemaVersion < 12 || normalized.mapScreenButtons.isEmpty()) {
-                    normalized = normalized.copy(mapScreenButtons = defaultMapScreenButtons())
-                }
-                if (isBundledDefaultLayout(config) || isLegacyGeneratedDefaultLayout(config)) {
+                if (isBundledDefaultLayout(normalized) || isLegacyGeneratedDefaultLayout(normalized)) {
                     normalized = TouchOverlayAdaptiveDefaults.apply(context, normalized, resolutionMode)
                 }
                 save(normalized)
                 normalized
-            } else if (isBundledDefaultLayout(config) || isLegacyGeneratedDefaultLayout(config)) {
-                val normalized = TouchOverlayAdaptiveDefaults.apply(context, config, resolutionMode)
-                if (normalized != config) {
+            } else if (isBundledDefaultLayout(migratedConfig) || isLegacyGeneratedDefaultLayout(migratedConfig)) {
+                val normalized = TouchOverlayAdaptiveDefaults.apply(context, migratedConfig, resolutionMode)
+                if (normalized != migratedConfig) {
                     save(normalized)
                 }
                 normalized
             } else {
-                config
+                migratedConfig
             }
         } catch (e: SerializationException) {
             Log.w(TAG, "Corrupt config, backing up and loading defaults: ${e.message}")
@@ -92,14 +89,13 @@ class TouchButtonStore(
                 )
             ).bufferedReader().readText()
             val config = jsonFormat.decodeFromString<TouchOverlayConfig>(raw)
-            config.copy(
-                schemaVersion = TOUCH_OVERLAY_CONFIG_VERSION,
+            normalizeTouchOverlayConfig(config).copy(
                 editMode = false,
                 layoutLocked = true
             )
         } catch (e: Exception) {
             Log.w(TAG, "Could not load bundled default preset, falling back to code defaults: ${e.message}")
-            TouchOverlayConfig()
+            normalizeTouchOverlayConfig(TouchOverlayConfig())
         }
     }
 
@@ -132,7 +128,7 @@ class TouchButtonStore(
     }
 
     fun importFromJson(raw: String): TouchOverlayConfig {
-        return jsonFormat.decodeFromString<TouchOverlayConfig>(raw)
+        return normalizeTouchOverlayConfig(jsonFormat.decodeFromString<TouchOverlayConfig>(raw))
     }
 
     fun exportConfigToDir(config: TouchOverlayConfig, targetDir: File): File {

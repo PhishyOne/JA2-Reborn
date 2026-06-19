@@ -22,15 +22,18 @@
 
 ## Aktueller Status: Feature-Entwicklung abgeschlossen
 
-Das Projekt ist **vollständig implementiert** bis auf **7 Known Issues**:
+Update 104 Phase 1 ist abgeschlossen. `map_inventory` verwendet nun `ENTER`; Schema 13 migriert alte Layouts zentral und ergaenzt fehlende Map-Screen-Buttons.
 
-1. **`map_inventory`-Button mapped auf `I`** (Item-Highlight) statt Inventar-Panel zu öffnen. Korrekter Key wäre `Enter` — muss auf Enter umgemappt werden.
+Status der **8 Known Issues**: 1 behoben, 7 offen.
+
+1. **`map_inventory`-Button mapped auf `I`** — Behoben in Update 104 Phase 1.
 2. **Batch 02+03 Icon-Alignment** (Stances + Combat) — `iconFill`/`iconOffset`-Werte müssen getuned werden. Die Icons stammen aus dem Game Icon Converter (`D:/Coding/Game-Icon-Converter/`), die Vorgaben dazu stehen im Overlay Icon Manual (`D:/Coding/OverlayIconManual.md`). Per-Icon-Werte aus dem Converter-Export (`iconset.json`) ins Projekt übernehmen und an die Soll-Vorgaben des Manuals anpassen.
 3. **Button-Editor kennt keine Map-Screen-Presets** — `TOUCH_BUTTON_PRESETS` enthält fast nur taktische Presets (Maus, Bewegung, Kampf, UI). Die Map-Screen-Buttons (Laptop, Options, Zeit±, etc.) haben dort keine Einträge. Öffnet man im Editor einen Map-Screen-Button, findet `touchButtonPresetFor()` per Icon/Action keinen Match und das Dropdown springt auf den ersten taktischen Eintrag zurück — aus dem Map-Button wird ungewollt ein taktischer Button. **Nötig:** Preset-Liste nach Screen-Kontext trennen. In-Game: nur taktische Presets anzeigen. Map-Screen: nur Map-Screen-Presets anzeigen (und den Create-New-Dialog entsprechend bestücken).
 4. **Touch-Preset-Export/Import trennt nicht nach Screen-Kontext** — Das Export-/Import-System muss geprüft und sichergestellt werden, dass es `mapScreenButtons` und taktische `buttons` korrekt getrennt behandelt. Ein Export darf Map-Buttons nicht mit In-Game-Buttons vermischen, ein Import muss beide Button-Sets in die jeweils richtigen Felder der `TouchOverlayConfig` zurückschreiben.
 5. **Lock-Button zu klein nach SVG-Umstellung** — Seit dem Wechsel von Canvas-Padlock auf SVG-Rendering ist der Lock-Button winzig im Vergleich zu den Canvas-Icons. Die korrekte Größe muss wiederhergestellt werden.
 6. **Reload-Button prüfen** — Es ist unklar, ob JA2 selbst einen Reload-Key/-Button im Spiel hat. Kein Icon dafür im Set, was verwundert (Nachladen ist eine Standardaktion). Prüfen, ob es einen nativen Reload-Key gibt und ob ein Overlay-Button dafür ergänzt werden muss.
 7. **Hardware Mouse/Keyboard-Mode an falscher Dropdown-Position** — Der HARDWARE-Mode bleibt in den Expert Settings, aber die Dropdown-Reihenfolge ist falsch. Er soll **direkt unter Modern Controls** im Dropdown stehen, nicht an letzter Stelle.
+8. **Screen-Skalierung unvollständig** — Nicht alle Bildschirme skalieren korrekt. Auto-Aid-Button: Das Spiel springt während der Aktion aus dem Widescreen in den 4:3-Modus und danach zurück. Händler-Bildschirm: User berichten von gecroppter und falsch skalierter Darstellung. **Prüfauftrag:** Das gesamte Spiel auf sämtliche Bildschirme durchgehen, die bei der Widescreen-Anpassung möglicherweise übersehen wurden (alle Spiel-Modi, Menüs, Dialoge, Inventar-, Händler-, Laptop-, Vertrags- und sonstige UI-Screens).
 
 ## Regeln
 

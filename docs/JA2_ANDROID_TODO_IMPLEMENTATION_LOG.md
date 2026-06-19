@@ -111,11 +111,31 @@
 
 ---
 
+## Update 104 Phase 1: Touch Overlay Migration und Map Inventory
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - `map_inventory` in Code-Defaults und gebuendeltem `default_touch_preset.json` von `I` auf `ENTER` umgestellt.
+  - `TOUCH_OVERLAY_CONFIG_VERSION` von 12 auf 13 erhoeht.
+  - `normalizeTouchOverlayConfig()` als zentrale Migration fuer alte Map-Inventory-Buttons, leere `mapScreenButtons` und Schema-Update eingefuehrt.
+  - Laden und Importieren von Touch-Presets verwenden die zentrale Normalisierung.
+  - Migrationstests fuer Schema 12 -> 13, `map_inventory` I -> ENTER, leere Map-Buttons und unveraenderte taktische Buttons ergaenzt.
+- **Tests**:
+  - `android\gradlew.bat testDebugUnitTest` aus Repo-Root versucht -> kein Gradle-Root, erwarteter Fehlstart.
+  - `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+- **Zweitpruefung**: Diff, Runtime-Suche nach alten `I`-Mappings und Testreport geprueft; alte `I`-Werte stehen nur noch in Legacy-Testdaten.
+- **Manuelle Pruefung**: Nicht am Geraet ausgefuehrt; durch Mapping-/Migrationstests abgedeckt.
+- **Ergebnis**: Phase 1 abgeschlossen.
+- **Ende**: 2026-06-19
+
+---
+
 ## ABSCHLUSS-STATUS (2026-06-18)
 
 **Feature-Entwicklung ist abgeschlossen.** Alle Phasen (0–7) sind implementiert und getestet.
 
-### Noch offen — 7 Known Issues:
+### Noch offen — 8 Known Issues:
 
 | # | Bug | Beschreibung |
 |---|-----|-------------|
@@ -126,8 +146,9 @@
 | 5 | Lock-Button zu klein | Seit SVG-Umstellung ist der Lock-Button winzig im Vergleich zu den Canvas-Icons. Korrekte Größe wiederherstellen |
 | 6 | Reload-Button prüfen | Unklar ob JA2 einen nativen Reload-Key hat. Kein Icon im Set, was verwundert. Prüfen und ggf. Overlay-Button ergänzen |
 | 7 | HARDWARE-Mode falsche Dropdown-Position | Bleibt in Expert Settings, aber Reihenfolge soll direkt unter Modern Controls sein, nicht am Ende |
+| 8 | Screen-Skalierung unvollständig | Nicht alle Bildschirme skalieren korrekt. Auto-Aid-Button: Das Spiel springt während der Aktion aus dem Widescreen in den 4:3-Modus und danach zurück. Händler-Bildschirm: User berichten von gecroppter und falsch skalierter Darstellung. **Prüfauftrag:** Das gesamte Spiel auf sämtliche Bildschirme durchgehen, die bei der Widescreen-Anpassung möglicherweise übersehen wurden (alle Spiel-Modi, Menüs, Dialoge, Inventar-, Händler-, Laptop-, Vertrags- und sonstige UI-Screens) |
 
 ### Ausstehend:
 
-- **Phase F**: Finale APK + Endabnahme (nach Fix der 7 Bugs)
+- **Phase F**: Finale APK + Endabnahme (nach Fix der 8 Bugs)
 - **Phase 6**: Mod Support v1 (ausgelagert in eigenen Plan)
