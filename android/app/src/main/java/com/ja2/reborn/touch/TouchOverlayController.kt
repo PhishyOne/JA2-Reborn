@@ -46,36 +46,6 @@ internal fun shouldShowTouchOverlayForScreen(
 internal fun usesMapScreenTouchButtons(screenId: Int): Boolean =
     screenId == JA2_MAP_SCREEN
 
-internal fun usesShopkeeperTouchButtons(screenId: Int): Boolean =
-    screenId == JA2_SHOPKEEPER_SCREEN
-
-internal fun touchButtonsForScreen(
-    screenId: Int,
-    tacticalButtons: List<TouchButtonConfig>,
-    mapButtons: List<TouchButtonConfig>
-): List<TouchButtonConfig> {
-    if (usesMapScreenTouchButtons(screenId)) return mapButtons
-    if (!usesShopkeeperTouchButtons(screenId)) return tacticalButtons
-
-    val mapShift = mapButtons.firstOrNull { it.id == "map_shift" || it.icon == "map_shift" }
-        ?: return tacticalButtons
-
-    return tacticalButtons.map { button ->
-        if (button.id == "map_shift" || button.icon == "map_shift") {
-            button.copy(
-                shape = mapShift.shape,
-                x = mapShift.x,
-                y = mapShift.y,
-                size = mapShift.size,
-                alpha = mapShift.alpha,
-                iconFill = mapShift.iconFill
-            )
-        } else {
-            button
-        }
-    }
-}
-
 class TouchOverlayController(
     private val filesDir: File,
     private val activity: Activity,
@@ -941,7 +911,7 @@ class TouchOverlayController(
 
     private fun activeButtons(): List<TouchButtonConfig> {
         val cfg = config ?: return emptyList()
-        return touchButtonsForScreen(currentActiveScreen, cfg.buttons, cfg.mapScreenButtons)
+        return if (usesMapScreenTouchButtons(currentActiveScreen)) cfg.mapScreenButtons else cfg.buttons
     }
 
     private fun updateActiveButtons(newButtons: List<TouchButtonConfig>) {
