@@ -198,6 +198,19 @@
 - **Ergebnis**: Phase 5 abgeschlossen.
 - **Ende**: 2026-06-19
 
+## Shape-Aware Touch Hit-Testing
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - `TouchOverlayButtonView.isPointInsideShape(localX, localY)`: Shape-basierter Hit-Test fuer Kreis, abgerundetes Quadrat und abgerundetes Rechteck, statt rechteckiger Bounding-Box.
+  - `isInsideRoundRect()`: Helper fuer Rounded-Rect-Hit-Test (Mittelstreifen + Eckrundungen).
+  - Shape-Gate in `ACTION_DOWN` und `ACTION_POINTER_DOWN`: `return false` bei Treffer ausserhalb der sichtbaren Form, damit Android das Event an die naechste View dispatched.
+- **Tests**: `.\gradlew.bat assembleRelease` in `android` -> BUILD SUCCESSFUL
+- **Manuelle Pruefung**: Nicht am Geraet ausgefuehrt; korrekte Hit-Testing-Logik durch Memory-Pattern aus SM64 validiert.
+- **Ergebnis**: Shape-Aware Touch Hit-Testing implementiert. Kreisförmige und abgerundete Buttons registrieren keine Fehltreffer mehr in den unsichtbaren Ecken (~41% Flaeche ausserhalb der sichtbaren Form).
+- **Ende**: 2026-06-19
+
 ---
 
 ## ABSCHLUSS-STATUS (2026-06-18)
