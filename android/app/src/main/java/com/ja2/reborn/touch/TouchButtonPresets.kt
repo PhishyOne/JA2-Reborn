@@ -77,6 +77,8 @@ val TACTICAL_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
 )
 
 val MAP_SCREEN_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
+    mousePreset("mouse_left", "Linke Maustaste", "mouse_left", "left"),
+    mousePreset("mouse_right", "Rechte Maustaste", "mouse_right", "right"),
     keyPreset("map_shift", "Item Stacking", "map_shift", "SHIFT", "Map Screen", mode = "toggle"),
     keyPreset("map_options", "Options", "map_options", "O", "Map Screen"),
     keyPreset("map_time_minus", "Slower Time", "map_time_minus", "MINUS", "Map Screen"),

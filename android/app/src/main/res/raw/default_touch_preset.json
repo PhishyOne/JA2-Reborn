@@ -363,6 +363,35 @@
                 ],
     "map_screen_buttons":  [
                                {
+                                   "id":  "mouse_left",
+                                   "label":  "Linke Maustaste",
+                                   "icon":  "mouse_left",
+                                   "x":  0.035,
+                                   "y":  0.23333333,
+                                   "size":  0.18,
+                                   "icon_fill":  0.99000007,
+                                   "actions":  [
+                                                   {
+                                                       "type":  "mouse_button",
+                                                       "button":  "left"
+                                                   }
+                                               ]
+                               },
+                               {
+                                   "id":  "mouse_right",
+                                   "label":  "Rechte Maustaste",
+                                   "icon":  "mouse_right",
+                                   "x":  0.0875,
+                                   "y":  0.15555556,
+                                   "size":  0.187,
+                                   "actions":  [
+                                                   {
+                                                       "type":  "mouse_button",
+                                                       "button":  "right"
+                                                   }
+                                               ]
+                               },
+                               {
                                    "id":  "map_shift",
                                    "label":  "Item Stacking",
                                    "icon":  "map_shift",
