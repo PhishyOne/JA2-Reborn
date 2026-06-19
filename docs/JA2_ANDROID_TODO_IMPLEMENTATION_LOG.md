@@ -254,11 +254,27 @@
 
 ---
 
+## Strafe-Fix-Nachbesserung, Lock-Button Square+Opacity, Map-Button-Rename
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - `default_touch_preset.json`: `strafe_hold`/`strafe_toggle` aus taktischen Buttons entfernt, `alt_movement_hold` auf `mode: "toggle"` mit `key_name: "ALT"` umgestellt (war in commit `3ebd625` uebersehen worden).
+  - `TouchOverlayLockButtonView.kt`: von `drawOval`+`computeOuterShapeBounds()` auf `drawRoundRect` mit voller 44dp-Groesse umgebaut, `cornerRadius = 12dp` wie `createSystemButtonView`.
+  - `TouchOverlayController.kt`: Lock-Button `alpha = 0.45f` gesetzt (matcht `TouchButtonConfig`-Default).
+  - Map-Screen-Presets umbenannt — `map_shift`→Item Stacking, `map_ctrl`→Mark Enemies/Feinde markieren, `map_alt`→Waypoints/Wegpunkt setzen, `map_options`→Options/Optionen, `map_inventory`→Inventory/Inventar.
+  - String-Ressourcen (values-de, values) und `TouchButtonPresets.kt` synchron aktualisiert.
+- **Tests**: `.\gradlew.bat assembleRelease` -> BUILD SUCCESSFUL, manuelle Geraetepruefung bestaetigt.
+- **Commits**: `0cd2fea` (strafe/alt_movement JSON fix), `72485d1` (lock button square), `[pending]` (map rename + lock alpha)
+- **Ende**: 2026-06-19
+
+---
+
 ## ABSCHLUSS-STATUS (2026-06-19)
 
 **Feature-Entwicklung ist abgeschlossen.** Alle Phasen (0–7) sind implementiert und getestet.
 
-### Noch offen — 5 Known Issues (3 resolved am 2026-06-19):
+### Noch offen — 8 Known Issues (4 resolved am 2026-06-19):
 
 | # | Bug | Beschreibung |
 |---|-----|-------------|
@@ -268,7 +284,7 @@
 | 2 | ~~Batch 02+03 Icon-Alignment~~ | ✅ **RESOLVED (2026-06-19).** Y-Offsets durch Codex invertiert, X-Offset-Invertierung nachgeholt. Alle Icons korrekt aligned. |
 | 3 | Editor ohne Map-Screen-Presets | `TOUCH_BUTTON_PRESETS` enthält nur taktische Presets. Beim Editieren eines Map-Screen-Buttons (z.B. Laptop) findet `touchButtonPresetFor()` keinen Match und das Dropdown fällt auf den ersten taktischen Eintrag zurück — der Map-Button wird ungewollt zum taktischen Button. **Fix:** Preset-Liste nach Screen-Kontext trennen (In-Game vs. Map-Screen), Create-New-Dropdown zeigt nur die für den jeweiligen Screen relevanten Presets |
 | 4 | Export/Import ohne Screen-Trennung | Das Touch-Preset-Export-/Import-System muss `mapScreenButtons` und taktische `buttons` korrekt getrennt behandeln. Export darf beide nicht vermischen, Import muss in die richtigen Config-Felder zurückschreiben |
-| 5 | Lock-Button zu klein | Seit SVG-Umstellung ist der Lock-Button winzig im Vergleich zu den Canvas-Icons. Korrekte Größe wiederherstellen |
+| 5 | ~~Lock-Button zu klein~~ | ✅ **RESOLVED (2026-06-19).** Oval→Rounded Square mit voller 44dp, Alpha 0.45f matcht TouchButtonConfig-Default. |
 | 6 | Reload-Button prüfen | Unklar ob JA2 einen nativen Reload-Key hat. Kein Icon im Set, was verwundert. Prüfen und ggf. Overlay-Button ergänzen |
 | 7 | HARDWARE-Mode falsche Dropdown-Position | Bleibt in Expert Settings, aber Reihenfolge soll direkt unter Modern Controls sein, nicht am Ende |
 | 8 | Screen-Skalierung unvollständig | Nicht alle Bildschirme skalieren korrekt. Auto-Aid-Button: Das Spiel springt während der Aktion aus dem Widescreen in den 4:3-Modus und danach zurück. Händler-Bildschirm: User berichten von gecroppter und falsch skalierter Darstellung. **Prüfauftrag:** Das gesamte Spiel auf sämtliche Bildschirme durchgehen, die bei der Widescreen-Anpassung möglicherweise übersehen wurden (alle Spiel-Modi, Menüs, Dialoge, Inventar-, Händler-, Laptop-, Vertrags- und sonstige UI-Screens) |
