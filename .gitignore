@@ -31,3 +31,10 @@ android/app/build/
 android/build-monitor/
 android/last-screen.png
 rust/target/
+
+# Local planning/work artifacts
+/Notes.md
+/IconWork/
+/JA2 Reborn Zusatz/
+/JA2*Plan*.md
+/JA2Reborn*Polish*.md
