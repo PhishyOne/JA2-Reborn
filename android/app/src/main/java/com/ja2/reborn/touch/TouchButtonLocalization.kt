@@ -20,7 +20,6 @@ object TouchButtonLocalization {
             "alt_movement_hold" -> R.string.touch_preset_alt_movement_hold
             "shift_toggle" -> R.string.touch_preset_shift_toggle
             "fire_mode" -> R.string.touch_preset_fire_mode
-            "range_cursor" -> R.string.touch_preset_range_cursor
             "keyring" -> R.string.touch_preset_keyring
             "auto_bandage" -> R.string.touch_preset_auto_bandage
             "reload_selected" -> R.string.touch_preset_reload_selected
