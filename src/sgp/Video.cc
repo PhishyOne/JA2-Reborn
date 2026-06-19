@@ -16,6 +16,7 @@
 #include "Button_System.h"
 #include "TacticalScaling.h"
 #include "JAScreens.h"
+#include "MessageBoxScreen.h"
 #include "ScreenIDs.h"
 #include "TutorialSystem.h"
 #include <algorithm>
@@ -370,6 +371,7 @@ bool VideoGetPresentationRects(SDL_Rect& source, SDL_Rect& dest)
 	dest = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	if (guiCurrentScreen == GAME_SCREEN) return false;
+	if (guiCurrentScreen == MSG_BOX_SCREEN && gMsgBox.uiExitScreen == GAME_SCREEN) return false;
 	if (SCREEN_WIDTH <= STANDARD_PRESENTATION_WIDTH &&
 	    SCREEN_HEIGHT <= STANDARD_PRESENTATION_HEIGHT) return false;
 
