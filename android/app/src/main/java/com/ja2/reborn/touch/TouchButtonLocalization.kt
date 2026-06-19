@@ -63,13 +63,12 @@ object TouchButtonLocalization {
             "quit_game" -> R.string.touch_preset_quit_game
             "cheats" -> R.string.touch_preset_cheats
             "map_shift" -> R.string.touch_preset_map_shift
-            "map_ctrl" -> R.string.touch_preset_map_ctrl
-            "map_alt" -> R.string.touch_preset_map_alt
             "map_options" -> R.string.touch_preset_map_options
             "map_time_minus" -> R.string.touch_preset_map_time_minus
             "map_time_plus" -> R.string.touch_preset_map_time_plus
             "map_inventory" -> R.string.touch_preset_map_inventory
             "map_laptop" -> R.string.touch_preset_map_laptop
+            "map_tactical" -> R.string.touch_preset_map_tactical
             else -> return presetId
         }
         return context.getString(resId)
