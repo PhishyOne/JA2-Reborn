@@ -142,6 +142,8 @@ Batch-02/03-Icons muessen korrekt ausgerichtet sein, der Lock-Button muss wieder
 
 ## Phase 4: Mouse Mode Order
 
+**Status:** Abgeschlossen am 2026-06-19. Implementiert, zweitgeprueft und committed; visuelle Dropdown-Pruefung steht fuer die spaetere Endverifikation aus.
+
 ### Ziel
 
 `HARDWARE` bleibt in den Expert Settings, steht im Dropdown aber direkt unter Modern Controls.
@@ -161,6 +163,13 @@ Batch-02/03-Icons muessen korrekt ausgerichtet sein, der Lock-Button muss wieder
 - Unit-Test fuer die Reihenfolge.
 - Manuell pruefen: Expert Settings zeigen `HARDWARE` direkt unter Modern Controls.
 - Danach Log und Plan aktualisieren, Ergebnisse erneut pruefen, committen und stoppen.
+
+### Ergebnis 2026-06-19
+
+- `MouseMode.DISPLAY_ORDER` definiert die zentrale Reihenfolge `TOUCHPAD`, `HARDWARE`, `ABSOLUTE`, `TOUCHSCREEN`.
+- `SettingsFragment` und `DataTabFragment` verwenden diese gemeinsame Reihenfolge.
+- Labels und gespeicherte Werte wurden nicht geaendert.
+- `android\gradlew.bat testDebugUnitTest` aus dem Android-Gradle-Root: BUILD SUCCESSFUL.
 
 ## Phase 5: Auto-Bandage Scaling
 

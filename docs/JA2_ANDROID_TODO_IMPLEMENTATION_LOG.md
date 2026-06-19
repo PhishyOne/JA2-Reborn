@@ -164,6 +164,21 @@
 - **Ergebnis**: Phase 3 abgeschlossen.
 - **Ende**: 2026-06-19
 
+## Update 104 Phase 4: Mouse Mode Order
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Zentrale Mouse-Mode-Reihenfolge `MouseMode.DISPLAY_ORDER` definiert: `TOUCHPAD`, `HARDWARE`, `ABSOLUTE`, `TOUCHSCREEN`.
+  - `SettingsFragment` und `DataTabFragment` auf die gemeinsame Reihenfolge umgestellt.
+  - Labels und gespeicherte Werte unveraendert gelassen.
+  - Unit-Test fuer die Display-Reihenfolge ergaenzt.
+- **Tests**: `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+- **Zweitpruefung**: Suche nach direkter UI-Nutzung der Enum-Reihenfolge und Diff geprueft; beide betroffenen Fragmente nutzen `MouseMode.DISPLAY_ORDER`.
+- **Manuelle Pruefung**: Nicht am Geraet ausgefuehrt; Expert-Settings-Dropdown muss in der spaeteren Endverifikation visuell geprueft werden.
+- **Ergebnis**: Phase 4 abgeschlossen.
+- **Ende**: 2026-06-19
+
 ---
 
 ## ABSCHLUSS-STATUS (2026-06-18)

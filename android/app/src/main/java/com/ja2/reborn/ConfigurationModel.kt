@@ -88,6 +88,7 @@ enum class MouseMode(val value: String) {
 
     companion object {
         val DEFAULT = TOUCHPAD
+        val DISPLAY_ORDER = arrayOf(TOUCHPAD, HARDWARE, ABSOLUTE, TOUCHSCREEN)
     }
 }
 
