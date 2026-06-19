@@ -104,12 +104,41 @@ class TouchOverlayButtonView(
         isDpad = buttonConfig.actions.any { it.type == "dpad" }
     }
 
+    internal fun isPointInsideShape(localX: Float, localY: Float): Boolean {
+        val bounds = computeOuterShapeBounds()
+        if (localX < bounds.left || localX > bounds.right || localY < bounds.top || localY > bounds.bottom) return false
+        return when (buttonConfig.shape.lowercase()) {
+            BUTTON_SHAPE_CIRCLE -> {
+                val cx = bounds.centerX(); val cy = bounds.centerY()
+                val radius = bounds.width() / 2f
+                val dx = localX - cx; val dy = localY - cy
+                dx * dx + dy * dy <= radius * radius
+            }
+            BUTTON_SHAPE_SQUARE -> isInsideRoundRect(bounds, localX, localY, cornerRadius(0.14f))
+            BUTTON_SHAPE_RECTANGLE -> isInsideRoundRect(bounds, localX, localY, cornerRadius(0.18f))
+            else -> true
+        }
+    }
+
+    private fun isInsideRoundRect(bounds: RectF, x: Float, y: Float, cr: Float): Boolean {
+        if (x >= bounds.left + cr && x <= bounds.right - cr) return true
+        if (y >= bounds.top + cr && y <= bounds.bottom - cr) return true
+        val cx = floatArrayOf(bounds.left + cr, bounds.right - cr, bounds.left + cr, bounds.right - cr)
+        val cy = floatArrayOf(bounds.top + cr, bounds.top + cr, bounds.bottom - cr, bounds.bottom - cr)
+        for (i in 0..3) {
+            val dx = x - cx[i]; val dy = y - cy[i]
+            if (dx * dx + dy * dy <= cr * cr) return true
+        }
+        return false
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
 
         when (action) {
             MotionEvent.ACTION_DOWN -> {
                 if (activePointerId != -1) return false
+                if (!isPointInsideShape(event.x, event.y)) return false
                 activePointerId = event.getPointerId(0)
                 setPressedState(true)
                 initialTouchTime = System.currentTimeMillis()
@@ -131,6 +160,7 @@ class TouchOverlayButtonView(
             MotionEvent.ACTION_POINTER_DOWN -> {
                 if (activePointerId != -1) return false
                 val index = event.actionIndex
+                if (!isPointInsideShape(event.getX(index), event.getY(index))) return false
                 activePointerId = event.getPointerId(index)
                 setPressedState(true)
                 initialTouchTime = System.currentTimeMillis()
