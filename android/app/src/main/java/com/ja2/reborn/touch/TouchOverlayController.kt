@@ -394,9 +394,9 @@ class TouchOverlayController(
             onMouseSpeedChanged = { speed -> persistMouseSpeed(speed) },
             mapFovPercent = cfg?.tacticalMapFovPercent ?: 100,
             onMapFovChanged = { v -> persistMapFov(v) },
-            panelScalePercent = effectivePanelScale(cfg?.tacticalActionPanelScalePercent ?: 100),
+            panelScalePercent = effectivePanelScale(cfg?.tacticalActionPanelScalePercent ?: 130),
             onPanelScaleChanged = { v -> persistPanelScale(v) },
-            directTouchArbitrationMs = cfg?.directTouchArbitrationMs ?: 1800,
+            directTouchArbitrationMs = cfg?.directTouchArbitrationMs ?: 2500,
             onDirectTouchArbitrationChanged = { ms -> persistDirectTouchArbitration(ms) },
             resolutionMode = resolutionMode
         )
@@ -432,7 +432,7 @@ class TouchOverlayController(
         return try {
             SDLActivity.getScrollSpeed()
         } catch (e: Exception) {
-            config?.scrollSpeedMs ?: 27
+            config?.scrollSpeedMs ?: 35
         }
     }
 
@@ -465,7 +465,7 @@ class TouchOverlayController(
         return try {
             SDLActivity.getTacticalActionPanelScalePercent()
         } catch (e: Exception) {
-            config?.tacticalActionPanelScalePercent ?: 100
+            config?.tacticalActionPanelScalePercent ?: 130
         }
     }
 

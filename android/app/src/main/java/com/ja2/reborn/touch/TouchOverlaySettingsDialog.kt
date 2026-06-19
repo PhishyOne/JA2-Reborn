@@ -37,7 +37,7 @@ class TouchOverlaySettingsDialog(
     private val onMapFovChanged: (Int) -> Unit = {},
     private val panelScalePercent: Int = 100,
     private val onPanelScaleChanged: (Int) -> Unit = {},
-    private val directTouchArbitrationMs: Int = 1800,
+    private val directTouchArbitrationMs: Int = 2500,
     private val onDirectTouchArbitrationChanged: (Int) -> Unit = {},
     private val resolutionMode: ResolutionMode = ResolutionMode.DEFAULT
 ) {
