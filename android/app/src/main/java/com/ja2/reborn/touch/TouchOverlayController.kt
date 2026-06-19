@@ -26,6 +26,26 @@ import org.libsdl.app.SDLActivity
 import org.libsdl.app.SDLSurface
 import java.io.File
 
+// Screen IDs from src/game/ScreenIDs.h.
+internal const val JA2_GAME_SCREEN = 5
+internal const val JA2_MAP_SCREEN = 9
+internal const val JA2_SHOPKEEPER_SCREEN = 19
+private val TOUCH_OVERLAY_VISIBLE_SCREENS = setOf(
+    JA2_GAME_SCREEN,
+    JA2_MAP_SCREEN,
+    JA2_SHOPKEEPER_SCREEN
+)
+
+internal fun shouldShowTouchOverlayForScreen(
+    screenId: Int,
+    hideOverlayOnNonGameScreens: Boolean,
+    tutorialVisible: Boolean
+): Boolean =
+    !tutorialVisible && (!hideOverlayOnNonGameScreens || screenId in TOUCH_OVERLAY_VISIBLE_SCREENS)
+
+internal fun usesMapScreenTouchButtons(screenId: Int): Boolean =
+    screenId == JA2_MAP_SCREEN
+
 class TouchOverlayController(
     private val filesDir: File,
     private val activity: Activity,
@@ -51,7 +71,7 @@ class TouchOverlayController(
     private var gridView: TouchOverlayGridView? = null
     private var autoHideRunnable: Runnable? = null
     private var overlayAutoHidden = false
-    private var currentActiveScreen = SAFE_SCREEN_ID
+    private var currentActiveScreen = JA2_GAME_SCREEN
 
     fun attach() {
         if (attached) return
@@ -148,7 +168,7 @@ class TouchOverlayController(
 
     fun deleteAllButtons() {
         val cfg = config ?: return
-        config = if (currentActiveScreen == MAP_SCREEN) cfg.copy(mapScreenButtons = emptyList())
+        config = if (usesMapScreenTouchButtons(currentActiveScreen)) cfg.copy(mapScreenButtons = emptyList())
         else cfg.copy(buttons = emptyList())
         store.save(persistableConfig(config!!))
         root.post {
@@ -795,11 +815,13 @@ class TouchOverlayController(
             SDLActivity.getJa2ScreenId()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to query JA2 screen id: ${e.message}")
-            SAFE_SCREEN_ID
+            JA2_GAME_SCREEN
         }
 
-        val shouldShowOverlay = !tutorialVisible && (
-            !cfg.hideOverlayOnNonGameScreens || screenId in VISIBLE_SCREEN_WHITELIST
+        val shouldShowOverlay = shouldShowTouchOverlayForScreen(
+            screenId = screenId,
+            hideOverlayOnNonGameScreens = cfg.hideOverlayOnNonGameScreens,
+            tutorialVisible = tutorialVisible
         )
         val visibilityChanged = shouldShowOverlay == overlayAutoHidden
         val screenChanged = screenId != currentActiveScreen
@@ -889,17 +911,17 @@ class TouchOverlayController(
 
     private fun activeButtons(): List<TouchButtonConfig> {
         val cfg = config ?: return emptyList()
-        return if (currentActiveScreen == MAP_SCREEN) cfg.mapScreenButtons else cfg.buttons
+        return if (usesMapScreenTouchButtons(currentActiveScreen)) cfg.mapScreenButtons else cfg.buttons
     }
 
     private fun updateActiveButtons(newButtons: List<TouchButtonConfig>) {
         val cfg = config ?: return
-        config = if (currentActiveScreen == MAP_SCREEN) cfg.copy(mapScreenButtons = newButtons)
+        config = if (usesMapScreenTouchButtons(currentActiveScreen)) cfg.copy(mapScreenButtons = newButtons)
         else cfg.copy(buttons = newButtons)
     }
 
     private fun activeTouchButtonPresets(): List<TouchButtonPreset> =
-        if (currentActiveScreen == MAP_SCREEN) MAP_SCREEN_TOUCH_BUTTON_PRESETS else TACTICAL_TOUCH_BUTTON_PRESETS
+        if (usesMapScreenTouchButtons(currentActiveScreen)) MAP_SCREEN_TOUCH_BUTTON_PRESETS else TACTICAL_TOUCH_BUTTON_PRESETS
 
     private fun createButtonViews() {
         val cfg = config ?: return
@@ -1148,13 +1170,6 @@ class TouchOverlayController(
         private const val RECTANGLE_WIDTH_FACTOR = 1.55f
         private const val GRID_SIZE_DP = 16
         private const val AUTO_HIDE_POLL_MS = 250L
-
-        // Screen IDs from src/game/ScreenIDs.h
-        // GAME_SCREEN = 5, MAP_SCREEN = 9, FADE_SCREEN = 13
-        private const val GAME_SCREEN = 5
-        private const val MAP_SCREEN = 9
-        private val VISIBLE_SCREEN_WHITELIST = setOf(GAME_SCREEN, MAP_SCREEN)
-        private const val SAFE_SCREEN_ID = GAME_SCREEN
 
         fun clampFloat(value: Float, min: Float, max: Float): Float =
             value.coerceIn(min, max)
