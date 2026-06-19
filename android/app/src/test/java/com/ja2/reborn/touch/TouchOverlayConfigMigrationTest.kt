@@ -545,27 +545,11 @@ class TouchOverlayConfigMigrationTest {
     }
 
     @Test
-    fun shopkeeperUsesTacticalMousePositionsAndMapItemStackingPosition() {
+    fun shopkeeperUsesUnmodifiedTacticalButtonSet() {
         val tactical = defaultButtons()
-        val map = defaultMapScreenButtons()
-        val shopkeeper = touchButtonsForScreen(JA2_SHOPKEEPER_SCREEN, tactical, map)
+        val shopkeeper = if (usesMapScreenTouchButtons(JA2_SHOPKEEPER_SCREEN)) defaultMapScreenButtons() else tactical
 
-        listOf("mouse_left", "mouse_right").forEach { id ->
-            val tacticalMouse = tactical.first { it.id == id }
-            val shopkeeperMouse = shopkeeper.first { it.id == id }
-
-            assertEquals(tacticalMouse.x, shopkeeperMouse.x)
-            assertEquals(tacticalMouse.y, shopkeeperMouse.y)
-            assertEquals(tacticalMouse.size, shopkeeperMouse.size)
-        }
-
-        val mapShift = map.first { it.id == "map_shift" }
-        val shopkeeperShift = shopkeeper.first { it.icon == "map_shift" }
-        assertEquals(mapShift.x, shopkeeperShift.x)
-        assertEquals(mapShift.y, shopkeeperShift.y)
-        assertEquals(mapShift.size, shopkeeperShift.size)
-        assertEquals(mapShift.shape, shopkeeperShift.shape)
-        assertEquals("SHIFT", shopkeeperShift.actions.first().keyName)
+        assertEquals(tactical, shopkeeper)
     }
 
     @Test
