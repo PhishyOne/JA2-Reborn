@@ -589,6 +589,10 @@ ScreenID MainGameScreenHandle(void)
 		gTutorial.fAutoShownThisSession = true;
 		EnterTutorial();
 	}
+	else if (ShouldShowTouchPresetUpdateNotice())
+	{
+		EnterTouchPresetUpdateNotice();
+	}
 
 	return( GAME_SCREEN );
 

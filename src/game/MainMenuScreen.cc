@@ -167,6 +167,10 @@ ScreenID MainMenuScreenHandle(void)
 	{
 		EnterMainMenuTutorial();
 	}
+	else if (ShouldShowTouchPresetUpdateNotice())
+	{
+		EnterTouchPresetUpdateNotice();
+	}
 
 	if (gTutorial.fVisible)
 	{

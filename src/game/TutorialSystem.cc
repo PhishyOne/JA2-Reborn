@@ -43,7 +43,7 @@
 #define TUTORIAL_CLR_DOT_ACTIVE    Get16BPPColor(FROMRGB(200, 200, 210))
 #define TUTORIAL_CLR_DOT_INACTIVE  Get16BPPColor(FROMRGB(60, 60, 70))
 
-TUTORIAL_STATE gTutorial = { false, 0, false, false, false, false, false, TutorialMode::Tactical, nullptr };
+TUTORIAL_STATE gTutorial = { false, 0, false, false, false, false, false, 0, 0, TutorialMode::Tactical, nullptr };
 
 static const TUTORIAL_PANEL gTutorialPanelsDE[3] = {
 	{
@@ -111,6 +111,20 @@ static const TUTORIAL_PANEL gMainMenuTutorialPanelEN = {
 	"This lets you reach smaller buttons precisely."
 };
 
+static const TUTORIAL_PANEL gTouchPresetUpdatePanelDE = {
+	"Touch-Layout aktualisiert",
+	"Dein Touch-Layout wurde durch dieses Update zurueckgesetzt.\n\n"
+	"Der Grund sind grundlegende Aenderungen am Touch-System und am neuen Standard-Layout.\n\n"
+	"Weitere grosse Zuruecksetzungen dieser Art sind nicht erwartet."
+};
+
+static const TUTORIAL_PANEL gTouchPresetUpdatePanelEN = {
+	"Touch Layout Updated",
+	"This update reset your touch layout.\n\n"
+	"The reason is a set of fundamental touch-system changes and a new default layout.\n\n"
+	"Further large resets of this kind are not expected."
+};
+
 TUTORIAL_PANEL gTutorialPanels[3];
 static bool sTutorialPanelsInitialized = false;
 static bool sTutorialLanguageGerman = false;
@@ -167,6 +181,30 @@ static ST::string GetMainMenuTutorialSettingsPath()
 	return FileMan::joinPaths(ST::string(home.get()), "mainmenu_tutorial.set");
 }
 
+static ST::string GetTouchPresetUpdateNoticePath()
+{
+	RustPointer<char> home(EngineOptions_getStracciatellaHome());
+	return FileMan::joinPaths(ST::string(home.get()), "touch_preset_update_notice.set");
+}
+
+static int TutorialPanelCount()
+{
+	return gTutorial.mode == TutorialMode::Tactical ? 3 : 1;
+}
+
+static const TUTORIAL_PANEL& CurrentTutorialPanel()
+{
+	if (gTutorial.mode == TutorialMode::MainMenu)
+	{
+		return IsTutorialGerman() ? gMainMenuTutorialPanelDE : gMainMenuTutorialPanelEN;
+	}
+	if (gTutorial.mode == TutorialMode::TouchPresetUpdate)
+	{
+		return IsTutorialGerman() ? gTouchPresetUpdatePanelDE : gTouchPresetUpdatePanelEN;
+	}
+	return gTutorialPanels[gTutorial.sCurrentPanel];
+}
+
 void LoadTutorialSettings()
 {
 	InitTutorialPanels();
@@ -202,21 +240,47 @@ void LoadTutorialSettings()
 			SLOGW("Failed to read mainmenu_tutorial.set, using defaults");
 		}
 	}
+
+	ST::string touchPresetPath = GetTouchPresetUpdateNoticePath();
+	if (FileMan::isFile(touchPresetPath))
+	{
+		try
+		{
+			AutoSGPFile f(FileMan::openForReading(touchPresetPath));
+			INT32 val;
+			f->read(&val, sizeof(val));
+			gTutorial.iTouchPresetUpdateSeenVersion = val;
+		}
+		catch (...)
+		{
+			SLOGW("Failed to read touch_preset_update_notice.set, using defaults");
+		}
+	}
 }
 
 void SaveTutorialSettings()
 {
 	ST::string path = gTutorial.mode == TutorialMode::MainMenu
 		? GetMainMenuTutorialSettingsPath()
-		: GetTutorialSettingsPath();
+		: (gTutorial.mode == TutorialMode::TouchPresetUpdate
+			? GetTouchPresetUpdateNoticePath()
+			: GetTutorialSettingsPath());
 
 	try
 	{
 		AutoSGPFile f(FileMan::openForWriting(path));
-		UINT8 val = gTutorial.mode == TutorialMode::MainMenu
-			? (gTutorial.fMainMenuDontShowAgain ? 1 : 0)
-			: (gTutorial.fDontShowAgain ? 1 : 0);
-		f->write(&val, sizeof(val));
+		if (gTutorial.mode == TutorialMode::TouchPresetUpdate)
+		{
+			INT32 val = gTutorial.iTouchPresetUpdateSeenVersion;
+			f->write(&val, sizeof(val));
+		}
+		else
+		{
+			UINT8 val = gTutorial.mode == TutorialMode::MainMenu
+				? (gTutorial.fMainMenuDontShowAgain ? 1 : 0)
+				: (gTutorial.fDontShowAgain ? 1 : 0);
+			f->write(&val, sizeof(val));
+		}
 	}
 	catch (...)
 	{
@@ -227,6 +291,21 @@ void SaveTutorialSettings()
 bool ShouldShowMainMenuTutorial()
 {
 	return !gTutorial.fMainMenuDontShowAgain && !gTutorial.fMainMenuAutoShownThisSession && !gTutorial.fVisible;
+}
+
+void RequestTouchPresetUpdateNotice(int version)
+{
+	if (version > gTutorial.iTouchPresetUpdateSeenVersion)
+	{
+		gTutorial.iPendingTouchPresetUpdateVersion = version;
+	}
+}
+
+bool ShouldShowTouchPresetUpdateNotice()
+{
+	return !gTutorial.fVisible &&
+		gTutorial.iPendingTouchPresetUpdateVersion > 0 &&
+		gTutorial.iPendingTouchPresetUpdateVersion > gTutorial.iTouchPresetUpdateSeenVersion;
 }
 
 static std::vector<ST::string> TutorialBodyParagraphs(const char* body)
@@ -303,12 +382,12 @@ static void RecalcCardLayout()
 	if (gCardW > layoutW - 20) gCardW = layoutW - 20;
 
 	UINT16 maxBodyH = 0;
-	const int panelCount = gTutorial.mode == TutorialMode::MainMenu ? 1 : 3;
+	const int panelCount = TutorialPanelCount();
 	for (int i = 0; i < panelCount; i++)
 	{
-		const TUTORIAL_PANEL& panel = gTutorial.mode == TutorialMode::MainMenu
-			? (IsTutorialGerman() ? gMainMenuTutorialPanelDE : gMainMenuTutorialPanelEN)
-			: gTutorialPanels[i];
+		const TUTORIAL_PANEL& panel = gTutorial.mode == TutorialMode::Tactical
+			? gTutorialPanels[i]
+			: CurrentTutorialPanel();
 		UINT16 h = TutorialBodyHeight(panel.body, gCardW - 2 * TUTORIAL_CARD_PADDING);
 		if (h > maxBodyH) maxBodyH = h;
 	}
@@ -317,7 +396,7 @@ static void RecalcCardLayout()
 	gCardH = TUTORIAL_CARD_PADDING_TOP
 		+ titleH + TUTORIAL_CARD_PADDING
 		+ maxBodyH + TUTORIAL_CARD_PADDING
-		+ (gTutorial.mode == TutorialMode::MainMenu ? 0 : TUTORIAL_DOT_SIZE + TUTORIAL_CARD_PADDING)
+		+ (TutorialPanelCount() == 1 ? 0 : TUTORIAL_DOT_SIZE + TUTORIAL_CARD_PADDING)
 		+ TUTORIAL_CONFIRM_H + TUTORIAL_CARD_PADDING;
 
 	if (gCardH > layoutH - 20) gCardH = layoutH - 20;
@@ -465,6 +544,31 @@ void EnterMainMenuTutorial()
 	gTutorialUIInitialized = true;
 }
 
+void EnterTouchPresetUpdateNotice()
+{
+	InitTutorialPanels();
+	if (gTutorial.fVisible || !ShouldShowTouchPresetUpdateNotice()) return;
+
+	gTutorial.fVisible = true;
+	gTutorial.mode = TutorialMode::TouchPresetUpdate;
+	gTutorial.sCurrentPanel = 0;
+	gTutorial.fCheckboxChecked = false;
+	gTutorialPointerDown = false;
+	gTutorialSwipeHandled = false;
+	gTutorialConfirmPressed = false;
+	gTutorialCheckboxPressed = false;
+
+	RecalcCardLayout();
+
+	gTutorial.pSaveBuffer = AddVideoSurface(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH);
+	BlitBufferToBuffer(FRAME_BUFFER, gTutorial.pSaveBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	MSYS_DefineRegion(&gTutorialInputRegion, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+		MSYS_PRIORITY_HIGHEST, VIDEO_NO_CURSOR, TutorialMoveCallback, TutorialButtonCallback);
+
+	gTutorialUIInitialized = true;
+}
+
 void ExitTutorial()
 {
 	if (!gTutorialUIInitialized) return;
@@ -482,7 +586,13 @@ void ExitTutorial()
 
 	gTutorial.fVisible = false;
 
-	if (gTutorial.fCheckboxChecked)
+	if (gTutorial.mode == TutorialMode::TouchPresetUpdate)
+	{
+		gTutorial.iTouchPresetUpdateSeenVersion = gTutorial.iPendingTouchPresetUpdateVersion;
+		gTutorial.iPendingTouchPresetUpdateVersion = 0;
+		SaveTutorialSettings();
+	}
+	else if (gTutorial.fCheckboxChecked)
 	{
 		if (gTutorial.mode == TutorialMode::MainMenu)
 		{
@@ -557,9 +667,7 @@ void RenderTutorial()
 		gCardX + gCardW, gCardY + gCardH,
 		TUTORIAL_CLR_CARD_BG);
 
-	const TUTORIAL_PANEL& panel = gTutorial.mode == TutorialMode::MainMenu
-		? (IsTutorialGerman() ? gMainMenuTutorialPanelDE : gMainMenuTutorialPanelEN)
-		: gTutorialPanels[gTutorial.sCurrentPanel];
+	const TUTORIAL_PANEL& panel = CurrentTutorialPanel();
 	const int titleY = gCardY + TUTORIAL_CARD_PADDING_TOP;
 	DrawTextToScreen(panel.title, gCardX, titleY, gCardW,
 		FONT14ARIAL, FONT_FCOLOR_WHITE, FONT_MCOLOR_BLACK,
@@ -571,7 +679,7 @@ void RenderTutorial()
 	DisplayTutorialBody(gCardInnerX, bodyY, gCardInnerW, panel.body);
 	SetFontShadow(DEFAULT_SHADOW);
 
-	if (gTutorial.mode != TutorialMode::MainMenu)
+	if (TutorialPanelCount() > 1)
 	{
 		const int dotY = gCardY + gCardH - TUTORIAL_CARD_PADDING - TUTORIAL_CONFIRM_H - TUTORIAL_CARD_PADDING - TUTORIAL_DOT_SIZE;
 		const int totalDotsW = 3 * TUTORIAL_DOT_SIZE + 2 * TUTORIAL_DOT_SPACING;
@@ -593,7 +701,7 @@ void RenderTutorial()
 
 void TutorialNextPanel()
 {
-	if (gTutorial.mode == TutorialMode::MainMenu) return;
+	if (TutorialPanelCount() == 1) return;
 	if (gTutorial.sCurrentPanel < 2)
 	{
 		gTutorial.sCurrentPanel++;
@@ -602,7 +710,7 @@ void TutorialNextPanel()
 
 void TutorialPrevPanel()
 {
-	if (gTutorial.mode == TutorialMode::MainMenu) return;
+	if (TutorialPanelCount() == 1) return;
 	if (gTutorial.sCurrentPanel > 0)
 	{
 		gTutorial.sCurrentPanel--;

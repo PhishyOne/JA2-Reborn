@@ -7,7 +7,8 @@
 
 enum class TutorialMode {
 	Tactical,
-	MainMenu
+	MainMenu,
+	TouchPresetUpdate
 };
 
 struct TUTORIAL_STATE {
@@ -18,6 +19,8 @@ struct TUTORIAL_STATE {
 	bool fCheckboxChecked;   // current toggle in UI
 	bool fAutoShownThisSession;
 	bool fMainMenuAutoShownThisSession;
+	int  iTouchPresetUpdateSeenVersion;
+	int  iPendingTouchPresetUpdateVersion;
 	TutorialMode mode;
 	SGPVSurface* pSaveBuffer; // background save for overlay
 };
@@ -33,6 +36,9 @@ extern TUTORIAL_PANEL gTutorialPanels[3];
 
 void EnterTutorial();
 void EnterMainMenuTutorial();
+void RequestTouchPresetUpdateNotice(int version);
+bool ShouldShowTouchPresetUpdateNotice();
+void EnterTouchPresetUpdateNotice();
 void ExitTutorial();
 void RenderTutorial();
 void LoadTutorialSettings();
