@@ -18,6 +18,7 @@ object SvgIconManager {
     private const val TAG = "SvgIconManager"
     private const val ICON_BITMAP_SIZE = 512
     private const val ICON_PADDING_FRACTION = 0.08f
+    private const val DEBUG_ICON_RENDERING = false
     private val json = Json { ignoreUnknownKeys = true }
     private var initialized = false
     private var appContext: Context? = null
@@ -36,7 +37,7 @@ object SvgIconManager {
             val list: List<IconSetEntry> = json.decodeFromString(iconsetJson)
             for (entry in list) {
                 entries[entry.name] = entry
-                Log.d(TAG, "Loaded iconset entry: ${entry.name} -> ${entry.svg}")
+                if (DEBUG_ICON_RENDERING) Log.d(TAG, "Loaded iconset entry: ${entry.name} -> ${entry.svg}")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load iconset.json", e)
@@ -47,7 +48,7 @@ object SvgIconManager {
                 .bufferedReader().readText()
             val map: Map<String, String> = json.decodeFromString(mappingsJson)
             mappings.putAll(map)
-            Log.d(TAG, "Loaded ${mappings.size} icon mappings: $mappings")
+            if (DEBUG_ICON_RENDERING) Log.d(TAG, "Loaded ${mappings.size} icon mappings: $mappings")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load iconmappings.json", e)
         }
@@ -55,7 +56,7 @@ object SvgIconManager {
         for ((_, svgName) in mappings) {
             val entry = entries[svgName] ?: continue
             val result = loadSvgBitmap(entry.svg)
-            Log.d(TAG, "Pre-load SVG ${entry.svg}: ${if (result != null) "OK" else "FAILED"}")
+            if (DEBUG_ICON_RENDERING) Log.d(TAG, "Pre-load SVG ${entry.svg}: ${if (result != null) "OK" else "FAILED"}")
         }
     }
 
@@ -94,15 +95,25 @@ object SvgIconManager {
         val offsetX = entry.iconOffsetX * sbW
         val offsetY = entry.iconOffsetY * sbH
 
-        Log.d(TAG, "renderIcon $gameIconName: shapeBounds=${shapeBounds.width().toInt()}x${shapeBounds.height().toInt()} bm=${bitmap.width}x${bitmap.height} iconFill=$fill iconW=$iconW iconH=$iconH scale=$scale iconSX=${entry.iconScaleX} iconSY=${entry.iconScaleY} destW=$destW destH=$destH offsetX=$offsetX offsetY=$offsetY")
-
         val dest = RectF(
-            shapeBounds.centerX() + offsetX - destW / 2f,
-            shapeBounds.centerY() + offsetY - destH / 2f,
-            shapeBounds.centerX() + offsetX + destW / 2f,
-            shapeBounds.centerY() + offsetY + destH / 2f
+            -destW / 2f,
+            -destH / 2f,
+            destW / 2f,
+            destH / 2f
         )
+        if (DEBUG_ICON_RENDERING) {
+            Log.d(TAG, "renderIcon $gameIconName: fill=$fill scale=$scale sx=${entry.iconScaleX} sy=${entry.iconScaleY} offsetX=$offsetX offsetY=$offsetY rotation=${entry.iconRotation} flipH=${entry.iconFlipH} flipV=${entry.iconFlipV}")
+        }
+        canvas.save()
+        canvas.translate(shapeBounds.centerX() + offsetX, shapeBounds.centerY() + offsetY)
+        if (entry.iconRotation != 0f) {
+            canvas.rotate(entry.iconRotation)
+        }
+        if (entry.iconFlipH || entry.iconFlipV) {
+            canvas.scale(if (entry.iconFlipH) -1f else 1f, if (entry.iconFlipV) -1f else 1f)
+        }
         canvas.drawBitmap(bitmap, null, dest, fillPaint)
+        canvas.restore()
         return true
     }
 
@@ -116,7 +127,7 @@ object SvgIconManager {
                 "raw",
                 ctx.packageName
             )
-            Log.d(TAG, "loadSvg($name): resId=$resId package=${ctx.packageName}")
+            if (DEBUG_ICON_RENDERING) Log.d(TAG, "loadSvg($name): resId=$resId package=${ctx.packageName}")
             if (resId == 0) return null
 
             val svg = ctx.resources.openRawResource(resId).use { input ->
@@ -176,5 +187,8 @@ data class IconSetEntry(
     val iconOffsetX: Float = 0f,
     val iconOffsetY: Float = 0f,
     val iconScaleX: Float = 1f,
-    val iconScaleY: Float = 1f
+    val iconScaleY: Float = 1f,
+    val iconRotation: Float = 0f,
+    val iconFlipH: Boolean = false,
+    val iconFlipV: Boolean = false
 )

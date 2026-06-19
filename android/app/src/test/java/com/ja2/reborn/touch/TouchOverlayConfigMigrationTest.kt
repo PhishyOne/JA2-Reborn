@@ -265,6 +265,39 @@ class TouchOverlayConfigMigrationTest {
     }
 
     @Test
+    fun iconSetEntryDecodesTransformFields() {
+        val entry = json.decodeFromString<IconSetEntry>("""{
+            "name": "test_icon",
+            "svg": "icon_test.svg",
+            "iconFill": 1.2,
+            "iconOffsetX": -0.1,
+            "iconOffsetY": 0.25,
+            "iconScaleX": 0.9,
+            "iconScaleY": 1.1,
+            "iconRotation": 15,
+            "iconFlipH": true,
+            "iconFlipV": true
+        }""")
+
+        assertEquals(15f, entry.iconRotation)
+        assertTrue(entry.iconFlipH)
+        assertTrue(entry.iconFlipV)
+        assertEquals(-0.1f, entry.iconOffsetX)
+        assertEquals(0.25f, entry.iconOffsetY)
+    }
+
+    @Test
+    fun tacticalEditorContainsReloadPresetWithAltR() {
+        val preset = TACTICAL_TOUCH_BUTTON_PRESETS.first { it.id == "reload_selected" }
+
+        assertEquals("key_combo", preset.action.type)
+        assertEquals("tap", preset.action.mode)
+        assertEquals(listOf("ALT", "R"), preset.action.keyNames)
+        assertEquals("reload_selected", preset.icon)
+        assertFalse(defaultButtons().any { it.id == "reload_selected" })
+    }
+
+    @Test
     fun fullLayoutExportImportRoundTripKeepsButtonSetsSeparated() {
         val config = TouchOverlayConfig(
             buttons = listOf(

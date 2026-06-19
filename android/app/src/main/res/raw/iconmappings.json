@@ -38,6 +38,5 @@
   "map_laptop": "2000000037",
   "strafe_hold": "2000000017",
   "strafe_toggle": "2000000017",
-  "lock_closed": "2000000010",
-  "lock_open": "2000000011"
+  "reload_selected": "2000000038"
 }

@@ -93,6 +93,8 @@ Map-Screen-Buttons duerfen im Editor nicht mehr auf taktische Presets zurueckfal
 
 ## Phase 3: Icon Alignment, Lock Button und Reload Preset
 
+**Status:** Abgeschlossen am 2026-06-19. Implementiert, zweitgeprueft und committed; visuelle Geraetepruefung steht fuer die spaetere Endverifikation aus.
+
 ### Ziel
 
 Batch-02/03-Icons muessen korrekt ausgerichtet sein, der Lock-Button muss wieder gut sichtbar sein, und Reload soll als Overlay-Preset verfuegbar sein.
@@ -127,6 +129,16 @@ Batch-02/03-Icons muessen korrekt ausgerichtet sein, der Lock-Button muss wieder
 - Manuell pruefen: Lock-Icon ist sichtbar vergleichbar gross wie andere Systembuttons.
 - Manuell pruefen: Reload-Preset loest im Tactical Screen `ALT+R` aus.
 - Danach Log und Plan aktualisieren, Ergebnisse erneut pruefen, committen und stoppen.
+
+### Ergebnis 2026-06-19
+
+- Batch 02 und Batch 03 wurden aus `IconWork` uebernommen.
+- `iconset.json` enthaelt die Converter-Werte fuer Fill, Scale, Offset, Rotation und Flip; `iconOffsetY` wurde fuer die Runtime invertiert.
+- `SvgIconManager.renderIcon()` wendet Fill, Scale, Offset, Flip und Rotation an und loggt Renderdetails nur noch hinter einem Debug-Flag.
+- Lock-Systembutton nutzt `1.55f` als Icon-Fill-Override.
+- Reload-Preset `reload_selected` ist mit `ALT + R`, `icon_reload.svg` und Mapping-ID `2000000038` verfuegbar, aber nicht in sichtbare Default-Layouts eingefuegt.
+- Native Pruefung: `ALT+R` ruft bereits `HandleTBReload()` und `AutoReload(selectedMerc)` auf.
+- `android\gradlew.bat testDebugUnitTest` aus dem Android-Gradle-Root: BUILD SUCCESSFUL.
 
 ## Phase 4: Mouse Mode Order
 

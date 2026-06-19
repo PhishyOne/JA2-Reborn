@@ -476,15 +476,13 @@ class TouchOverlayButtonView(
         val w = width.toFloat()
         val h = height.toFloat()
         val buttonHeight = minOf(h, w / 1.8f)
-        val result = when (buttonConfig.shape.lowercase()) {
+        return when (buttonConfig.shape.lowercase()) {
             BUTTON_SHAPE_CIRCLE -> {
                 val r = buttonHeight / 2f * 0.85f
                 RectF(w / 2 - r, h / 2 - r, w / 2 + r, h / 2 + r)
             }
             else -> computeOuterShapeBounds()
         }
-        android.util.Log.d("BtnDebug", "computeIconShapeBounds: view=${w}x${h} shape=${buttonConfig.shape} buttonHeight=$buttonHeight result=${result.width().toInt()}x${result.height().toInt()}")
-        return result
     }
 
     private fun drawIcon(canvas: Canvas, icon: String) {
