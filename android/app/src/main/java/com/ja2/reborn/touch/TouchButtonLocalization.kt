@@ -18,6 +18,7 @@ object TouchButtonLocalization {
             "stealth_toggle" -> R.string.touch_preset_stealth_toggle
             "swap_places" -> R.string.touch_preset_swap_places
             "alt_movement_hold" -> R.string.touch_preset_alt_movement_hold
+            "shift_toggle" -> R.string.touch_preset_shift_toggle
             "fire_mode" -> R.string.touch_preset_fire_mode
             "range_cursor" -> R.string.touch_preset_range_cursor
             "keyring" -> R.string.touch_preset_keyring
