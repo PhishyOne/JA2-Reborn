@@ -238,15 +238,33 @@
 
 ---
 
-## ABSCHLUSS-STATUS (2026-06-18)
+## Button-Bereinigung: Strafe-Entfernung, Toggle-Umbau, Umbenennungen
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - `strafe_hold` und `strafe_toggle` aus `TACTICAL_TOUCH_BUTTON_PRESETS` (Presets.kt) und `defaultButtons()` (Models.kt) entfernt — diese CTRL-Buttons waren auf der Map gedacht und im Tactical Screen unnoetig.
+  - `alt_movement_hold` von `mode="hold"` auf `mode="toggle"` umgestellt, Label auf "Seitwärts-/Rückwärtsschritte" (de) / "Sidestep/Backstep" (en) geaendert.
+  - `shift_toggle`-Preset-Label auf "Item Stacking" (de/en) umbenannt, Localization-Eintrag in `TouchButtonLocalization.kt` ergaenzt.
+  - `map_inventory`-Migration von `I` auf `ENTER` in `TouchButtonModels.kt` (`migrateMapInventoryEnterKey()`) implementiert.
+  - Englische String-Ressourcen (`values/strings.xml`) und deutsche (`values-de/strings.xml`) aktualisiert.
+- **Tests**: `.\gradlew.bat assembleRelease` -> BUILD SUCCESSFUL
+- **Commits**: `3ebd625` (Remove strafe buttons, rename controls, add shift toggle)
+- **Ende**: 2026-06-19
+
+---
+
+## ABSCHLUSS-STATUS (2026-06-19)
 
 **Feature-Entwicklung ist abgeschlossen.** Alle Phasen (0–7) sind implementiert und getestet.
 
-### Noch offen — 8 Known Issues:
+### Noch offen — 5 Known Issues (3 resolved am 2026-06-19):
 
 | # | Bug | Beschreibung |
 |---|-----|-------------|
-| 1 | `map_inventory`-Mapping | Button mapped auf `I` (Item-Highlight) statt Inventar-Panel zu öffnen. Korrekter Key: `Enter`. Auf Enter ummappen |
+| 1 | ~~`map_inventory`-Mapping~~ | ✅ **RESOLVED (2026-06-19).** Migration `I`→`ENTER` in `migrateMapInventoryEnterKey()` implementiert. |
+| 1a | ~~Strafe-Buttons auf Tactical~~ | ✅ **RESOLVED (2026-06-19).** `strafe_hold`/`strafe_toggle` aus Tactical-Presets und Defaults entfernt. |
+| 1b | ~~shift_toggle / alt_movement Umbenennung~~ | ✅ **RESOLVED (2026-06-19).** `shift_toggle`→Item Stacking, `alt_movement_hold`→Seitwärts-/Rückwärtsschritte (Toggle), Localization ergaenzt. |
 | 2 | ~~Batch 02+03 Icon-Alignment~~ | ✅ **RESOLVED (2026-06-19).** Y-Offsets durch Codex invertiert, X-Offset-Invertierung nachgeholt. Alle Icons korrekt aligned. |
 | 3 | Editor ohne Map-Screen-Presets | `TOUCH_BUTTON_PRESETS` enthält nur taktische Presets. Beim Editieren eines Map-Screen-Buttons (z.B. Laptop) findet `touchButtonPresetFor()` keinen Match und das Dropdown fällt auf den ersten taktischen Eintrag zurück — der Map-Button wird ungewollt zum taktischen Button. **Fix:** Preset-Liste nach Screen-Kontext trennen (In-Game vs. Map-Screen), Create-New-Dropdown zeigt nur die für den jeweiligen Screen relevanten Presets |
 | 4 | Export/Import ohne Screen-Trennung | Das Touch-Preset-Export-/Import-System muss `mapScreenButtons` und taktische `buttons` korrekt getrennt behandeln. Export darf beide nicht vermischen, Import muss in die richtigen Config-Felder zurückschreiben |
