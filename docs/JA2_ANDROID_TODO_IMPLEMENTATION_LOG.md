@@ -179,6 +179,25 @@
 - **Ergebnis**: Phase 4 abgeschlossen.
 - **Ende**: 2026-06-19
 
+## Update 104 Phase 5: Auto-Bandage Scaling
+
+- **Start**: 2026-06-19
+- **Branch**: `experimental`
+- **Taetigkeiten**:
+  - Debug-Trace fuer Auto-Bandage Enter, First-Frame und Exit ergaenzt.
+  - Trace enthaelt `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `STD_SCREEN_X/Y`, `INV_INTERFACE_START_Y`, aktuellen Screen sowie Map-/Tactical-/Auto-Bandage-Status.
+  - Full-Refresh fuer Enter, First-Frame und Exit zentralisiert: `SetRenderFlags(RENDER_FLAG_FULL)`, `InvalidateScreen()` und `fInterfacePanelDirty = DIRTYLEVEL2`.
+  - Auto-Bandage-Panel anhand aktueller Screen-Werte im taktischen Bereich oberhalb der Bottom-UI zentriert.
+  - Panel- und Invalidierungskoordinaten gegen aktuelle `SCREEN_WIDTH/HEIGHT` geklemmt.
+  - Input-Maske bleibt full-screen ueber aktuelle `SCREEN_WIDTH/HEIGHT`.
+- **Tests**:
+  - `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat externalNativeBuildDebug` in `android` -> BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`.
+- **Zweitpruefung**: Diff, Planabgleich und native Build-Ausgabe geprueft; keine 640x480-Koordinaten im Auto-Bandage-Eintritt, Panel-Layout oder Invalidate-Pfad eingefuehrt.
+- **Manuelle Pruefung**: Nicht am Geraet ausgefuehrt; Widescreen-Start, Panel-Klickbarkeit und Rueckkehr-Artefakte muessen in der spaeteren Endverifikation visuell geprueft werden.
+- **Ergebnis**: Phase 5 abgeschlossen.
+- **Ende**: 2026-06-19
+
 ---
 
 ## ABSCHLUSS-STATUS (2026-06-18)

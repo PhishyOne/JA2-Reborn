@@ -173,6 +173,8 @@ Batch-02/03-Icons muessen korrekt ausgerichtet sein, der Lock-Button muss wieder
 
 ## Phase 5: Auto-Bandage Scaling
 
+**Status:** Abgeschlossen am 2026-06-19. Implementiert, zweitgeprueft und committed; manuelle Widescreen-Geraetepruefung steht fuer die spaetere Endverifikation aus.
+
 ### Ziel
 
 Auto-Bandage darf auf Widescreen-Displays keinen kurzen 4:3-Sprung mehr verursachen.
@@ -197,6 +199,16 @@ Auto-Bandage darf auf Widescreen-Displays keinen kurzen 4:3-Sprung mehr verursac
 - Manuell pruefen: Auto-Bandage-Panel ist zentriert und klickbar.
 - Manuell pruefen: Rueckkehr zum Tactical Screen hat keine falschen Dirty-Rects oder Cropping-Artefakte.
 - Danach Log und Plan aktualisieren, Ergebnisse erneut pruefen, committen und stoppen.
+
+### Ergebnis 2026-06-19
+
+- Auto-Bandage loggt Enter, First-Frame und Exit mit `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `STD_SCREEN_X/Y`, `INV_INTERFACE_START_Y`, aktuellem Screen und Map-/Tactical-Status.
+- Enter, First-Frame und Exit erzwingen einen vollen Render-Refresh inklusive `InvalidateScreen()` und Dirty-Interface-Panel.
+- Das Update-Panel wird ueber aktuelle Screen-Werte im taktischen Bereich oberhalb der Bottom-UI zentriert.
+- Panel-Koordinaten und Invalidierungsbereiche werden gegen die aktuelle `SCREEN_WIDTH/HEIGHT` geklemmt.
+- Die Input-Maske verwendet weiterhin die aktuelle volle `SCREEN_WIDTH/HEIGHT`.
+- `android\gradlew.bat testDebugUnitTest` aus dem Android-Gradle-Root: BUILD SUCCESSFUL.
+- `android\gradlew.bat externalNativeBuildDebug` aus dem Android-Gradle-Root: BUILD SUCCESSFUL fuer `arm64-v8a`, `armeabi-v7a`, `x86` und `x86_64`.
 
 ## Phase 6: Shopkeeper / Vendor Scaling
 
