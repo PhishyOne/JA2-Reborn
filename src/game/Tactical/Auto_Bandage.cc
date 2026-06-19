@@ -2,6 +2,8 @@
 #include "Font.h"
 #include "Font_Control.h"
 #include "HImage.h"
+#include "JAScreens.h"
+#include "Logger.h"
 #include "Medical.h"
 #include "MercPortrait.h"
 #include "Overhead.h"
@@ -69,6 +71,63 @@ static BOOLEAN fAutoEndBandageButtonCreated = FALSE;
 
 
 static void BeginAutoBandageCallBack(MessageBoxReturnValue);
+
+
+static void TraceAutoBandageGeometry(char const* phase)
+{
+	SLOGD("AutoBandage {} geometry: screen={}x{} std=({}, {}) invY={} currentScreen={} map={} tactical={} autoMode={} uiFlags={}",
+		phase,
+		SCREEN_WIDTH,
+		SCREEN_HEIGHT,
+		STD_SCREEN_X,
+		STD_SCREEN_Y,
+		INV_INTERFACE_START_Y,
+		static_cast<int>(guiCurrentScreen),
+		guiCurrentScreen == MAP_SCREEN,
+		guiCurrentScreen == GAME_SCREEN,
+		gTacticalStatus.fAutoBandageMode,
+		static_cast<int>(gTacticalStatus.uiFlags));
+}
+
+
+static void ForceAutoBandageFullRefresh()
+{
+	SetRenderFlags(RENDER_FLAG_FULL);
+	InvalidateScreen();
+	fInterfacePanelDirty = DIRTYLEVEL2;
+}
+
+
+static INT16 ClampAutoBandageCoord(INT32 value, INT32 minValue, INT32 maxValue)
+{
+	if (maxValue < minValue) maxValue = minValue;
+	return static_cast<INT16>(std::clamp(value, minValue, maxValue));
+}
+
+
+static INT16 CalculateAutoBandagePanelX(INT32 panelWidth)
+{
+	return ClampAutoBandageCoord(
+		(static_cast<INT32>(SCREEN_WIDTH) - panelWidth) / 2,
+		4,
+		static_cast<INT32>(SCREEN_WIDTH) - panelWidth - 4);
+}
+
+
+static INT16 CalculateAutoBandagePanelY(INT32 faceRowsHeight)
+{
+	constexpr INT32 TOP_DECORATION_HEIGHT = 18;
+	constexpr INT32 BOTTOM_DECORATION_HEIGHT = 44;
+
+	const INT32 visualHeight = TOP_DECORATION_HEIGHT + faceRowsHeight + BOTTOM_DECORATION_HEIGHT;
+	const INT32 tacticalHeight = INV_INTERFACE_START_Y;
+	const INT32 centeredY = ((tacticalHeight - visualHeight) / 2) + TOP_DECORATION_HEIGHT;
+
+	return ClampAutoBandageCoord(
+		centeredY,
+		TOP_DECORATION_HEIGHT,
+		tacticalHeight - faceRowsHeight - BOTTOM_DECORATION_HEIGHT);
+}
 
 
 void BeginAutoBandage( )
@@ -214,6 +273,9 @@ BOOLEAN HandleAutoBandage( )
 	{
 		if ( gfBeginningAutoBandage )
 		{
+			TraceAutoBandageGeometry("first-frame");
+			ForceAutoBandageFullRefresh();
+
 			//Shadow area
 			FRAME_BUFFER->ShadowRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			InvalidateScreen( );
@@ -310,10 +372,13 @@ void AutoBandage( BOOLEAN fStart )
 		MSYS_DefineRegion(&gAutoBandageRegion, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, MSYS_PRIORITY_HIGHEST - 1, CURSOR_NORMAL, MSYS_NO_CALLBACK, MSYS_NO_CALLBACK);
 
 		gfBeginningAutoBandage = TRUE;
+		TraceAutoBandageGeometry("enter");
+		ForceAutoBandageFullRefresh();
 
 	}
 	else
 	{
+		TraceAutoBandageGeometry("exit");
 		gTacticalStatus.fAutoBandageMode = FALSE;
 		gTacticalStatus.uiFlags &= ( ~OUR_MERCS_AUTO_MOVE );
 
@@ -363,8 +428,7 @@ void AutoBandage( BOOLEAN fStart )
 		// clear faces for auto bandage
 		RemoveFacesForAutoBandage( );
 
-		SetRenderFlags( RENDER_FLAG_FULL );
-		fInterfacePanelDirty = DIRTYLEVEL2;
+		ForceAutoBandageFullRefresh();
 
 		if( gfAutoBandageFailed )
 		{
@@ -551,8 +615,8 @@ static void DisplayAutoBandageUpdatePanel(void)
 	iTotalPixelsWide = TACT_UPDATE_MERC_FACE_X_WIDTH * iNumberDoctorsWide;
 
 	// now get the x and y position for the box
-	sXPosition = (SCREEN_WIDTH          - iTotalPixelsWide) / 2;
-	sYPosition = (INV_INTERFACE_START_Y - iTotalPixelsHigh) / 2;
+	sXPosition = CalculateAutoBandagePanelX(iTotalPixelsWide);
+	sYPosition = CalculateAutoBandagePanelY(iTotalPixelsHigh);
 
 	const SGPVObject* const hBackGroundHandle = guiUpdatePanelTactical;
 
@@ -753,8 +817,11 @@ static void DisplayAutoBandageUpdatePanel(void)
 	EnableButton(iEndAutoBandageButton[1], !complete);
 
 	// now make sure it goes to the screen
-	InvalidateRegion(sXPosition - 4, sYPosition - 18, (INT16)(sXPosition + iTotalPixelsWide + 4),
-				(INT16)(sYPosition + iTotalPixelsHigh));
+	InvalidateRegion(
+		ClampAutoBandageCoord(sXPosition - 4, 0, SCREEN_WIDTH),
+		ClampAutoBandageCoord(sYPosition - 18, 0, SCREEN_HEIGHT),
+		ClampAutoBandageCoord(sXPosition + iTotalPixelsWide + 4, 0, SCREEN_WIDTH),
+		ClampAutoBandageCoord(sYPosition + iTotalPixelsHigh, 0, SCREEN_HEIGHT));
 }
 
 
