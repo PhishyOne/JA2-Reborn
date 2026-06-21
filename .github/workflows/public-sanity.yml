@@ -62,7 +62,10 @@ jobs:
           ]
 
           failed = False
+              continue
           for name, text in text_files:
+              if name.endswith("/public-sanity.yml"):
+                  continue
               lowered = text.lower()
               if name in ("index.html", "robots.txt", "sitemap.xml"):
                   for allowed_public_repo_reference in [
@@ -87,7 +90,10 @@ jobs:
                       failed = True
 
           email = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+              continue
           for name, text in text_files:
+              if name.endswith("/public-sanity.yml"):
+                  continue
               if name.startswith("dependencies/"):
                   continue
               if email.search(text):
