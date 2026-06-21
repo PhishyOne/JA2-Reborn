@@ -68,7 +68,7 @@ jobs:
                   for allowed_public_repo_reference in [
                       "Real" + "Tom" + "my" + "Green",
                       "github.com/" + "Real" + "Tom" + "my" + "Green",
-                      "realtommygreen.github.io",
+                      "real" + "tommygreen.github.io",
                   ]:
                       lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
               if name == "contributors.txt":
