@@ -64,10 +64,11 @@ jobs:
           failed = False
           for name, text in text_files:
               lowered = text.lower()
-              if name == "index.html":
+              if name in ("index.html", "robots.txt", "sitemap.xml"):
                   for allowed_public_repo_reference in [
                       "Real" + "Tom" + "my" + "Green",
                       "github.com/" + "Real" + "Tom" + "my" + "Green",
+                      "realtommygreen.github.io",
                   ]:
                       lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
               if name == "contributors.txt":
