@@ -234,7 +234,7 @@
     <string name="touch_preset_swap_places">Plätze tauschen</string>
     <string name="touch_preset_alt_movement_hold">Seitwärts-/Rückwärtsschritte</string>
     <string name="touch_preset_ctrl_examine">Untersuchen (STRG)</string>
-    <string name="touch_preset_shift_toggle">Item Stacking</string>
+    <string name="touch_preset_shift_toggle">Item-Mehrfachauswahl</string>
     <string name="touch_preset_fire_mode">Feuermodus wechseln</string>
     <string name="touch_preset_keyring">Schlüsselbund öffnen</string>
     <string name="touch_preset_auto_bandage">Automatisches Verbinden</string>
@@ -277,7 +277,7 @@
     <string name="touch_preset_quick_load">Schnellladen</string>
     <string name="touch_preset_quit_game">Spiel beenden</string>
     <string name="touch_preset_cheats">Cheats</string>
-    <string name="touch_preset_map_shift">Item Stacking</string>
+    <string name="touch_preset_map_shift">Item-Mehrfachauswahl</string>
     <string name="touch_preset_map_options">Optionen</string>
     <string name="touch_preset_map_time_minus">Zeit langsamer</string>
     <string name="touch_preset_map_time_plus">Zeit schneller</string>
