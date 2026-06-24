@@ -371,3 +371,24 @@
 - **Manuelle Prüfung**: Am Gerät bestätigt; APK installiert über `1.0.4`, Stealth-Toggle-Sync funktioniert.
 - **Ergebnis**: Punkt 7 abgeschlossen und funktional.
 - **Ende**: 2026-06-24
+
+---
+
+## v1.0.5: Item Stacking / Sidestep Toggle Auto-Release
+
+- **Start**: 2026-06-24
+- **Branch**: `experimental`
+- **Ausgangslage**: `SHIFT` (Item Stacking) und `ALT` (Seitwärts-/Rückwärtsschritte) wurden als sticky `mode="toggle"`-Modifier gehalten. Bei späteren Aktionen, z.B. Söldnerwechsel mit aktivem `ALT`, blockierte der gehaltene Modifier die eigentliche Nutzeraktion.
+- **Tätigkeiten**:
+  - `TouchInputDispatcher.releaseToggleKeysExcept()` ergänzt, um gehaltene sticky Modifier gezielt per KeyUp freizugeben.
+  - Overlay-Buttons melden vor neuen Nicht-Modifier-Aktionen einen User-Action-Start; aktive sticky Modifier werden vorher gelöst.
+  - Wenn ein anderer sticky Modifier aktiviert wird, werden bestehende sticky Modifier gelöst, der neu gedrückte Toggle bleibt aber priorisiert.
+  - `SDLSurface` meldet Team-Portrait-Auswahl vorab an das Overlay, damit z.B. `ALT` den Söldnerwechsel nicht blockiert.
+  - Direkte Tactical-Inventar- und Map-Screen-Touches behalten `SHIFT` für Item Stacking; `ALT` wird nach dem tatsächlichen Touch-/Mouse-Up gelöst.
+  - Die visuelle Toggle-Anzeige der betroffenen Buttons wird beim Auto-Release zurückgesetzt.
+- **Tests**:
+  - `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat assembleRelease` in `android` -> BUILD SUCCESSFUL.
+- **Manuelle Prüfung**: Am Gerät bestätigt; Sidestep/Backstep löst bei anderen Aktionen korrekt, Item Stacking bleibt im Tactical-Inventar und im Map Screen bedienbar.
+- **Ergebnis**: Useraktionen haben Vorrang vor aktiven Modifier-Toggles. `ALT` wird bei anderen Aktionen automatisch gelöst; `SHIFT` bleibt bei Tactical-Inventar- und Map-Screen-Touches aktiv, damit Item Stacking bedienbar bleibt. Fix abgeschlossen und funktional.
+- **Ende**: 2026-06-24

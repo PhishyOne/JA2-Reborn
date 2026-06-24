@@ -9,11 +9,13 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 ### Fixed
 
 - Fixed the touch-overlay Stealth toggle showing a stale active state after switching to another selected merc.
+- Fixed sticky Item Stacking and Sidestep/Backstep modifier toggles blocking later touch actions, while keeping Item Stacking active across tactical inventory-area and Map Screen touches.
 
 ### Verified
 
 - Ran `:app:testDebugUnitTest`.
 - Built and verified the signed release APK with versionCode `1000005`.
+- Verified Sidestep/Backstep auto-release and Item Stacking persistence on Android hardware.
 
 ## 2026-06-19 - 1.0.4
 

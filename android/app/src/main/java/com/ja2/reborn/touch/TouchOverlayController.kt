@@ -85,6 +85,12 @@ class TouchOverlayController(
         if (loadResult.defaultPresetWasReset) {
             requestTouchPresetUpdateNotice()
         }
+        SDLSurface.setTouchOverlayUserActionCallback {
+            releaseStickyTogglesForUserAction(null)
+        }
+        SDLSurface.setTouchOverlayInventoryActionCallback {
+            releaseStickyTogglesForUserAction(null, keepItemStacking = true)
+        }
 
         val container = FrameLayout(activity).apply {
             isClickable = false
@@ -111,6 +117,8 @@ class TouchOverlayController(
 
     fun detach() {
         releasePressedInputs()
+        SDLSurface.setTouchOverlayUserActionCallback(null)
+        SDLSurface.setTouchOverlayInventoryActionCallback(null)
         SDLSurface.setOverlayEditModeActive(false)
         removeAllButtonViews()
         removeSystemButtons()
@@ -383,6 +391,7 @@ class TouchOverlayController(
             { btnId -> onButtonPositionChanged(btnId) },
             { btnConfig -> onButtonLongPress(btnConfig) },
             { action -> onSpecialAction(action) },
+            { sourceConfig -> releaseStickyTogglesForUserAction(sourceConfig) },
             draggable = !cfg.layoutLocked
         )
         buttonView.alpha = buttonConfig.alpha
@@ -934,6 +943,31 @@ class TouchOverlayController(
         }
     }
 
+    private fun releaseStickyTogglesForUserAction(
+        sourceConfig: TouchButtonConfig?,
+        keepItemStacking: Boolean = false
+    ) {
+        val keyCodesToKeep = mutableSetOf<Int>()
+
+        if (sourceConfig?.isStickyKeyToggleButton() == true) {
+            sourceConfig.actions.mapNotNullTo(keyCodesToKeep) { it.stickyToggleKeyCode() }
+        }
+        if (keepItemStacking || sourceConfig?.isMouseButtonAction() == true) {
+            TouchInputDispatcher.keyNameToCode("SHIFT")?.let { keyCodesToKeep.add(it) }
+        }
+
+        if (!dispatcher.releaseToggleKeyCodesExcept(keyCodesToKeep)) return
+
+        buttonViews.forEach { view ->
+            val shouldKeep = view.config.actions.any { action ->
+                action.stickyToggleKeyCode()?.let { it in keyCodesToKeep } == true
+            }
+            if (!shouldKeep && view.config.isStickyKeyToggleButton()) {
+                view.clearStickyToggleState()
+            }
+        }
+    }
+
     // ---- Normal button views ----
 
     private fun activeButtons(): List<TouchButtonConfig> {
@@ -981,6 +1015,7 @@ class TouchOverlayController(
                 { btnId -> onButtonPositionChanged(btnId) },
                 { btnConfig -> onButtonLongPress(btnConfig) },
                 { action -> onSpecialAction(action) },
+                { sourceConfig -> releaseStickyTogglesForUserAction(sourceConfig) },
                 draggable = !cfg.layoutLocked
             )
             buttonView.alpha = btnConfig.alpha
@@ -1196,6 +1231,20 @@ class TouchOverlayController(
                     action.mode == "toggle_tap" &&
                     action.keyName?.equals("Z", ignoreCase = true) == true
             }
+
+    private fun TouchButtonConfig.isStickyKeyToggleButton(): Boolean =
+        actions.any { it.isStickyKeyToggleAction() }
+
+    private fun TouchButtonConfig.isMouseButtonAction(): Boolean =
+        actions.any { it.type == "mouse_button" }
+
+    private fun TouchButtonAction.isStickyKeyToggleAction(): Boolean =
+        type == "key" && mode == "toggle" && (keyName != null || keyCode != null)
+
+    private fun TouchButtonAction.stickyToggleKeyCode(): Int? {
+        if (!isStickyKeyToggleAction()) return null
+        return keyCode ?: keyName?.let { TouchInputDispatcher.keyNameToCode(it) }
+    }
 
     companion object {
         private const val TAG = "TouchOverlayController"

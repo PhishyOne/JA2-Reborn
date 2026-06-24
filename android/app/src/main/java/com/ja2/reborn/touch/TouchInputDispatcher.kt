@@ -35,6 +35,27 @@ class TouchInputDispatcher(private val surface: SDLSurface) {
         }
     }
 
+    fun releaseToggleKeysExcept(actionsToKeep: List<TouchButtonAction> = emptyList()): Boolean {
+        return releaseToggleKeyCodesExcept(actionsToKeep
+            .filter { it.type == "key" && it.mode == "toggle" }
+            .mapNotNull { resolveKeyCode(it) }
+            .toSet())
+    }
+
+    fun releaseToggleKeyCodesExcept(keyCodesToKeep: Set<Int> = emptySet()): Boolean {
+        var released = false
+
+        heldToggleKeys.toList().forEach { keyCode ->
+            if (keyCode !in keyCodesToKeep) {
+                SDLActivity.onNativeKeyUp(keyCode)
+                heldToggleKeys.remove(keyCode)
+                released = true
+            }
+        }
+
+        return released
+    }
+
     fun releaseAll() {
         heldMouseButtons.toList().forEach { button ->
             surface.performOverlayMouseButton(button, false)
