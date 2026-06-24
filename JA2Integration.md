@@ -18,7 +18,16 @@ JA2 Reborn übernehmen.
 3. Bei Abschluss einer Phase werden Integrationslog und Plan aktualisiert und zusammen committed.
 4. Nach Abschluss jeder Phase wird gestoppt, damit der Kontext bei Bedarf geleert werden kann.
 
+## Status
+
+- Phase 0: abgeschlossen am 2026-06-24 mit Commit `72b6e98a4eb832a42cbeb95c6154cec8c2180116` als JA2-Reborn-Ausgangspunkt.
+- Phase 1: nächster Schritt.
+- Phase 2: offen.
+- Phase 3: offen.
+
 ## Phase 0 - Vorbereitung und Sicherheitsnetz
+
+Status: abgeschlossen am 2026-06-24.
 
 Ziel: sicherstellen, dass die Integration reproduzierbar vorbereitet ist, ohne
 bereits Upstream-Code zu übernehmen.
