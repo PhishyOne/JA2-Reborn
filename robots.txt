@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://realtommygreen.github.io/JA2-Reborn/sitemap.xml

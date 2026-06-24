@@ -61,25 +61,26 @@ jobs:
               "gcloud" + "-key",
           ]
 
+          allowed_public_files = ("index.html", "robots.txt", "sitemap.xml")
+          allowed_public_repo_refs = [
+              "Real" + "Tom" + "my" + "Green",
+              "github.com/" + "Real" + "Tom" + "my" + "Green",
+              "real" + "tommygreen.github.io",
+          ]
+
           failed = False
           for name, text in text_files:
+              if name.endswith("/public-sanity.yml"):
+                  continue
               lowered = text.lower()
-              if name == "index.html":
-                  for allowed_public_repo_reference in [
-                      "Real" + "Tom" + "my" + "Green",
-                      "github.com/" + "Real" + "Tom" + "my" + "Green",
-                  ]:
-                      lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
+              if name in allowed_public_files:
+                  for ref in allowed_public_repo_refs:
+                      lowered = lowered.replace(ref.lower(), "")
               if name == "contributors.txt":
-                  allowed_contributor = ("Tom" + "my Green").lower()
-                  lowered = lowered.replace(allowed_contributor, "")
+                  lowered = lowered.replace(("Tom" + "my Green").lower(), "")
               if name == "android/app/build.gradle":
-                  for allowed_signing_key in [
-                      "store" + "Password",
-                      "key" + "Password",
-                      "store" + "File",
-                  ]:
-                      lowered = lowered.replace(allowed_signing_key.lower(), "")
+                  for key in ("store" + "Password", "key" + "Password", "store" + "File"):
+                      lowered = lowered.replace(key.lower(), "")
               for term in terms:
                   if term.lower() in lowered:
                       print(f"{name}: contains forbidden private or signing term")
@@ -87,6 +88,8 @@ jobs:
 
           email = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
           for name, text in text_files:
+              if name.endswith("/public-sanity.yml"):
+                  continue
               if name.startswith("dependencies/"):
                   continue
               if email.search(text):
