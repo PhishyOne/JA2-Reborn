@@ -8,6 +8,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 
 @Serializable
@@ -26,7 +27,8 @@ data class GitHubAsset(
     val name: String = "",
     @SerialName("browser_download_url") val browserDownloadUrl: String = "",
     val size: Long = 0L,
-    @SerialName("content_type") val contentType: String? = null
+    @SerialName("content_type") val contentType: String? = null,
+    @SerialName("digest") val digest: String? = null
 )
 
 data class SemVer(
@@ -48,12 +50,12 @@ object UpdateChecker {
 
     private const val TAG = "UpdateChecker"
     private const val GITHUB_API_URL = "https://api.github.com/repos/RealTommyGreen/JA2-Reborn/releases/latest"
+    private const val EXPECTED_HOST = "github.com"
+    private const val EXPECTED_PATH_PREFIX = "/RealTommyGreen/JA2-Reborn/releases/download/"
     private const val CONNECT_TIMEOUT_MS = 15_000
     private const val READ_TIMEOUT_MS = 30_000
 
     private val json = Json { ignoreUnknownKeys = true }
-
-    private val apkNameRegex = Regex("^JA2RebornRelease\\d+\\.\\d+\\.\\d+\\.apk$")
 
     private fun safeLog(level: Int, tag: String, msg: String, tr: Throwable? = null) {
         try {
@@ -119,14 +121,35 @@ object UpdateChecker {
         return remote > local
     }
 
+    // -- URL validation -------------------------------------------------------
+
+    fun isValidGitHubAssetUrl(url: String): Boolean {
+        return try {
+            val uri = URI(url)
+            uri.scheme == "https"
+                && uri.host == EXPECTED_HOST
+                && uri.path != null
+                && uri.path.startsWith(EXPECTED_PATH_PREFIX)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     // -- Asset selection ------------------------------------------------------
 
     fun selectApkAsset(release: GitHubRelease): GitHubAsset? {
+        val remoteVersion = parseStableSemVer(release.tagName) ?: run {
+            logW("Cannot parse release tag ${release.tagName} as SemVer")
+            return null
+        }
+
+        val expectedName = "JA2RebornRelease$remoteVersion.apk"
+
         val candidates = release.assets.filter { asset ->
             asset.name.endsWith(".apk", ignoreCase = true)
                 && !asset.name.contains("debug", ignoreCase = true)
                 && !asset.name.contains("unsigned", ignoreCase = true)
-                && asset.browserDownloadUrl.startsWith("https://")
+                && isValidGitHubAssetUrl(asset.browserDownloadUrl)
                 && asset.size > 0L
         }
 
@@ -135,15 +158,11 @@ object UpdateChecker {
             return null
         }
 
-        val exact = candidates.firstOrNull { it.name.matches(apkNameRegex) }
+        val exact = candidates.firstOrNull { it.name == expectedName }
         if (exact != null) return exact
 
-        if (candidates.size == 1) {
-            logI("Falling back to single APK asset: ${candidates[0].name}")
-            return candidates[0]
-        }
-
-        logW("Ambiguous APK assets: ${candidates.size} candidates, no exact name match")
+        logW("No asset named $expectedName in release ${release.tagName} " +
+                "(${candidates.size} candidate(s), none match)")
         return null
     }
 

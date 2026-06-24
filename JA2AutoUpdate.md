@@ -11,8 +11,9 @@ eine Release-Funktion, die APKs nachlaedt und installiert.
 
 ## Review-Ergebnis
 
-**Status:** bedingt freigegeben. Implementierung erst nach den Korrekturen in
-dieser Datei starten.
+**Status:** keine finale Freigabe. Die Implementierung ist grundsaetzlich
+tragfaehig, aber vor Device-/Staging-Tests und vor einem Merge nach `main`
+muessen die Fixpunkte aus "Codex Review 2026-06-24" erledigt werden.
 
 ### Korrigierte Kernpunkte
 
@@ -74,7 +75,7 @@ dieser Datei starten.
 | P2 | UpdateChecker: GitHub API, SemVer, Asset-Auswahl, Download | done |
 | P3 | APK-Verifikation und Installer-Intent | done |
 | P4 | LauncherActivity Integration: Opt-in, Check, Dialoge, Rate-Limit | done |
-| P5 | Build, Unit-Tests, Device-/Staging-Test, Dokumentation | done |
+| P5 | Build, Unit-Tests, Device-/Staging-Test, Dokumentation | pending-fixes/pending-device |
 
 ---
 
@@ -632,6 +633,43 @@ Ohne echten Device-Test eines neueren, signierten APK-Updates keine Release-Frei
 
 ---
 
+## Codex Review 2026-06-24
+
+**Ergebnis:** keine Freigabe fuer Device-/Staging-Test und keinen Merge nach
+`main`, bis die folgenden Punkte behoben sind.
+
+### Fixliste vor Device-Tests
+
+| Prioritaet | Bereich | Befund | Erforderlicher Fix |
+|---|---|---|---|
+| P0 | Public sanity / Main-Hygiene | Die Umsetzung trackt `JA2AutoUpdate.md` und `docs/JA2_ANDROID_TODO_IMPLEMENTATION_LOG.md` wieder im Repo. `main` hatte diese privaten Implementierungsdocs bewusst entfernt. Zusaetzlich enthalten `CHANGELOG.md`, `JA2AutoUpdate.md`, `UpdateChecker.kt` und `UpdateCheckerTest.kt` den Repo-Owner-String, der von `.github/workflows/public-sanity.yml` aktuell ausserhalb von `index.html` blockiert wird. Ein spaeterer Merge nach `main` wuerde deshalb CI-rot werden. | Vor Main-Merge entscheiden: Entweder Auto-Update-Plan/Implementierungslog wieder lokal/ignored halten und `CHANGELOG.md` oeffentlich sauber zusammenfuehren, oder die Public-Sanity-Allowlist gezielt fuer die Update-Quelle erweitern. Danach Public-Sanity lokal/CI pruefen. |
+| P0 | Projektlog | `CHANGELOG.md` hat jetzt zwei `2026-06-24 - 1.0.5`-Abschnitte, davon einer als "In Development - Auto-Update Checker". Das ist kein sauberer Release-Log und passt nicht zum Wunsch, den Umbau auf einem cleanen Experimental-Branch zu halten. | Auto-Updater als eigenen kommenden Abschnitt oder sauber in einen einzigen aktuellen Entwicklungsabschnitt verschieben. Keine doppelten `1.0.5`-Header. |
+| P1 | Asset-Selektion | `UpdateChecker.selectApkAsset()` prueft nur `https://`, `.apk`, Groesse und Debug/Unsigned. Die im Plan geforderte Host-/Pfadbindung auf `github.com/RealTommyGreen/JA2-Reborn/releases/download/...` fehlt. | URL mit `URI`/`URL` strukturiert pruefen: Scheme `https`, Host `github.com`, Pfadprefix exakt zum Release-Repo. Unit-Tests fuer falschen Host, falschen Pfad und HTTP-URL ergaenzen. |
+| P1 | Asset-Version | Der "exakte" APK-Name ist aktuell nur Regex `JA2RebornRelease\d+\.\d+\.\d+\.apk`. Er muss zur Release-Version passen. Sonst kann `v1.0.6` eine `1.0.5`-APK auswaehlen und erst spaet in der Verifikation scheitern. | Aus `release.tagName` SemVer ableiten und exakt `JA2RebornRelease<remoteVersion>.apk` bevorzugen/erzwingen. Unit-Test fuer mismatched release tag vs asset name. |
+| P1 | SHA256 / GitHub digest | `GitHubAsset` modelliert kein `digest`, und `LauncherActivity` ruft `verifyApk(..., asset.size)` ohne `expectedDigest` auf. Der im Plan vorgesehene optionale GitHub-Digest wird also nie genutzt. | `@SerialName("digest") val digest: String? = null` in `GitHubAsset` ergaenzen und bei `verifyApk()` uebergeben. Unit-Test fuer JSON-Digest und digest mismatch/success, soweit pure testbar. |
+| P2 | Install-Permission fallback | `createInstallPermissionIntent()` hat zwar fuer API < 26 einen Fallback, aber wenn `ACTION_MANAGE_UNKNOWN_APP_SOURCES` auf einem Geraet nicht geoeffnet werden kann, loggt `showInstallPermissionDialog()` nur und bietet keinen `ACTION_SECURITY_SETTINGS`-Fallback oder sichtbaren Fehler. | Beim `startActivity()`-Fehler auf `Settings.ACTION_SECURITY_SETTINGS` fallbacken; wenn auch das fehlschlaegt, User sichtbaren Fehlerdialog anzeigen. |
+| P2 | Testabdeckung Verifier | `UpdateApkVerifierTest` testet aktuell fast nur SHA256 und Platzhalter. Package-/Version-/Signaturpfade bleiben ungetestet und sind die kritischsten Teile des Features. | Mindestens pure Helper auslagern/testen: VersionCode-Vergleich, Digest-Normalisierung, Signatur-Hash-Vergleich mit synthetischen Hashlisten. Echte APK-Verifikation bleibt Device-/Integrationstest. |
+| P2 | P5-Status | Phasenuebersicht markierte P5 als `done`, obwohl P5.5-P5.8 `pending-device` sind. | P5 bleibt `pending-fixes/pending-device`, bis Fixliste plus Device-/Staging-Tests bestanden sind. |
+
+### Positive Review-Punkte
+
+- Opt-in fragt keine Installationsberechtigung vorab ab.
+- Netzwerkcheck, API-Call und Download laufen im Hintergrund.
+- Verifikation prueft Package-Name, VersionCode und Signatur vor dem Installer-Intent.
+- Pending-APK-Roundtrip nach Android Settings ist strukturell vorhanden.
+- Unit-Tests fuer SemVer, JSON-Toleranz und einfache Asset-Auswahl sind vorhanden.
+
+### Naechstes Gate
+
+Nach den Fixes:
+
+1. `.\gradlew.bat testDebugUnitTest`
+2. `.\gradlew.bat assembleRelease`
+3. Public-Sanity pruefen oder den Main-Merge solange blockieren.
+4. Erst danach P5.5-P5.8 auf Android-Hardware ausfuehren.
+
+---
+
 ## Implementierungs-Log
 
 ### P0 - Plan-Review und Korrektur
@@ -717,6 +755,14 @@ Ohne echten Device-Test eines neueren, signierten APK-Updates keine Release-Frei
 ---
 
 ## Changelog
+
+### 2026-06-24 - Codex Review nach Claude-Umsetzung
+
+- Keine finale Freigabe erteilt.
+- Fixliste fuer Public-Sanity/Main-Hygiene, doppeltes Changelog, Asset-URL-Haertung,
+  Asset-Version-Matching, GitHub-Digest, Install-Permission-Fallback und
+  Verifier-Testabdeckung ergaenzt.
+- P5-Status in der Phasenuebersicht auf `pending-fixes/pending-device` gesetzt.
 
 ### 2026-06-24 - Plan korrigiert
 

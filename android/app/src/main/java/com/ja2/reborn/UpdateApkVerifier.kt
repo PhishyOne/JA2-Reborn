@@ -25,6 +25,19 @@ object UpdateApkVerifier {
     private const val TAG = "UpdateApkVerifier"
     private const val EXPECTED_PACKAGE_NAME = "com.ja2.reborn"
 
+    // -- Pure helpers (testable without Android context) ---------------------
+
+    fun normalizeDigest(raw: String): String =
+        raw.removePrefix("sha256:").removePrefix("SHA256:")
+
+    fun isVersionCodeNewer(apkCode: Long, installedCode: Long): Boolean =
+        apkCode > installedCode
+
+    fun signaturesMatch(apkHashes: List<String>, installedHashes: List<String>): Boolean {
+        if (apkHashes.isEmpty() || installedHashes.isEmpty()) return false
+        return apkHashes == installedHashes
+    }
+
     // -- SHA256 --------------------------------------------------------------
 
     fun computeSha256(file: File): String? {

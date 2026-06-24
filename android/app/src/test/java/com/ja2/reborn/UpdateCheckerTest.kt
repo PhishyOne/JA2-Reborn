@@ -8,6 +8,8 @@ class UpdateCheckerTest {
 
     private val json = Json { ignoreUnknownKeys = true }
 
+    private val validBaseUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download"
+
     // -- SemVer ---------------------------------------------------------------
 
     @Test
@@ -92,7 +94,7 @@ class UpdateCheckerTest {
             "assets": [
                 {
                     "name": "JA2RebornRelease1.0.6.apk",
-                    "browser_download_url": "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/JA2RebornRelease1.0.6.apk",
+                    "browser_download_url": "$validBaseUrl/v1.0.6/JA2RebornRelease1.0.6.apk",
                     "size": 100805416,
                     "content_type": "application/vnd.android.package-archive",
                     "download_count": 15
@@ -129,23 +131,89 @@ class UpdateCheckerTest {
         assertFalse(release.draft)
     }
 
-    // -- Asset selection ------------------------------------------------------
+    @Test
+    fun `github asset with digest decodes`() {
+        val raw = """
+        {
+            "tag_name": "v1.0.6",
+            "assets": [
+                {
+                    "name": "JA2RebornRelease1.0.6.apk",
+                    "browser_download_url": "$validBaseUrl/v1.0.6/JA2RebornRelease1.0.6.apk",
+                    "size": 100805416,
+                    "digest": "sha256:abc123def456"
+                }
+            ]
+        }
+        """.trimIndent()
+
+        val release: GitHubRelease = json.decodeFromString(raw)
+        assertEquals("sha256:abc123def456", release.assets[0].digest)
+    }
 
     @Test
-    fun `selectApkAsset picks exact name match`() {
+    fun `github asset without digest decodes to null`() {
+        val raw = """
+        {
+            "tag_name": "v1.0.6",
+            "assets": [
+                {
+                    "name": "JA2RebornRelease1.0.6.apk",
+                    "browser_download_url": "$validBaseUrl/v1.0.6/JA2RebornRelease1.0.6.apk",
+                    "size": 100805416
+                }
+            ]
+        }
+        """.trimIndent()
+
+        val release: GitHubRelease = json.decodeFromString(raw)
+        assertNull(release.assets[0].digest)
+    }
+
+    // -- URL validation -------------------------------------------------------
+
+    @Test
+    fun `isValidGitHubAssetUrl accepts correct URL`() {
+        assertTrue(UpdateChecker.isValidGitHubAssetUrl(
+            "$validBaseUrl/v1.0.6/JA2RebornRelease1.0.6.apk"))
+    }
+
+    @Test
+    fun `isValidGitHubAssetUrl rejects wrong host`() {
+        assertFalse(UpdateChecker.isValidGitHubAssetUrl(
+            "https://gitlab.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/app.apk"))
+    }
+
+    @Test
+    fun `isValidGitHubAssetUrl rejects wrong path prefix`() {
+        assertFalse(UpdateChecker.isValidGitHubAssetUrl(
+            "https://github.com/OtherUser/OtherRepo/releases/download/v1.0.6/app.apk"))
+    }
+
+    @Test
+    fun `isValidGitHubAssetUrl rejects http URL`() {
+        assertFalse(UpdateChecker.isValidGitHubAssetUrl(
+            "http://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/app.apk"))
+    }
+
+    @Test
+    fun `isValidGitHubAssetUrl rejects malformed URL`() {
+        assertFalse(UpdateChecker.isValidGitHubAssetUrl("not-a-url"))
+    }
+
+    // -- Asset selection ------------------------------------------------------
+
+    private fun makeAsset(name: String, url: String = "$validBaseUrl/v1.0.6/$name", size: Long = 100_000_000L) =
+        GitHubAsset(name = name, browserDownloadUrl = url, size = size)
+
+    @Test
+    fun `selectApkAsset picks exact version-matched name`() {
         val release = GitHubRelease(
             tagName = "v1.0.6",
             assets = listOf(
-                GitHubAsset(
-                    name = "JA2RebornRelease1.0.6.apk",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/JA2RebornRelease1.0.6.apk",
-                    size = 100_000_000L
-                ),
-                GitHubAsset(
-                    name = "source.zip",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/source.zip",
-                    size = 50_000L
-                )
+                makeAsset("JA2RebornRelease1.0.6.apk"),
+                GitHubAsset(name = "source.zip",
+                    browserDownloadUrl = "$validBaseUrl/v1.0.6/source.zip", size = 50_000L)
             )
         )
 
@@ -155,15 +223,34 @@ class UpdateCheckerTest {
     }
 
     @Test
+    fun `selectApkAsset returns null when asset name does not match release version`() {
+        val release = GitHubRelease(
+            tagName = "v1.0.6",
+            assets = listOf(
+                makeAsset("JA2RebornRelease1.0.5.apk") // version mismatch
+            )
+        )
+
+        assertNull(UpdateChecker.selectApkAsset(release))
+    }
+
+    @Test
+    fun `selectApkAsset returns null when release tag is unparseable`() {
+        val release = GitHubRelease(
+            tagName = "latest",
+            assets = listOf(makeAsset("JA2RebornRelease1.0.6.apk"))
+        )
+
+        assertNull(UpdateChecker.selectApkAsset(release))
+    }
+
+    @Test
     fun `selectApkAsset returns null when no APK`() {
         val release = GitHubRelease(
             tagName = "v1.0.6",
             assets = listOf(
-                GitHubAsset(
-                    name = "source.tar.gz",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/source.tar.gz",
-                    size = 50_000L
-                )
+                GitHubAsset(name = "source.tar.gz",
+                    browserDownloadUrl = "$validBaseUrl/v1.0.6/source.tar.gz", size = 50_000L)
             )
         )
 
@@ -175,11 +262,8 @@ class UpdateCheckerTest {
         val release = GitHubRelease(
             tagName = "v1.0.6",
             assets = listOf(
-                GitHubAsset(
-                    name = "JA2RebornRelease1.0.6-debug.apk",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/app-debug.apk",
-                    size = 100_000_000L
-                )
+                GitHubAsset(name = "JA2RebornRelease1.0.6-debug.apk",
+                    browserDownloadUrl = "$validBaseUrl/v1.0.6/app-debug.apk", size = 100_000_000L)
             )
         )
 
@@ -190,12 +274,20 @@ class UpdateCheckerTest {
     fun `selectApkAsset rejects zero size apk`() {
         val release = GitHubRelease(
             tagName = "v1.0.6",
+            assets = listOf(makeAsset("JA2RebornRelease1.0.6.apk", size = 0L))
+        )
+
+        assertNull(UpdateChecker.selectApkAsset(release))
+    }
+
+    @Test
+    fun `selectApkAsset rejects wrong host URL`() {
+        val release = GitHubRelease(
+            tagName = "v1.0.6",
             assets = listOf(
-                GitHubAsset(
-                    name = "JA2RebornRelease1.0.6.apk",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/JA2RebornRelease1.0.6.apk",
-                    size = 0L
-                )
+                GitHubAsset(name = "JA2RebornRelease1.0.6.apk",
+                    browserDownloadUrl = "https://evil.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/app.apk",
+                    size = 100_000_000L)
             )
         )
 
@@ -203,21 +295,17 @@ class UpdateCheckerTest {
     }
 
     @Test
-    fun `selectApkAsset falls back to single apk without exact name`() {
+    fun `selectApkAsset rejects HTTP URL`() {
         val release = GitHubRelease(
             tagName = "v1.0.6",
             assets = listOf(
-                GitHubAsset(
-                    name = "JA2RebornRelease1.0.6.apk",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/JA2RebornRelease1.0.6.apk",
-                    size = 100_000_000L
-                )
+                GitHubAsset(name = "JA2RebornRelease1.0.6.apk",
+                    browserDownloadUrl = "http://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/app.apk",
+                    size = 100_000_000L)
             )
         )
 
-        val selected = UpdateChecker.selectApkAsset(release)
-        assertNotNull(selected)
-        assertEquals("JA2RebornRelease1.0.6.apk", selected!!.name)
+        assertNull(UpdateChecker.selectApkAsset(release))
     }
 
     @Test
@@ -225,16 +313,10 @@ class UpdateCheckerTest {
         val release = GitHubRelease(
             tagName = "v1.0.6",
             assets = listOf(
-                GitHubAsset(
-                    name = "JA2RebornRelease1.0.6-arm64.apk",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/app-arm64.apk",
-                    size = 100_000_000L
-                ),
-                GitHubAsset(
-                    name = "JA2RebornRelease1.0.6-armeabi.apk",
-                    browserDownloadUrl = "https://github.com/RealTommyGreen/JA2-Reborn/releases/download/v1.0.6/app-armeabi.apk",
-                    size = 100_000_000L
-                )
+                GitHubAsset(name = "JA2RebornRelease1.0.6-arm64.apk",
+                    browserDownloadUrl = "$validBaseUrl/v1.0.6/app-arm64.apk", size = 100_000_000L),
+                GitHubAsset(name = "JA2RebornRelease1.0.6-armeabi.apk",
+                    browserDownloadUrl = "$validBaseUrl/v1.0.6/app-armeabi.apk", size = 100_000_000L)
             )
         )
 

@@ -4,7 +4,7 @@ All notable changes to this Android port are documented here.
 
 This project follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates use `YYYY-MM-DD`.
 
-## 2026-06-24 - 1.0.5 (In Development — Auto-Update Checker)
+## 2026-06-24 - 1.0.5
 
 ### Added
 
@@ -25,19 +25,14 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
     lifecycle-safe UI updates.
   - P5: Release build verified with `apksigner` and `aapt`. 72 unit tests pass.
     Device staging tests documented in `JA2AutoUpdate.md` (requires Android hardware).
+- Added a CTRL Examine touch-overlay toggle for tactical interactions that need a held CTRL modifier.
+- Added a Map Screen touch input mode setting with Direct Touch, Touchpad Mouse, and combined input modes.
 
 ### Changed
 
-- Added INTERNET, ACCESS_NETWORK_STATE, and REQUEST_INSTALL_PACKAGES permissions to AndroidManifest.xml.
+- Added `INTERNET`, `ACCESS_NETWORK_STATE`, and `REQUEST_INSTALL_PACKAGES` permissions to AndroidManifest.xml.
 - Added a FileProvider for delivering downloaded APK updates.
 - LauncherActivity now triggers the opt-in/update-check flow in `onCreate()`.
-
-## 2026-06-24 - 1.0.5
-
-### Added
-
-- Added a CTRL Examine touch-overlay toggle for tactical interactions that need a held CTRL modifier.
-- Added a Map Screen touch input mode setting with Direct Touch, Touchpad Mouse, and combined input modes.
 
 ### Fixed
 

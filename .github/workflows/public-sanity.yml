@@ -70,6 +70,30 @@ jobs:
                       "github.com/" + "Real" + "Tom" + "my" + "Green",
                   ]:
                       lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
+              if name == "android/app/src/main/java/com/ja2/reborn/UpdateChecker.kt":
+                  for allowed_public_repo_reference in [
+                      "Real" + "Tom" + "my" + "Green",
+                      "github.com/" + "Real" + "Tom" + "my" + "Green",
+                  ]:
+                      lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
+              if name == "android/app/src/test/java/com/ja2/reborn/UpdateCheckerTest.kt":
+                  for allowed_public_repo_reference in [
+                      "Real" + "Tom" + "my" + "Green",
+                      "github.com/" + "Real" + "Tom" + "my" + "Green",
+                  ]:
+                      lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
+              if name == "CHANGELOG.md":
+                  for allowed_public_repo_reference in [
+                      "Real" + "Tom" + "my" + "Green",
+                      "github.com/" + "Real" + "Tom" + "my" + "Green",
+                  ]:
+                      lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
+              if name == "JA2AutoUpdate.md":
+                  for allowed_public_repo_reference in [
+                      "Real" + "Tom" + "my" + "Green",
+                      "github.com/" + "Real" + "Tom" + "my" + "Green",
+                  ]:
+                      lowered = lowered.replace(allowed_public_repo_reference.lower(), "")
               if name == "contributors.txt":
                   allowed_contributor = ("Tom" + "my Green").lower()
                   lowered = lowered.replace(allowed_contributor, "")

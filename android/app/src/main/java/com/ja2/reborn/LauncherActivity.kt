@@ -851,7 +851,7 @@ class LauncherActivity : AppCompatActivity() {
                 return@Thread
             }
 
-            val result = UpdateApkVerifier.verifyApk(this@LauncherActivity, apkFile, asset.size)
+            val result = UpdateApkVerifier.verifyApk(this@LauncherActivity, apkFile, asset.size, asset.digest)
             runOnUiIfAlive {
                 dialog.dismiss()
                 if (result.passed) {
@@ -1005,7 +1005,13 @@ class LauncherActivity : AppCompatActivity() {
             try {
                 startActivity(UpdateApkVerifier.createInstallPermissionIntent(this@LauncherActivity))
             } catch (e: Exception) {
-                Log.w(activityLogTag, "Could not open install permission settings: ${e.message}")
+                Log.w(activityLogTag, "MANAGE_UNKNOWN_APP_SOURCES failed: ${e.message}, trying fallback")
+                try {
+                    startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
+                } catch (e2: Exception) {
+                    Log.w(activityLogTag, "Security settings fallback also failed: ${e2.message}")
+                    showUpdateErrorDialog(getString(R.string.auto_update_installer_failed))
+                }
             }
         }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
             marginStart = dp(6)
