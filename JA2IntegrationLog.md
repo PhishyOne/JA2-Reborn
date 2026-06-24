@@ -191,3 +191,59 @@ Datum: 2026-06-24
 - `git diff --check`: keine Fehler.
 - Keine versehentlich getrackten Build-Artefakte festgestellt.
 - Manuelle Gameplay-Szenarien mit alten Saves wurden nicht auf einem Gerät geladen; die Kompatibilität wurde per Code-Review und Build/Test validiert.
+
+## Phase 3 - Abschlussreview und Merge-Vorbereitung
+
+Datum: 2026-06-24
+
+### Ausgangspunkt
+
+- Aktiver Branch: `experimental`
+- Phase-2-Commit vor Abschlussreview: `1af7d1559`
+- Arbeitsbaum vor Phase 3: sauber (`git status --short --branch` -> `## experimental`)
+- Merge nach `main`: nicht ausgeführt.
+- Merge-Sperre: `experimental` darf erst nach manuellem Test und ausdrücklicher Freigabe durch den Nutzer nach `main` gemerged werden.
+
+### Review
+
+- Reviewte Integrationscommits:
+  - `749a27479` P0: Prepare upstream integration
+  - `a54aa1320` P1: Apply Stracciatella upstream sync
+  - `1af7d1559` P2: Validate upstream integration
+- Gesamtdiff seit Phase 0 geprüft:
+  - 16 Dateien
+  - 348 Insertions
+  - 30 Deletions
+- Geänderte Bereiche entsprechen dem erwarteten Sync-, Test- und Dokumentationsumfang.
+- Kein Merge oder Rebase nach `main` wurde durchgeführt.
+
+### Dokumentation
+
+- `CHANGELOG.md` um einen `Unreleased`-Eintrag für den Upstream-Sync ergänzt.
+- `README.md`-Upstream-Abschnitt aktualisiert:
+  - Upstream-Basis: `6cd7bc2ab49d88e95ff58b3300d232ace048fc37`
+  - letzter synchronisierter Upstream-Commit: `a3bd56e65e6adfd9f12994ddc1a523a0be784bf3`
+  - `experimental` bleibt bis manuellem Test und Freigabe der Merge-Vorbereitungsbranch.
+- `JA2Integration.md` um die verbindliche Merge-Sperre ergänzt.
+
+### Finaler Merge-Hinweis
+
+- Vorbereitete Range:
+  - `6cd7bc2ab49d88e95ff58b3300d232ace048fc37..a3bd56e65e6adfd9f12994ddc1a523a0be784bf3`
+- Validierte Builds und Tests:
+  - `git diff --check`
+  - `cargo test`
+  - `.\gradlew.bat :app:testDebugUnitTest`
+  - `.\gradlew.bat :app:externalNativeBuildDebug`
+  - `.\gradlew.bat :app:assembleRelease --rerun-tasks`
+- Bekannte Risiken:
+  - Manuelle Gameplay-Tests auf Android-Hardware stehen noch aus.
+  - Alte Savegames vor Version `103` wurden per Code-Review geprüft, aber nicht manuell geladen.
+  - Release-APK wurde gebaut, aber im Rahmen dieser Phase nicht auf einem Gerät installiert.
+  - Der spätere Merge nach `main` darf erst nach Nutzerfreigabe erfolgen.
+
+### Zweite Prüfung
+
+- `git status --short --branch` geprüft.
+- `git log --oneline --decorate --max-count=12` geprüft.
+- Plan, Log, Changelog und README final geprüft.

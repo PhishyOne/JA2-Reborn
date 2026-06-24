@@ -4,6 +4,28 @@ All notable changes to this Android port are documented here.
 
 This project follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates use `YYYY-MM-DD`.
 
+## Unreleased
+
+### Added
+
+- Synchronized JA2 Stracciatella upstream changes through `a3bd56e`, including optional stat healing through doctoring and externalized suppression settings.
+
+### Changed
+
+- Updated native savegame serialization to version `103` for persisted stat-damage fields. The Android app version remains unchanged pending release approval.
+
+### Fixed
+
+- Adopted upstream fixes for closing the Map Screen keyring popup during shutdown and rendering down arrows at the correct tactical coordinates.
+- Updated the Rust C API configuration test to match the current `NEAR_PERFECT` scaling default.
+
+### Verified
+
+- Ran Rust `cargo test`.
+- Ran `:app:testDebugUnitTest`.
+- Ran `:app:externalNativeBuildDebug`.
+- Built `:app:assembleRelease --rerun-tasks`.
+
 ## 2026-06-24 - 1.0.5
 
 ### Added

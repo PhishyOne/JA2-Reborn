@@ -17,13 +17,15 @@ JA2 Reborn übernehmen.
 2. Vor Abschluss einer Phase werden die Ergebnisse ein zweites Mal sorgfältig geprüft.
 3. Bei Abschluss einer Phase werden Integrationslog und Plan aktualisiert und zusammen committed.
 4. Nach Abschluss jeder Phase wird gestoppt, damit der Kontext bei Bedarf geleert werden kann.
+5. Ein Merge von `experimental` nach `main` darf erst nach manuellem Test und ausdrücklicher Freigabe durch den Nutzer erfolgen.
 
 ## Status
 
 - Phase 0: abgeschlossen am 2026-06-24 mit Commit `749a27479`; JA2-Reborn-Ausgangspunkt war `72b6e98a4eb832a42cbeb95c6154cec8c2180116`.
 - Phase 1: abgeschlossen am 2026-06-24 mit Commit `a54aa1320`.
-- Phase 2: abgeschlossen am 2026-06-24.
-- Phase 3: nächster Schritt.
+- Phase 2: abgeschlossen am 2026-06-24 mit Commit `1af7d1559`.
+- Phase 3: abgeschlossen am 2026-06-24.
+- Merge nach `main`: blockiert bis manueller Test und ausdrückliche Nutzerfreigabe erfolgt sind.
 
 ## Phase 0 - Vorbereitung und Sicherheitsnetz
 
@@ -157,8 +159,12 @@ Abschluss:
 
 ## Phase 3 - Abschlussreview und Merge-Vorbereitung
 
+Status: abgeschlossen am 2026-06-24.
+
 Ziel: die Integration für einen späteren Merge von `experimental` nach `main`
 vorbereiten, aber nicht automatisch nach `main` mergen.
+Der spätere Merge ist zusätzlich bis zum manuellen Test und zur ausdrücklichen
+Freigabe durch den Nutzer blockiert.
 
 - Gesamtdiff reviewen:
   - Upstream-Sync-Commit
@@ -175,6 +181,7 @@ vorbereiten, aber nicht automatisch nach `main` mergen.
   - Tests
   - bekannte Risiken
   - nicht getestete manuelle Gameplay-Szenarien
+  - Merge-Sperre bis manueller Test und Nutzerfreigabe erfolgt sind
 
 Zweite Prüfung vor Abschluss:
 
