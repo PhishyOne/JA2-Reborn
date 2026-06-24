@@ -91,10 +91,15 @@ DefaultGamePolicy::DefaultGamePolicy(const JsonValue& json)
 	unhired_merc_deaths_medium = gp.getOptionalInt("unhired_merc_deaths_medium", 2);
 	unhired_merc_deaths_hard = gp.getOptionalInt("unhired_merc_deaths_hard", 3);
 
+	enable_stat_healing = gp.getOptionalBool("enable_stat_healing", false);
+
 	auto campaign = gp["campaign"].toObject();
 	ST::string sector_string = campaign.getOptionalString("start_sector");
 	start_sector = SGPSector::FromShortString(!sector_string.empty() ? sector_string : "A9").AsByte();
 	reveal_start_sector = campaign.getOptionalBool("start_sector_revealed", false);
+
+	suppression_fire_modifier = gp.getOptionalUInt("suppression_fire_modifier", 6);
+	suppression_fire_reaction_threshold = gp.getOptionalUInt("suppression_fire_reaction_threshold", 130);
 }
 
 /** Check if a hotkey is enabled. */

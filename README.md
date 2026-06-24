@@ -139,17 +139,19 @@ Storage behavior:
 
 ## Upstream
 
-This repository is based on JA2 Stracciatella. JA2 Reborn is not an official Stracciatella release. The Android port branch starts at the upstream base tag:
+This repository is based on JA2 Stracciatella. JA2 Reborn is not an official Stracciatella release. The Android port integration was prepared from the upstream base commit:
 
 ```text
-android-port-base
+6cd7bc2ab49d88e95ff58b3300d232ace048fc37
 ```
 
-Local Android port commits are kept on:
+The latest upstream commit synchronized into `experimental` is:
 
 ```text
-ja2-reborn-android-port
+a3bd56e65e6adfd9f12994ddc1a523a0be784bf3
 ```
+
+Local Android port work remains on `experimental` until it has been manually tested and approved for merge into `main`.
 
 ## Changelog
 

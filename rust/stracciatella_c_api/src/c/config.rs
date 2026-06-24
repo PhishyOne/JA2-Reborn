@@ -399,7 +399,7 @@ mod tests {
   "brightness": -1.0,
   "resversion": "ENGLISH",
   "fullscreen": false,
-  "scaling": "PERFECT",
+  "scaling": "NEAR_PERFECT",
   "debug": false,
   "nosound": false
 }"##
