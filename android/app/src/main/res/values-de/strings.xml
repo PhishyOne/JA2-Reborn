@@ -284,4 +284,24 @@
     <string name="touch_preset_map_inventory">Inventar</string>
     <string name="touch_preset_map_laptop">Laptop</string>
     <string name="touch_preset_map_tactical">Karte Verlassen</string>
+
+    <!-- Auto-Update Checker -->
+    <string name="auto_update_optin_title">Auto-Updates aktivieren?</string>
+    <string name="auto_update_optin_message">JA2 Reborn kann nach deiner Zustimmung GitHub Releases auf neue Versionen prüfen. Es werden keine Spielstände, Logs oder Spieldaten hochgeladen. Download und Installation passieren nur nach deiner Bestätigung.</string>
+    <string name="auto_update_optin_activate">Aktivieren</string>
+    <string name="auto_update_optin_decline">Nein, danke</string>
+    <string name="auto_update_available_title">Update verfügbar</string>
+    <string name="auto_update_available_message">Version %1$s ist verfügbar. Downloadgröße: %2$s.</string>
+    <string name="auto_update_download">Herunterladen</string>
+    <string name="auto_update_later">Später</string>
+    <string name="auto_update_install">Installieren</string>
+    <string name="auto_update_downloading">Lade herunter…</string>
+    <string name="auto_update_verifying">Prüfe APK…</string>
+    <string name="auto_update_permission_title">Installationsberechtigung erforderlich</string>
+    <string name="auto_update_permission_message">Android muss JA2 Reborn als Installationsquelle erlauben, bevor das Update installiert werden kann.</string>
+    <string name="auto_update_open_settings">Einstellungen öffnen</string>
+    <string name="auto_update_retry">Erneut versuchen</string>
+    <string name="auto_update_download_failed">Download fehlgeschlagen.</string>
+    <string name="auto_update_verification_failed">Die heruntergeladene APK konnte nicht sicher verifiziert werden.</string>
+    <string name="auto_update_installer_failed">Der Android-Installer konnte nicht geöffnet werden.</string>
 </resources>

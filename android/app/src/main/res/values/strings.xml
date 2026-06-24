@@ -284,4 +284,24 @@
     <string name="touch_preset_map_inventory">Inventory</string>
     <string name="touch_preset_map_laptop">Laptop</string>
     <string name="touch_preset_map_tactical">Leave Map</string>
+
+    <!-- Auto-Update Checker -->
+    <string name="auto_update_optin_title">Enable auto-updates?</string>
+    <string name="auto_update_optin_message">JA2 Reborn can check GitHub Releases for new versions after you opt in. No saves, logs, or game data are uploaded. Downloads and installation only happen after your confirmation.</string>
+    <string name="auto_update_optin_activate">Enable</string>
+    <string name="auto_update_optin_decline">No, thanks</string>
+    <string name="auto_update_available_title">Update available</string>
+    <string name="auto_update_available_message">Version %1$s is available. Download size: %2$s.</string>
+    <string name="auto_update_download">Download</string>
+    <string name="auto_update_later">Later</string>
+    <string name="auto_update_install">Install</string>
+    <string name="auto_update_downloading">Downloading…</string>
+    <string name="auto_update_verifying">Verifying APK…</string>
+    <string name="auto_update_permission_title">Installation permission required</string>
+    <string name="auto_update_permission_message">Android must allow JA2 Reborn as an installation source before the update can be installed.</string>
+    <string name="auto_update_open_settings">Open settings</string>
+    <string name="auto_update_retry">Retry</string>
+    <string name="auto_update_download_failed">Download failed.</string>
+    <string name="auto_update_verification_failed">The downloaded APK could not be verified safely.</string>
+    <string name="auto_update_installer_failed">Could not open the Android installer.</string>
 </resources>
