@@ -4,6 +4,17 @@ All notable changes to this Android port are documented here.
 
 This project follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates use `YYYY-MM-DD`.
 
+## 2026-06-24 - 1.0.5 (In Development — Auto-Update Checker)
+
+### Added
+
+- Added an auto-update checker foundation: P1 (Manifest permissions, FileProvider, strings) and P2 (UpdateChecker.kt with GitHub API client, SemVer parser, APK asset selection, and atomic download).
+
+### Changed
+
+- Added INTERNET, ACCESS_NETWORK_STATE, and REQUEST_INSTALL_PACKAGES permissions to AndroidManifest.xml.
+- Added a FileProvider for delivering downloaded APK updates.
+
 ## 2026-06-24 - 1.0.5
 
 ### Added
