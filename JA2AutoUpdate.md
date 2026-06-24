@@ -73,7 +73,7 @@ dieser Datei starten.
 | P1 | Manifest, FileProvider, Strings | done |
 | P2 | UpdateChecker: GitHub API, SemVer, Asset-Auswahl, Download | done |
 | P3 | APK-Verifikation und Installer-Intent | done |
-| P4 | LauncherActivity Integration: Opt-in, Check, Dialoge, Rate-Limit | pending |
+| P4 | LauncherActivity Integration: Opt-in, Check, Dialoge, Rate-Limit | done |
 | P5 | Build, Unit-Tests, Device-/Staging-Test, Dokumentation | pending |
 
 ---
@@ -688,16 +688,16 @@ Ohne echten Device-Test eines neueren, signierten APK-Updates keine Release-Frei
 
 | Schritt | Aktion | Status |
 |---------|--------|--------|
-| P4.1 | SharedPreferences-Helfer | pending |
-| P4.2 | Opt-in-Dialog ohne Settings-Sprung | pending |
-| P4.3 | Rate-Limit und Netzwerkstatus pruefen | pending |
-| P4.4 | Background-Thread fuer API und Download | pending |
-| P4.5 | Update-Available-Dialog | pending |
-| P4.6 | Download-Progress und Fehlerzustand | pending |
-| P4.7 | Install-Button erst nach erfolgreicher Verifikation | pending |
-| P4.8 | Lifecycle: keine UI-Updates nach Activity-Zerstoerung | pending |
-| P4.9 | Phase review + Tests | pending |
-| P4.10 | Commit: Plan + Log + Code | pending |
+| P4.1 | SharedPreferences-Helfer | done |
+| P4.2 | Opt-in-Dialog ohne Settings-Sprung | done |
+| P4.3 | Rate-Limit und Netzwerkstatus pruefen | done |
+| P4.4 | Background-Thread fuer API und Download | done |
+| P4.5 | Update-Available-Dialog | done |
+| P4.6 | Download-Progress und Fehlerzustand | done |
+| P4.7 | Install-Button erst nach erfolgreicher Verifikation | done |
+| P4.8 | Lifecycle: keine UI-Updates nach Activity-Zerstoerung | done |
+| P4.9 | Phase review + Tests | done |
+| P4.10 | Commit: Plan + Log + Code | done |
 
 ### P5 - Build, Test, Release-Dokumentation
 
@@ -758,5 +758,21 @@ Ohne echten Device-Test eines neueren, signierten APK-Updates keine Release-Frei
 - `savePendingApk()`/`getPendingApk()`/`clearPendingApk()` für Settings-Roundtrip
 - `LauncherActivity.maybeHandlePendingApk()` in `onResume()`: Re-Verifikation + Installer
 - `UpdateApkVerifierTest.kt`: 4 Unit-Tests (SHA256 bekannt, leere Datei, große Daten, VerificationResult)
+- `compileDebugKotlin`: erfolgreich
+- `testDebugUnitTest`: 72 Tests, alle bestanden
+
+### 2026-06-24 - P4: LauncherActivity Integration
+
+- `UpdatePrefs.kt`: Opt-in, Rate-Limit (24h), Prompted-Version, Version-Helpers in SharedPreferences
+- `LauncherActivity.maybePromptAutoUpdateOptIn()` in `onCreate()`: Opt-in-Prüfung + Dialog
+- `showOptInDialog()`: Opt-in-Dialog (Aktivieren/Nein danke), kein Settings-Sprung
+- `performUpdateCheck(force)`: Netzwerk-Check, Rate-Limit, Background-Thread API-Call
+- `showUpdateAvailableDialog()`: Version, Größe, Release-Notes (gekürzt), Download/Later
+- `startUpdateDownload()`: Background-Download mit ProgressBar + Status-Text
+- `showInstallReadyDialog()`: Install-Button nach erfolgreicher Verifikation
+- `tryInstallApk()`: Install-Permission-Check, Settings-Flow mit Pending-APK
+- `showInstallPermissionDialog()`: Permission-Erklärung + Settings-Button
+- `showUpdateErrorDialog()`: Fehlerdialog für Download/Verifikation
+- Lifecycle-Safety: `isActivityAlive`/`runOnUiIfAlive` vor allen UI-Updates
 - `compileDebugKotlin`: erfolgreich
 - `testDebugUnitTest`: 72 Tests, alle bestanden
