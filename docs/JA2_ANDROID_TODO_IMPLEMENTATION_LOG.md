@@ -348,3 +348,26 @@
 
 - **Phase F**: Finale APK + Endabnahme (nach Fix der 8 Bugs)
 - **Phase 6**: Mod Support v1 (ausgelagert in eigenen Plan)
+
+---
+
+## v1.0.5 Punkt 7: Stealth-Toggle Zustands-Sync
+
+- **Start**: 2026-06-24
+- **Branch**: `experimental`
+- **Ausgangslage**: Der Android-Touchbutton `stealth_toggle` hielt seinen visuellen `toggle_tap`-Status lokal. Nach Wechsel des aktiven Söldners konnte der Button daher noch aktiv aussehen, obwohl der neu selektierte Merc nicht im Sneak-/Stealth-Modus war.
+- **Tätigkeiten**:
+  - Native JNI-Abfrage `SDLActivity.getSelectedMercStealthMode()` ergänzt.
+  - JNI-Implementierung in `MercPortraitTouch_JNI.cc` liest `GetSelectedMan()->bStealthMode` im Tactical Screen.
+  - `TouchOverlayButtonView.syncToggleTapState()` ergänzt, um den visualisierten Toggle-Zustand ohne Key-Dispatch zu setzen.
+  - `TouchOverlayController` synchronisiert den Stealth-Toggle beim Polling und nach Screen-/Button-Wechsel gegen den nativen Merc-Status.
+  - Version für die Test-/Release-APK von `1.0.3` auf `1.0.5` gehoben, da `1.0.4` bereits veröffentlicht war.
+- **Tests**:
+  - `.\gradlew.bat testDebugUnitTest` in `android` -> BUILD SUCCESSFUL.
+  - `.\gradlew.bat assembleRelease` in `android` -> BUILD SUCCESSFUL.
+  - `apksigner verify --print-certs` -> Zertifikat SHA-256 `833a992d08cdf66f9abcbb239e16419a80c75aba216636e339fa5aff6b67c44d`.
+  - `aapt dump badging` -> `versionName='1.0.5'`, `versionCode='1000005'`.
+- **Artefakt**: `G:\Meine Ablage\Claude\JA2-Reborn-1.0.5-experimental-99ce75e-stealth-toggle-signed.apk`.
+- **Manuelle Prüfung**: Am Gerät bestätigt; APK installiert über `1.0.4`, Stealth-Toggle-Sync funktioniert.
+- **Ergebnis**: Punkt 7 abgeschlossen und funktional.
+- **Ende**: 2026-06-24

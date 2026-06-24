@@ -98,6 +98,13 @@ class TouchOverlayButtonView(
         invalidate()
     }
 
+    fun syncToggleTapState(active: Boolean) {
+        if (!isToggleTapMode || activePointerId != -1 || isToggled == active) return
+        isToggled = active
+        setPressedState(false)
+        invalidate()
+    }
+
     private fun updateMode() {
         val action = buttonConfig.actions.firstOrNull() ?: TouchButtonAction(type = "", mode = "hold")
         isHoldMode = action.mode == "hold"

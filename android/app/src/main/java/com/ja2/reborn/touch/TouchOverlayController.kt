@@ -817,6 +817,9 @@ class TouchOverlayController(
             Log.w(TAG, "Failed to query JA2 screen id: ${e.message}")
             JA2_GAME_SCREEN
         }
+        syncStealthToggleState(screenId)
+
+        if (!cfg.hideOverlayOnNonGameScreens && !tutorialVisible) return
 
         val shouldShowOverlay = shouldShowTouchOverlayForScreen(
             screenId = screenId,
@@ -855,6 +858,7 @@ class TouchOverlayController(
         updateGridViewState()
         updateButtonDraggable()
         applyAutoHideVisibility(true)
+        syncStealthToggleState(screenId)
     }
 
     private fun applyAutoHideVisibility(visible: Boolean) {
@@ -904,6 +908,29 @@ class TouchOverlayController(
         buttonViews.forEach {
             it.setDraggable(!locked)
             it.setSnapGridSize(if (locked) 0 else gridSizePx())
+        }
+    }
+
+    private fun syncStealthToggleState(screenId: Int) {
+        if (screenId != JA2_GAME_SCREEN || overlayAutoHidden) {
+            updateStealthToggleButtons(false)
+            return
+        }
+
+        val active = try {
+            SDLActivity.getSelectedMercStealthMode() > 0
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to query selected merc stealth mode: ${e.message}")
+            return
+        }
+        updateStealthToggleButtons(active)
+    }
+
+    private fun updateStealthToggleButtons(active: Boolean) {
+        buttonViews.forEach { view ->
+            if (view.config.isStealthToggleButton()) {
+                view.syncToggleTapState(active)
+            }
         }
     }
 
@@ -1161,6 +1188,14 @@ class TouchOverlayController(
         }
         return Pair(width, height)
     }
+
+    private fun TouchButtonConfig.isStealthToggleButton(): Boolean =
+        icon == "stealth_toggle" &&
+            actions.any { action ->
+                action.type == "key" &&
+                    action.mode == "toggle_tap" &&
+                    action.keyName?.equals("Z", ignoreCase = true) == true
+            }
 
     companion object {
         private const val TAG = "TouchOverlayController"

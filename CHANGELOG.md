@@ -4,6 +4,17 @@ All notable changes to this Android port are documented here.
 
 This project follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates use `YYYY-MM-DD`.
 
+## 2026-06-24 - 1.0.5
+
+### Fixed
+
+- Fixed the touch-overlay Stealth toggle showing a stale active state after switching to another selected merc.
+
+### Verified
+
+- Ran `:app:testDebugUnitTest`.
+- Built and verified the signed release APK with versionCode `1000005`.
+
 ## 2026-06-19 - 1.0.4
 
 ### Added
