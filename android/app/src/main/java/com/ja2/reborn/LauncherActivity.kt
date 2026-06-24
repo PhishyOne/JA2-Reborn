@@ -111,6 +111,8 @@ class LauncherActivity : AppCompatActivity() {
                 ).show()
             }
         }
+
+        maybeHandlePendingApk()
     }
 
     override fun onRequestPermissionsResult(
@@ -512,6 +514,42 @@ class LauncherActivity : AppCompatActivity() {
             if (file.exists()) file.delete()
         } catch (e: Exception) {
             Log.w(activityLogTag, "Could not delete stale game session marker: ${e.message}")
+        }
+    }
+
+    private fun maybeHandlePendingApk() {
+        val (pendingFile, _) = UpdateApkVerifier.getPendingApk(this) ?: return
+
+        if (!pendingFile.exists()) {
+            UpdateApkVerifier.clearPendingApk(this)
+            return
+        }
+
+        val result = UpdateApkVerifier.verifyApk(this, pendingFile)
+        if (!result.passed) {
+            Log.w(activityLogTag, "Pending APK re-verification failed: ${result.reason}")
+            UpdateApkVerifier.clearPendingApk(this)
+            pendingFile.delete()
+            return
+        }
+
+        if (UpdateApkVerifier.needsInstallPermission(this)) {
+            return
+        }
+
+        UpdateApkVerifier.clearPendingApk(this)
+        val intent = UpdateApkVerifier.createInstallerIntent(this, pendingFile)
+        if (intent != null) {
+            try {
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.w(activityLogTag, "Installer intent failed: ${e.message}")
+                Toast.makeText(
+                    this,
+                    getString(R.string.auto_update_installer_failed),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 
