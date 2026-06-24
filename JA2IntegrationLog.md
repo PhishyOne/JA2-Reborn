@@ -123,3 +123,71 @@ Datum: 2026-06-24
   - `src/game/GameVersion.h`
   - `version`
 - Diffstat erneut geprüft: 13 Dateien, 209 Insertions, 25 Deletions.
+
+## Phase 2 - Build- und Testvalidierung
+
+Datum: 2026-06-24
+
+### Ausgangspunkt
+
+- Aktiver Branch: `experimental`
+- Phase-1-Commit vor Validierung: `a54aa1320`
+- Arbeitsbaum vor Phase 2: sauber (`git status --short --branch` -> `## experimental`)
+- Android-App-Version: `1.0.5`
+
+### Tests und Builds
+
+- Root:
+  - `git diff --check`: erfolgreich
+- Rust:
+  - `cargo` war nicht im globalen `PATH`.
+  - Gefundene Toolchain: `C:\Users\Tommy Green\.rustup\toolchains\stable-x86_64-pc-windows-msvc\bin\cargo.exe`
+  - `cargo --version`: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
+  - Erster Direktaufruf ohne Toolchain-`PATH` scheiterte, weil Build-Scripts `rustc` nicht fanden.
+  - Mit temporär ergänztem Toolchain-`PATH` ausgeführt:
+    - `cargo test`
+  - Ergebnis nach Test-Fix: erfolgreich
+- Android:
+  - `.\gradlew.bat :app:testDebugUnitTest`: erfolgreich (`BUILD SUCCESSFUL in 2s`)
+  - `.\gradlew.bat :app:externalNativeBuildDebug`: erfolgreich (`BUILD SUCCESSFUL in 9m 36s`)
+  - `.\gradlew.bat :app:assembleRelease --rerun-tasks`: erfolgreich (`BUILD SUCCESSFUL in 12m 13s`)
+
+### Fix während Phase 2
+
+- `rust/stracciatella_c_api/src/c/config.rs` angepasst:
+  - Der Test `write_engine_options_should_write_a_pretty_json_file` erwartete noch `scaling: PERFECT`.
+  - Der aktuelle Rust-Default und Android-Default sind `NEAR_PERFECT`.
+  - Die erwartete JSON-Ausgabe wurde auf `NEAR_PERFECT` aktualisiert.
+
+### Manuelle Review
+
+- Savegame-Kompatibilität:
+  - Neue Stat-Damage-Felder werden beim Laden von Savegames vor Version `103` mit `0` initialisiert.
+  - Savegame-Version bleibt nativ auf `103`; Android-App-Version bleibt `1.0.5`.
+- Config-Defaults:
+  - `enable_stat_healing` defaultet auf `false`.
+  - `suppression_fire_modifier` defaultet auf `6`.
+  - `suppression_fire_reaction_threshold` defaultet auf `130`.
+  - Damit bleibt das Vanilla-Balancing ohne Config-Anpassung erhalten.
+- JA2-Reborn-Portänderungen:
+  - Touch-Overlay-Code ist weiterhin vorhanden.
+  - Widescreen/TacticalScaling-Code ist weiterhin vorhanden.
+  - `CheatSystem`-Hooks sind weiterhin vorhanden.
+  - Scroll-Guard in `PrintAboveGuy()` ist weiterhin vorhanden.
+
+### Artefakte
+
+- Nach Gradle-Builds blieb `git status --short --branch` sauber.
+- Release-APK wurde lokal erzeugt:
+  - `android/app/build/outputs/apk/release/app-release.apk`
+- Gradle-Problems-Report wurde lokal erzeugt:
+  - `android/build/reports/problems/problems-report.html`
+- Diese Build-Artefakte sind nicht getrackt.
+
+### Zweite Prüfung
+
+- Testergebnisse gegen Log geprüft.
+- `git status --short --branch`: nur geplante Phase-2-Dokumentation und der Rust-Test-Fix nach Log-Aktualisierung.
+- `git diff --check`: keine Fehler.
+- Keine versehentlich getrackten Build-Artefakte festgestellt.
+- Manuelle Gameplay-Szenarien mit alten Saves wurden nicht auf einem Gerät geladen; die Kompatibilität wurde per Code-Review und Build/Test validiert.

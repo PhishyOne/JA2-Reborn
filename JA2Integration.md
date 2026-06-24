@@ -21,9 +21,9 @@ JA2 Reborn übernehmen.
 ## Status
 
 - Phase 0: abgeschlossen am 2026-06-24 mit Commit `749a27479`; JA2-Reborn-Ausgangspunkt war `72b6e98a4eb832a42cbeb95c6154cec8c2180116`.
-- Phase 1: abgeschlossen am 2026-06-24.
-- Phase 2: nächster Schritt.
-- Phase 3: offen.
+- Phase 1: abgeschlossen am 2026-06-24 mit Commit `a54aa1320`.
+- Phase 2: abgeschlossen am 2026-06-24.
+- Phase 3: nächster Schritt.
 
 ## Phase 0 - Vorbereitung und Sicherheitsnetz
 
@@ -117,6 +117,8 @@ Abschluss:
 - Danach stoppen.
 
 ## Phase 2 - Build- und Testvalidierung
+
+Status: abgeschlossen am 2026-06-24.
 
 Ziel: sicherstellen, dass der native Code, Rust-Schemas und Android-Builds nach
 dem Sync funktionieren.
