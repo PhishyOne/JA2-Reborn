@@ -135,6 +135,7 @@ Laufende Notizen und To-dos. Stand: 2026-06-24 | Branch: `experimental`
 ### 2026-06-24 — v1.0.5
 - **Map Screen Control Slider** (#2): Drei-Wege-SeekBar im Settings-Dialog für den Map Screen Touch-Eingabemodus (Both / Direct Touch Only / Touchpad Mouse Only). Persistiert in `touch_buttons.json`. Enforcement in SDLSurface via `dispatchNativeTouch`, `performOverlayMouseButton` und `shouldDirectTapAtFinger`.
 - **STRG/CTRL Examine Toggle** hinzugefügt: Neuer Modifier-Toggle-Button im Tactical Overlay (Hand-Icon, direkt unter ALT-Toggle). Ermöglicht Examine/Grab per STRG-Tap auf Touch-Geräten ohne physische Tastatur.
+- **Deutsche Labels korrigiert**: Examine-Button von "Examine (STRG)" auf "Untersuchen (STRG)", Item-Stacking-Button von "Item Stacking" auf "Item-Mehrfachauswahl".
 - Launcher-Überschrift von v1.0.3 beta auf v1.0.5 aktualisiert.
 
 ### 2026-06-22
