@@ -174,11 +174,11 @@ class TouchOverlaySettingsDialog(
             ))
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                addView(speedLabel(R.string.touch_map_input_both, Gravity.CENTER),
+                addView(speedLabel(R.string.touch_map_input_both, Gravity.START),
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 addView(speedLabel(R.string.touch_map_input_direct_touch, Gravity.CENTER),
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                addView(speedLabel(R.string.touch_map_input_touchpad_mouse, Gravity.CENTER),
+                addView(speedLabel(R.string.touch_map_input_touchpad_mouse, Gravity.END),
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             })
         })
