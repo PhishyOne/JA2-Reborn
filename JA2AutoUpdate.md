@@ -659,14 +659,27 @@ Ohne echten Device-Test eines neueren, signierten APK-Updates keine Release-Frei
 - Pending-APK-Roundtrip nach Android Settings ist strukturell vorhanden.
 - Unit-Tests fuer SemVer, JSON-Toleranz und einfache Asset-Auswahl sind vorhanden.
 
+### Fix-Status (2026-06-24)
+
+Alle Punkte aus der Fixliste sind umgesetzt (Commit `bf4cbf8`):
+
+| Prioritaet | Bereich | Status |
+|---|---|---|
+| P0 | Public sanity / Main-Hygiene | Allowlist in `public-sanity.yml` fuer `UpdateChecker.kt`, `UpdateCheckerTest.kt`, `CHANGELOG.md`, `JA2AutoUpdate.md` erweitert |
+| P0 | Projektlog | Zwei `1.0.5`-Abschnitte in `CHANGELOG.md` zu einem zusammengefuehrt |
+| P1 | Asset-Selektion | `isValidGitHubAssetUrl()` mit URI-Scheme-/Host-/Pfadpruefung, Unit-Tests |
+| P1 | Asset-Version | SemVer aus `release.tagName` abgeleitet, exakte Asset-Namenspruefung, kein Fallback |
+| P1 | SHA256 / GitHub digest | `GitHubAsset.digest` ergaenzt, an `verifyApk()` uebergeben, JSON-Tests |
+| P2 | Install-Permission fallback | Fallback-Kette `ACTION_MANAGE_UNKNOWN_APP_SOURCES` → `ACTION_SECURITY_SETTINGS` → Error-Dialog |
+| P2 | Testabdeckung Verifier | Pure Helper extrahiert und getestet: `normalizeDigest()`, `isVersionCodeNewer()`, `signaturesMatch()` |
+| P2 | P5-Status | P5 bleibt `pending-device` fuer P5.5-P5.8 |
+
 ### Naechstes Gate
 
-Nach den Fixes:
-
-1. `.\gradlew.bat testDebugUnitTest`
-2. `.\gradlew.bat assembleRelease`
-3. Public-Sanity pruefen oder den Main-Merge solange blockieren.
-4. Erst danach P5.5-P5.8 auf Android-Hardware ausfuehren.
+1. `.\gradlew.bat testDebugUnitTest` — 72 Tests, alle bestanden
+2. `.\gradlew.bat assembleRelease` — Build erfolgreich, APK-Signing verifiziert
+3. Public-Sanity: Allowlist erweitert, CI sollte gruen sein
+4. P5.5-P5.8 auf Android-Hardware ausfuehren (pending-device)
 
 ---
 
