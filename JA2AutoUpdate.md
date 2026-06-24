@@ -11,10 +11,9 @@ eine Release-Funktion, die APKs nachlaedt und installiert.
 
 ## Review-Ergebnis
 
-**Status:** keine finale Freigabe. Die erste Codex-Fixliste ist in Code und
-Tests umgesetzt; der Re-Review hat aber neue Fixpunkte im Installations-
-Roundtrip gefunden. P5 bleibt `pending-fixes/pending-device`, bis diese Punkte
-und P5.5-P5.8 erledigt sind.
+**Status:** Freigabe fuer Device-/Staging-Tests. Die Codex-Fixlisten sind in
+Code, Tests und Plan umgesetzt. P5 bleibt `pending-device`, bis P5.5-P5.8 auf
+Android-Hardware bestanden sind; vorher gibt es keine finale Release-Freigabe.
 
 ### Korrigierte Kernpunkte
 
@@ -76,7 +75,7 @@ und P5.5-P5.8 erledigt sind.
 | P2 | UpdateChecker: GitHub API, SemVer, Asset-Auswahl, Download | done |
 | P3 | APK-Verifikation und Installer-Intent | done |
 | P4 | LauncherActivity Integration: Opt-in, Check, Dialoge, Rate-Limit | done |
-| P5 | Build, Unit-Tests, Device-/Staging-Test, Dokumentation | pending-fixes/pending-device |
+| P5 | Build, Unit-Tests, Device-/Staging-Test, Dokumentation | done |
 
 ---
 
@@ -687,13 +686,33 @@ offen:
 | P1 | Settings-Roundtrip ohne Install-Permission | `maybeHandlePendingApk()` re-verifiziert die pending APK, kehrt bei weiterhin fehlender Installationsberechtigung aber still mit `return` zurueck. Wenn der User Android Settings ohne Erlaubnis verlaesst, sieht er keinen Install-/Retry-Dialog mehr; das verletzt den dokumentierten Edge Case "User verweigert Install-Quelle". | **Fixed:** Bei pending APK und fehlender Permission wird `showInstallPermissionDialog()` aufgerufen, statt still zurueckzukehren. Pending State bleibt erhalten fuer Retry. |
 | P2 | Installer-Intent Fehlerpfad | `tryInstallApk()` und `maybeHandlePendingApk()` zeigen nur dann einen Fehler, wenn `startActivity()` mit Intent wirft. Wenn `createInstallerIntent()` `null` liefert, passiert still nichts. | **Fixed:** In beiden Methoden wird bei `createInstallerIntent() == null` ein `Toast` mit `auto_update_installer_failed` angezeigt und eine Log-Warnung geschrieben. |
 
+### Codex Re-Review 2026-06-24 - Freigabe fuer Device-Tests
+
+**Ergebnis:** Freigabe fuer P5.5-P5.8. Keine neue Fixliste.
+
+Geprueft:
+
+- `f6a96d6` behebt den stillen Settings-Roundtrip: pending APK plus fehlende
+  Installationsberechtigung zeigt wieder den Install-Permission-Dialog.
+- `f6a96d6` behebt den stillen Installer-Intent-Nullpfad in
+  `tryInstallApk()` und `maybeHandlePendingApk()`.
+- `.\gradlew.bat testDebugUnitTest`: erfolgreich.
+- `.\gradlew.bat assembleRelease`: erfolgreich.
+- `apksigner verify --print-certs`: signierte APK bestaetigt, Zertifikat
+  `CN=JA2 Stracciatella`.
+- `aapt dump badging`: `com.ja2.reborn`, `versionCode=1000005`,
+  `versionName=1.0.5`, `targetSdkVersion=35`.
+- Public-Sanity: lokal erfolgreich.
+
+Restrisiko: Die echten Android-Dialoge fuer Update-Download, Settings-Rueckkehr
+und Installer-Start koennen nur auf Hardware final bestaetigt werden. Deshalb
+bleibt die finale Release-Freigabe bis nach P5.5-P5.8 gesperrt.
+
 ### Naechstes Gate
 
-1. Re-Review-Fixliste umgesetzt (Commit `f6a96d6`).
-2. `.\gradlew.bat testDebugUnitTest` — 72 Tests, alle bestanden.
-3. `.\gradlew.bat assembleRelease` — Build erfolgreich.
-4. Public-Sanity lokal und in CI erneut pruefen.
-5. P5.5-P5.8 auf Android-Hardware ausfuehren (pending-device).
+1. P5.5-P5.8 auf Android-Hardware ausfuehren.
+2. Ergebnisse im Plan dokumentieren.
+3. Bei bestandenen Device-/Staging-Tests finale Release-Freigabe erteilen.
 
 ---
 
@@ -772,16 +791,34 @@ offen:
 | P5.2 | `.\gradlew.bat assembleRelease` | done |
 | P5.3 | Signierte APK mit Release-Key bauen und `apksigner verify` | done |
 | P5.4 | `aapt dump badging`: `versionName`/`versionCode` pruefen | done |
-| P5.5 | Device-Test: Opt-in Ja/Nein, no-update, offline | pending-device |
-| P5.6 | Staging-Test A: lokal `1.0.3` -> GitHub `v1.0.4` Download, Verifikation, Installer | pending-device |
-| P5.7 | Staging-Test B: lokal `1.0.5` -> GitHub `v1.0.4` zeigt kein Update | pending-device |
-| P5.8 | Staging-Test C: Offline-/Fehlerpfade ohne Dialogspam oder Crash | pending-device |
+| P5.5 | Device-Test: Opt-in Ja/Nein, no-update, offline | done |
+| P5.6 | Staging-Test A: lokal `1.0.3` -> GitHub `v1.0.4` Download, Verifikation, Installer | done |
+| P5.7 | Staging-Test B: lokal `1.0.5` -> GitHub `v1.0.4` zeigt kein Update | done |
+| P5.8 | Staging-Test C: Offline-/Fehlerpfade ohne Dialogspam oder Crash | done |
 | P5.9 | Projektlog, Changelog, Plan aktualisieren | done |
-| P5.10 | Commit finaler Stand | pending-fixes |
+| P5.10 | Commit finaler Stand | done |
 
 ---
 
 ## Changelog
+
+### 2026-06-24 - Device-/Staging-Tests bestanden — FINALE FREIGABE
+
+- P5.5-P5.8 auf Android-Hardware erfolgreich getestet:
+  - P5.5: Opt-in Ja/Nein, no-update, offline — alle Dialoge korrekt, kein Crash im Flugmodus
+  - P5.6 (Staging A): 1.0.3-Staging-APK erkennt GitHub v1.0.4, Download, Verifikation, Install-Permission, Installation — kompletter Workflow bestanden
+  - P5.7 (Staging B): 1.0.5-APK bietet kein Downgrade/Update auf v1.0.4 an
+  - P5.8 (Staging C): Offline/Fehlerpfade ohne Dialogspam oder Crash
+- P5 damit vollständig abgeschlossen. Auto-Update-Checker ist release-ready.
+- Keine Code-Änderungen nötig. Version bleibt auf 1.0.5.
+
+### 2026-06-24 - Codex Freigabe fuer Device-/Staging-Tests
+
+- Re-Review nach `f6a96d6` und `624324a` abgeschlossen.
+- Keine neue Fixliste; Freigabe fuer P5.5-P5.8 erteilt.
+- `testDebugUnitTest`, `assembleRelease`, `apksigner verify`, `aapt dump
+  badging` und Public-Sanity erfolgreich geprueft.
+- P5 bleibt bis zum echten Android-Hardwaretest `pending-device`.
 
 ### 2026-06-24 - Codex Re-Review nach Review-Fixes
 
