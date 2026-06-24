@@ -8,11 +8,27 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
+- Added an opt-in Android auto-update checker for GitHub Releases
+  (`RealTommyGreen/JA2-Reborn`) with release lookup, APK download, verification,
+  and explicit install confirmation.
+- Added a manual update check button to the launcher header, left of the language
+  flags, with update-available, up-to-date, progress, and error feedback.
 - Added a CTRL Examine touch-overlay toggle for tactical interactions that need a held CTRL modifier.
 - Added a Map Screen touch input mode setting with Direct Touch, Touchpad Mouse, and combined input modes.
 
+### Changed
+
+- Added Android manifest permissions and FileProvider configuration required for
+  network update checks and downloaded APK handoff.
+- Added persisted update preferences for opt-in state, rate limiting, and known
+  update version tracking.
+- The launcher now offers the update opt-in flow on startup and handles update
+  dialogs, release notes, progress, installation handoff, and lifecycle-safe UI updates.
+
 ### Fixed
 
+- Fixed update installation failure paths so install-permission round trips and
+  interrupted installer launches report errors instead of failing silently.
 - Fixed the touch-overlay Stealth toggle showing a stale active state after switching to another selected merc.
 - Fixed sticky Item Stacking and Sidestep/Backstep modifier toggles blocking later touch actions, while keeping Item Stacking active across tactical inventory-area and Map Screen touches.
 - Fixed Map Screen touch input mode slider label alignment.
@@ -22,6 +38,8 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 - Ran `:app:testDebugUnitTest`.
 - Built and verified the signed release APK with versionCode `1000005`.
+- Verified APK asset matching, SHA-256 digest checks, version-code checks, and
+  signature matching in the update flow.
 - Verified the 1.0.5 touch fixes on Android hardware.
 
 ## 2026-06-19 - 1.0.4

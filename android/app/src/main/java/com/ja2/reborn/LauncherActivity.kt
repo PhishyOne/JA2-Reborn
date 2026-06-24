@@ -8,6 +8,8 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -81,6 +83,7 @@ class LauncherActivity : AppCompatActivity() {
             startGame()
         }
         hideSystemBars()
+        maybePromptAutoUpdateOptIn()
     }
 
     override fun onResume() {
@@ -111,6 +114,8 @@ class LauncherActivity : AppCompatActivity() {
                 ).show()
             }
         }
+
+        maybeHandlePendingApk()
     }
 
     override fun onRequestPermissionsResult(
@@ -143,6 +148,9 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun setupLanguageFlags() {
+        val updateCheck = binding.languageFlags.findViewById<android.widget.ImageView>(
+            com.ja2.reborn.R.id.updateCheck
+        )
         val flagDE = binding.languageFlags.findViewById<android.widget.ImageView>(
             com.ja2.reborn.R.id.flagDE
         )
@@ -170,6 +178,10 @@ class LauncherActivity : AppCompatActivity() {
                 saveJA2Json()
                 updateFlagHighlight()
             }
+        }
+
+        updateCheck.setOnClickListener {
+            performUpdateCheck(force = true)
         }
 
         flagDE.setOnClickListener {
@@ -513,6 +525,671 @@ class LauncherActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.w(activityLogTag, "Could not delete stale game session marker: ${e.message}")
         }
+    }
+
+    private fun maybeHandlePendingApk() {
+        val (pendingFile, _) = UpdateApkVerifier.getPendingApk(this) ?: return
+
+        if (!pendingFile.exists()) {
+            UpdateApkVerifier.clearPendingApk(this)
+            return
+        }
+
+        val result = UpdateApkVerifier.verifyApk(this, pendingFile)
+        if (!result.passed) {
+            Log.w(activityLogTag, "Pending APK re-verification failed: ${result.reason}")
+            UpdateApkVerifier.clearPendingApk(this)
+            pendingFile.delete()
+            return
+        }
+
+        if (UpdateApkVerifier.needsInstallPermission(this)) {
+            showInstallPermissionDialog()
+            return
+        }
+
+        UpdateApkVerifier.clearPendingApk(this)
+        val intent = UpdateApkVerifier.createInstallerIntent(this, pendingFile)
+        if (intent != null) {
+            try {
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.w(activityLogTag, "Installer intent failed: ${e.message}")
+                Toast.makeText(
+                    this,
+                    getString(R.string.auto_update_installer_failed),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        } else {
+            Log.w(activityLogTag, "createInstallerIntent returned null for pending APK")
+            Toast.makeText(
+                this,
+                getString(R.string.auto_update_installer_failed),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    // -- Auto-update ----------------------------------------------------------
+
+    private val updatePrefsActivityAlive: Boolean
+        get() = !isFinishing && !isDestroyed
+
+    private fun runOnUiIfAlive(action: () -> Unit) {
+        if (updatePrefsActivityAlive) runOnUiThread(action)
+    }
+
+    private fun maybePromptAutoUpdateOptIn() {
+        val currentVersion = UpdatePrefs.getInstalledVersionName(this)
+
+        val optedIn = UpdatePrefs.isOptedIn(this)
+        if (optedIn != null) {
+            if (optedIn) {
+                performUpdateCheck(force = false)
+            }
+            return
+        }
+
+        if (!UpdatePrefs.shouldShowOptIn(this, currentVersion)) {
+            return
+        }
+
+        UpdatePrefs.setPromptedVersion(this, currentVersion)
+        showOptInDialog()
+    }
+
+    private fun showOptInDialog() {
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(20), dp(18), dp(20), dp(18))
+        }
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_optin_title)
+            setTextColor(Ja2GuiStyle.ACCENT)
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_optin_message)
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(0, dp(14), 0, dp(16))
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val dialog = AlertDialog.Builder(this).create()
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.auto_update_optin_decline),
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+            UpdatePrefs.setOptedIn(this@LauncherActivity, false)
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginEnd = dp(6)
+        })
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.auto_update_optin_activate),
+            textColor = Ja2GuiStyle.ACCENT,
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+            UpdatePrefs.setOptedIn(this@LauncherActivity, true)
+            performUpdateCheck(force = true)
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginStart = dp(6)
+        })
+        content.addView(buttonRow, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        dialog.setView(content)
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
+    }
+
+    private fun performUpdateCheck(force: Boolean) {
+        if (!isNetworkAvailable()) {
+            showUpdateInfoDialog(
+                getString(R.string.auto_update_no_network)
+            )
+            return
+        }
+
+        if (UpdatePrefs.isRateLimited(this, force)) return
+        UpdatePrefs.setLastCheckTimeNow(this)
+
+        val localVersion = UpdatePrefs.getInstalledVersionName(this)
+
+        Thread({
+            val release = UpdateChecker.fetchLatestRelease()
+            if (release == null) {
+                runOnUiIfAlive {
+                    showUpdateInfoDialog(getString(R.string.auto_update_download_failed))
+                }
+                return@Thread
+            }
+            if (release.draft || release.prerelease) {
+                runOnUiIfAlive {
+                    showUpdateUpToDateDialog(localVersion)
+                }
+                return@Thread
+            }
+
+            if (!UpdateChecker.isNewerVersion(release.tagName, localVersion)) {
+                runOnUiIfAlive {
+                    showUpdateUpToDateDialog(localVersion)
+                }
+                return@Thread
+            }
+
+            val asset = UpdateChecker.selectApkAsset(release)
+            if (asset == null) {
+                runOnUiIfAlive {
+                    showUpdateInfoDialog(getString(R.string.auto_update_download_failed))
+                }
+                return@Thread
+            }
+
+            runOnUiIfAlive {
+                showUpdateAvailableDialog(release, asset)
+            }
+        }, "auto-update-check").apply { isDaemon = true }.start()
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        try {
+            val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = cm.activeNetwork ?: return false
+            val caps = cm.getNetworkCapabilities(network) ?: return false
+            return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+    private fun showUpdateAvailableDialog(release: GitHubRelease, asset: GitHubAsset) {
+        val versionName = release.tagName.removePrefix("v")
+        val sizeText = formatSizeMB(asset.size)
+        val notesText = truncateText(release.body ?: "", 1200)
+
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(20), dp(18), dp(20), dp(18))
+        }
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_available_title)
+            setTextColor(Ja2GuiStyle.ACCENT)
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_available_message, versionName, sizeText)
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 15f
+            gravity = Gravity.CENTER
+            setPadding(0, dp(12), 0, if (notesText.isNotEmpty()) dp(8) else dp(14))
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        if (notesText.isNotEmpty()) {
+            val scrollView = android.widget.ScrollView(this).apply {
+                setPadding(0, 0, 0, dp(12))
+            }
+            scrollView.addView(TextView(this).apply {
+                text = notesText
+                setTextColor(Ja2GuiStyle.TEXT)
+                textSize = 12f
+            })
+            content.addView(scrollView, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(160)
+            ))
+        }
+
+        val dialog = AlertDialog.Builder(this).create()
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.auto_update_later),
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginEnd = dp(6)
+        })
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.auto_update_download),
+            textColor = Ja2GuiStyle.ACCENT,
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+            startUpdateDownload(release, asset)
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginStart = dp(6)
+        })
+        content.addView(buttonRow, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        dialog.setView(content)
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
+    }
+
+    private fun startUpdateDownload(release: GitHubRelease, asset: GitHubAsset) {
+        val versionName = release.tagName.removePrefix("v")
+
+        val progressContent = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(24), dp(20), dp(24), dp(20))
+        }
+
+        val titleView = TextView(this).apply {
+            text = getString(R.string.auto_update_downloading)
+            setTextColor(Ja2GuiStyle.ACCENT)
+            textSize = 16f
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }
+        progressContent.addView(titleView, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val statusView = TextView(this).apply {
+            text = getString(R.string.auto_update_downloading)
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 13f
+            gravity = Gravity.CENTER
+            setPadding(0, dp(12), 0, 0)
+        }
+        progressContent.addView(statusView, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val progressBar = android.widget.ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
+            isIndeterminate = true
+        }
+        progressContent.addView(progressBar, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = dp(12)
+        })
+
+        val dialog = AlertDialog.Builder(this).create().apply {
+            setView(progressContent)
+            setCancelable(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            show()
+        }
+
+        val cacheDir = cacheDir
+        Thread({
+            val apkFile = UpdateChecker.downloadApk(asset, versionName, cacheDir) { progress ->
+                val pct = if (progress.totalBytes > 0) {
+                    (progress.bytesDownloaded * 100 / progress.totalBytes).toInt()
+                } else {
+                    -1
+                }
+                runOnUiIfAlive {
+                    if (pct >= 0) {
+                        progressBar.isIndeterminate = false
+                        progressBar.max = 100
+                        progressBar.progress = pct
+                        statusView.text = "$pct% — ${formatSizeMB(progress.bytesDownloaded)} / ${formatSizeMB(progress.totalBytes)}"
+                    } else {
+                        statusView.text = getString(R.string.auto_update_downloading) +
+                                " (${formatSizeMB(progress.bytesDownloaded)})"
+                    }
+                }
+            }
+
+            if (apkFile == null) {
+                runOnUiIfAlive {
+                    dialog.dismiss()
+                    showUpdateErrorDialog(getString(R.string.auto_update_download_failed))
+                }
+                return@Thread
+            }
+
+            val result = UpdateApkVerifier.verifyApk(this@LauncherActivity, apkFile, asset.size, asset.digest)
+            runOnUiIfAlive {
+                dialog.dismiss()
+                if (result.passed) {
+                    showInstallReadyDialog(apkFile, versionName)
+                } else {
+                    Log.w(activityLogTag, "APK verification failed: ${result.reason}")
+                    showUpdateErrorDialog(getString(R.string.auto_update_verification_failed))
+                }
+            }
+        }, "auto-update-download").apply { isDaemon = true }.start()
+    }
+
+    private fun showInstallReadyDialog(apkFile: File, version: String) {
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(20), dp(18), dp(20), dp(18))
+        }
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_install)
+            setTextColor(Ja2GuiStyle.ACCENT)
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_available_message, version, formatSizeMB(apkFile.length()))
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(0, dp(14), 0, dp(16))
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val dialog = AlertDialog.Builder(this).create()
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.auto_update_later),
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginEnd = dp(6)
+        })
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.auto_update_install),
+            textColor = Ja2GuiStyle.ACCENT,
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+            tryInstallApk(apkFile, version)
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginStart = dp(6)
+        })
+        content.addView(buttonRow, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        dialog.setView(content)
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
+    }
+
+    private fun tryInstallApk(apkFile: File, version: String) {
+        if (UpdateApkVerifier.needsInstallPermission(this)) {
+            UpdateApkVerifier.savePendingApk(this, apkFile, version)
+            showInstallPermissionDialog()
+            return
+        }
+
+        val intent = UpdateApkVerifier.createInstallerIntent(this, apkFile)
+        if (intent != null) {
+            try {
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.w(activityLogTag, "Installer intent failed: ${e.message}")
+                Toast.makeText(
+                    this,
+                    getString(R.string.auto_update_installer_failed),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        } else {
+            Log.w(activityLogTag, "createInstallerIntent returned null")
+            Toast.makeText(
+                this,
+                getString(R.string.auto_update_installer_failed),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun showInstallPermissionDialog() {
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(20), dp(18), dp(20), dp(18))
+        }
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_permission_title)
+            setTextColor(Ja2GuiStyle.ACCENT)
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_permission_message)
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(0, dp(14), 0, dp(16))
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val dialog = AlertDialog.Builder(this).create()
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.cancel),
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginEnd = dp(6)
+        })
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(R.string.auto_update_open_settings),
+            textColor = Ja2GuiStyle.ACCENT,
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+            try {
+                startActivity(UpdateApkVerifier.createInstallPermissionIntent(this@LauncherActivity))
+            } catch (e: Exception) {
+                Log.w(activityLogTag, "MANAGE_UNKNOWN_APP_SOURCES failed: ${e.message}, trying fallback")
+                try {
+                    startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
+                } catch (e2: Exception) {
+                    Log.w(activityLogTag, "Security settings fallback also failed: ${e2.message}")
+                    showUpdateErrorDialog(getString(R.string.auto_update_installer_failed))
+                }
+            }
+        }, LinearLayout.LayoutParams(0, dp(44), 1f).apply {
+            marginStart = dp(6)
+        })
+        content.addView(buttonRow, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        dialog.setView(content)
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
+    }
+
+    private fun showUpdateErrorDialog(message: String) {
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(20), dp(18), dp(20), dp(18))
+        }
+
+        content.addView(TextView(this).apply {
+            text = message
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 14f
+            gravity = Gravity.CENTER
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val dialog = AlertDialog.Builder(this).create()
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(android.R.string.ok),
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(44), 0.5f))
+        content.addView(buttonRow, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = dp(16)
+        })
+
+        dialog.setView(content)
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
+    }
+
+    private fun showUpdateInfoDialog(message: String) {
+        showUpdateErrorDialog(message)
+    }
+
+    private fun showUpdateUpToDateDialog(version: String) {
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(20), dp(18), dp(20), dp(18))
+        }
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_up_to_date_title)
+            setTextColor(Ja2GuiStyle.ACCENT)
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_up_to_date_message, version)
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(0, dp(14), 0, dp(16))
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val dialog = AlertDialog.Builder(this).create()
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(android.R.string.ok),
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(44), 0.5f))
+        content.addView(buttonRow, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = dp(16)
+        })
+
+        dialog.setView(content)
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
+    }
+
+    private fun formatSizeMB(bytes: Long): String {
+        val mb = bytes / (1024.0 * 1024.0)
+        return if (mb < 1.0) {
+            "%.1f MB".format(mb)
+        } else if (mb < 10.0) {
+            "%.1f MB".format(mb)
+        } else {
+            "%.0f MB".format(mb)
+        }
+    }
+
+    private fun truncateText(text: String, maxLen: Int): String {
+        return if (text.length <= maxLen) text else text.take(maxLen) + "..."
     }
 
     private fun saveCheatsJson() {

@@ -61,7 +61,16 @@ jobs:
               "gcloud" + "-key",
           ]
 
-          allowed_public_files = ("index.html", "robots.txt", "sitemap.xml")
+          allowed_public_repo_ref_files = {
+              "index.html",
+              "robots.txt",
+              "sitemap.xml",
+              "CHANGELOG.md",
+              "JA2AutoUpdate.md",
+              "docs/JA2_ANDROID_TODO_IMPLEMENTATION_LOG.md",
+              "android/app/src/main/java/com/ja2/reborn/UpdateChecker.kt",
+              "android/app/src/test/java/com/ja2/reborn/UpdateCheckerTest.kt",
+          }
           allowed_public_repo_refs = [
               "Real" + "Tom" + "my" + "Green",
               "github.com/" + "Real" + "Tom" + "my" + "Green",
@@ -73,7 +82,7 @@ jobs:
               if name.endswith("/public-sanity.yml"):
                   continue
               lowered = text.lower()
-              if name in allowed_public_files:
+              if name in allowed_public_repo_ref_files:
                   for ref in allowed_public_repo_refs:
                       lowered = lowered.replace(ref.lower(), "")
               if name == "contributors.txt":
