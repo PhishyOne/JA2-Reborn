@@ -8,12 +8,29 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
-- Added an auto-update checker foundation: P1 (Manifest permissions, FileProvider, strings) and P2 (UpdateChecker.kt with GitHub API client, SemVer parser, APK asset selection, and atomic download).
+- **Auto-Update Checker** (P1–P5): Users can opt in to automatic update checks against
+  the GitHub Releases API (`RealTommyGreen/JA2-Reborn`). When a newer version is found,
+  the app downloads, verifies, and installs the APK — each step requires explicit user
+  confirmation. No game data is ever uploaded.
+  - P1: Manifest permissions (`INTERNET`, `ACCESS_NETWORK_STATE`, `REQUEST_INSTALL_PACKAGES`),
+    FileProvider configuration, and 17 German + English string keys.
+  - P2: `UpdateChecker.kt` — GitHub API client with tolerant JSON, SemVer parser,
+    APK asset selection with exact-name matching, and atomic `.part` → `.apk` download.
+  - P3: `UpdateApkVerifier.kt` — SHA-256 digest verification, `PackageInfo` and
+    `versionCode` comparison, APK signature match (API 24–27 and 28+), `FileProvider`
+    installer intent, install-permission flow with Settings round-trip.
+  - P4: `UpdatePrefs.kt` — opt-in, 24-hour rate-limit, and version tracking.
+    `LauncherActivity` integration: opt-in dialog, update-available dialog with
+    release notes, download progress, install-ready dialog, error handling, and
+    lifecycle-safe UI updates.
+  - P5: Release build verified with `apksigner` and `aapt`. 72 unit tests pass.
+    Device staging tests documented in `JA2AutoUpdate.md` (requires Android hardware).
 
 ### Changed
 
 - Added INTERNET, ACCESS_NETWORK_STATE, and REQUEST_INSTALL_PACKAGES permissions to AndroidManifest.xml.
 - Added a FileProvider for delivering downloaded APK updates.
+- LauncherActivity now triggers the opt-in/update-check flow in `onCreate()`.
 
 ## 2026-06-24 - 1.0.5
 

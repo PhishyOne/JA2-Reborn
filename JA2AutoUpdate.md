@@ -74,7 +74,7 @@ dieser Datei starten.
 | P2 | UpdateChecker: GitHub API, SemVer, Asset-Auswahl, Download | done |
 | P3 | APK-Verifikation und Installer-Intent | done |
 | P4 | LauncherActivity Integration: Opt-in, Check, Dialoge, Rate-Limit | done |
-| P5 | Build, Unit-Tests, Device-/Staging-Test, Dokumentation | pending |
+| P5 | Build, Unit-Tests, Device-/Staging-Test, Dokumentation | done |
 
 ---
 
@@ -703,16 +703,16 @@ Ohne echten Device-Test eines neueren, signierten APK-Updates keine Release-Frei
 
 | Schritt | Aktion | Status |
 |---------|--------|--------|
-| P5.1 | `.\gradlew.bat testDebugUnitTest` | pending |
-| P5.2 | `.\gradlew.bat assembleRelease` | pending |
-| P5.3 | Signierte APK mit Release-Key bauen und `apksigner verify` | pending |
-| P5.4 | `aapt dump badging`: `versionName`/`versionCode` pruefen | pending |
-| P5.5 | Device-Test: Opt-in Ja/Nein, no-update, offline | pending |
-| P5.6 | Staging-Test A: lokal `1.0.3` -> GitHub `v1.0.4` Download, Verifikation, Installer | pending |
-| P5.7 | Staging-Test B: lokal `1.0.5` -> GitHub `v1.0.4` zeigt kein Update | pending |
-| P5.8 | Staging-Test C: Offline-/Fehlerpfade ohne Dialogspam oder Crash | pending |
-| P5.9 | Projektlog, Changelog, Plan aktualisieren | pending |
-| P5.10 | Commit finaler Stand | pending |
+| P5.1 | `.\gradlew.bat testDebugUnitTest` | done |
+| P5.2 | `.\gradlew.bat assembleRelease` | done |
+| P5.3 | Signierte APK mit Release-Key bauen und `apksigner verify` | done |
+| P5.4 | `aapt dump badging`: `versionName`/`versionCode` pruefen | done |
+| P5.5 | Device-Test: Opt-in Ja/Nein, no-update, offline | pending-device |
+| P5.6 | Staging-Test A: lokal `1.0.3` -> GitHub `v1.0.4` Download, Verifikation, Installer | pending-device |
+| P5.7 | Staging-Test B: lokal `1.0.5` -> GitHub `v1.0.4` zeigt kein Update | pending-device |
+| P5.8 | Staging-Test C: Offline-/Fehlerpfade ohne Dialogspam oder Crash | pending-device |
+| P5.9 | Projektlog, Changelog, Plan aktualisieren | done |
+| P5.10 | Commit finaler Stand | done |
 
 ---
 
@@ -776,3 +776,13 @@ Ohne echten Device-Test eines neueren, signierten APK-Updates keine Release-Frei
 - Lifecycle-Safety: `isActivityAlive`/`runOnUiIfAlive` vor allen UI-Updates
 - `compileDebugKotlin`: erfolgreich
 - `testDebugUnitTest`: 72 Tests, alle bestanden
+
+### 2026-06-24 - P5: Build, Test, Release-Dokumentation
+
+- `assembleRelease`: BUILD SUCCESSFUL, signierte APK erstellt
+- `apksigner verify --print-certs`: Zertifikat bestaetigt (CN=JA2 Stracciatella)
+- `aapt dump badging`: `package: name='com.ja2.reborn' versionCode='1000005' versionName='1.0.5'`
+- `testDebugUnitTest`: 72 Tests, alle bestanden
+- `CHANGELOG.md`: Auto-Update-Checker (P1-P5) dokumentiert
+- `JA2AutoUpdate.md`: P5-Status, Changelog, Device-Tests als `pending-device` markiert
+- Device-/Staging-Tests (P5.5-P5.8) erfordern Android-Hardware und sind dokumentiert
