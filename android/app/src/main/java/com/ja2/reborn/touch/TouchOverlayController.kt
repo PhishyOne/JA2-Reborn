@@ -85,6 +85,12 @@ class TouchOverlayController(
         if (loadResult.defaultPresetWasReset) {
             requestTouchPresetUpdateNotice()
         }
+        SDLSurface.setTouchOverlayUserActionCallback {
+            releaseStickyTogglesForUserAction(null)
+        }
+        SDLSurface.setTouchOverlayInventoryActionCallback {
+            releaseStickyTogglesForUserAction(null, keepItemStacking = true)
+        }
 
         val container = FrameLayout(activity).apply {
             isClickable = false
@@ -111,6 +117,8 @@ class TouchOverlayController(
 
     fun detach() {
         releasePressedInputs()
+        SDLSurface.setTouchOverlayUserActionCallback(null)
+        SDLSurface.setTouchOverlayInventoryActionCallback(null)
         SDLSurface.setOverlayEditModeActive(false)
         removeAllButtonViews()
         removeSystemButtons()
@@ -383,6 +391,7 @@ class TouchOverlayController(
             { btnId -> onButtonPositionChanged(btnId) },
             { btnConfig -> onButtonLongPress(btnConfig) },
             { action -> onSpecialAction(action) },
+            { sourceConfig -> releaseStickyTogglesForUserAction(sourceConfig) },
             draggable = !cfg.layoutLocked
         )
         buttonView.alpha = buttonConfig.alpha
@@ -422,6 +431,8 @@ class TouchOverlayController(
             onPanelScaleChanged = { v -> persistPanelScale(v) },
             directTouchArbitrationMs = cfg?.directTouchArbitrationMs ?: 2500,
             onDirectTouchArbitrationChanged = { ms -> persistDirectTouchArbitration(ms) },
+            mapScreenInputMode = cfg?.mapScreenInputMode ?: MAP_SCREEN_INPUT_MODE_BOTH,
+            onMapScreenInputModeChanged = { mode -> persistMapScreenInputMode(mode) },
             resolutionMode = resolutionMode
         )
         dialog.show()
@@ -436,8 +447,6 @@ class TouchOverlayController(
             updateGridViewState()
             saveCurrentPositions()
         }
-        overlayAutoHidden = true
-        applyAutoHideVisibility(false)
         SDLActivity.showTutorial()
         root.post { autoHidePoll() }
     }
@@ -453,6 +462,7 @@ class TouchOverlayController(
     private fun applyRuntimeSpeeds(cfg: TouchOverlayConfig) {
         SDLSurface.setTouchpadMouseSpeed(cfg.relativeMouseSpeed)
         SDLSurface.setDirectTouchArbitrationMs(cfg.directTouchArbitrationMs)
+        SDLSurface.setMapScreenInputMode(cfg.mapScreenInputMode)
         try {
             SDLActivity.setScrollSpeed(cfg.scrollSpeedMs)
             SDLActivity.setMouseScrollingDisabled(cfg.disableMouseScrolling)
@@ -559,6 +569,13 @@ class TouchOverlayController(
     private fun persistDirectTouchArbitration(ms: Int) {
         val cfg = config ?: return
         val updated = cfg.copy(directTouchArbitrationMs = ms)
+        config = updated
+        store.save(persistableConfig(updated))
+    }
+
+    private fun persistMapScreenInputMode(mode: String) {
+        val cfg = config ?: return
+        val updated = cfg.copy(mapScreenInputMode = mode)
         config = updated
         store.save(persistableConfig(updated))
     }
@@ -811,21 +828,7 @@ class TouchOverlayController(
             false
         }
 
-        if (tutorialVisible) {
-            if (!overlayAutoHidden) {
-                overlayAutoHidden = true
-                applyAutoHideVisibility(false)
-            }
-            return
-        }
-
-        if (!cfg.hideOverlayOnNonGameScreens) {
-            if (overlayAutoHidden) {
-                overlayAutoHidden = false
-                applyAutoHideVisibility(true)
-            }
-            return
-        }
+        if (!cfg.hideOverlayOnNonGameScreens && !tutorialVisible) return
 
         val screenId = try {
             SDLActivity.getJa2ScreenId()
@@ -833,6 +836,9 @@ class TouchOverlayController(
             Log.w(TAG, "Failed to query JA2 screen id: ${e.message}")
             JA2_GAME_SCREEN
         }
+        syncStealthToggleState(screenId)
+
+        if (!cfg.hideOverlayOnNonGameScreens && !tutorialVisible) return
 
         val shouldShowOverlay = shouldShowTouchOverlayForScreen(
             screenId = screenId,
@@ -871,6 +877,7 @@ class TouchOverlayController(
         updateGridViewState()
         updateButtonDraggable()
         applyAutoHideVisibility(true)
+        syncStealthToggleState(screenId)
     }
 
     private fun applyAutoHideVisibility(visible: Boolean) {
@@ -923,6 +930,54 @@ class TouchOverlayController(
         }
     }
 
+    private fun syncStealthToggleState(screenId: Int) {
+        if (screenId != JA2_GAME_SCREEN || overlayAutoHidden) {
+            updateStealthToggleButtons(false)
+            return
+        }
+
+        val active = try {
+            SDLActivity.getSelectedMercStealthMode() > 0
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to query selected merc stealth mode: ${e.message}")
+            return
+        }
+        updateStealthToggleButtons(active)
+    }
+
+    private fun updateStealthToggleButtons(active: Boolean) {
+        buttonViews.forEach { view ->
+            if (view.config.isStealthToggleButton()) {
+                view.syncToggleTapState(active)
+            }
+        }
+    }
+
+    private fun releaseStickyTogglesForUserAction(
+        sourceConfig: TouchButtonConfig?,
+        keepItemStacking: Boolean = false
+    ) {
+        val keyCodesToKeep = mutableSetOf<Int>()
+
+        if (sourceConfig?.isStickyKeyToggleButton() == true) {
+            sourceConfig.actions.mapNotNullTo(keyCodesToKeep) { it.stickyToggleKeyCode() }
+        }
+        if (keepItemStacking || sourceConfig?.isMouseButtonAction() == true) {
+            TouchInputDispatcher.keyNameToCode("SHIFT")?.let { keyCodesToKeep.add(it) }
+        }
+
+        if (!dispatcher.releaseToggleKeyCodesExcept(keyCodesToKeep)) return
+
+        buttonViews.forEach { view ->
+            val shouldKeep = view.config.actions.any { action ->
+                action.stickyToggleKeyCode()?.let { it in keyCodesToKeep } == true
+            }
+            if (!shouldKeep && view.config.isStickyKeyToggleButton()) {
+                view.clearStickyToggleState()
+            }
+        }
+    }
+
     // ---- Normal button views ----
 
     private fun activeButtons(): List<TouchButtonConfig> {
@@ -970,6 +1025,7 @@ class TouchOverlayController(
                 { btnId -> onButtonPositionChanged(btnId) },
                 { btnConfig -> onButtonLongPress(btnConfig) },
                 { action -> onSpecialAction(action) },
+                { sourceConfig -> releaseStickyTogglesForUserAction(sourceConfig) },
                 draggable = !cfg.layoutLocked
             )
             buttonView.alpha = btnConfig.alpha
@@ -1176,6 +1232,28 @@ class TouchOverlayController(
             height
         }
         return Pair(width, height)
+    }
+
+    private fun TouchButtonConfig.isStealthToggleButton(): Boolean =
+        icon == "stealth_toggle" &&
+            actions.any { action ->
+                action.type == "key" &&
+                    action.mode == "toggle_tap" &&
+                    action.keyName?.equals("Z", ignoreCase = true) == true
+            }
+
+    private fun TouchButtonConfig.isStickyKeyToggleButton(): Boolean =
+        actions.any { it.isStickyKeyToggleAction() }
+
+    private fun TouchButtonConfig.isMouseButtonAction(): Boolean =
+        actions.any { it.type == "mouse_button" }
+
+    private fun TouchButtonAction.isStickyKeyToggleAction(): Boolean =
+        type == "key" && mode == "toggle" && (keyName != null || keyCode != null)
+
+    private fun TouchButtonAction.stickyToggleKeyCode(): Int? {
+        if (!isStickyKeyToggleAction()) return null
+        return keyCode ?: keyName?.let { TouchInputDispatcher.keyNameToCode(it) }
     }
 
     companion object {

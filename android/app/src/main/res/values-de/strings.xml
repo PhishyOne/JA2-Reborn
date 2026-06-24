@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">JA2 Reborn</string>
-    <string name="launcher_header_title">JA2 Reborn - Stracciatella with Sprinkles v1.0.4</string>
+    <string name="launcher_header_title">JA2 Reborn - Stracciatella with Sprinkles v1.0.5</string>
     <string name="title_activity_launcher">JA2 Reborn</string>
     <string name="floating_action_button_start_text">Spiel starten</string>
     <string name="tab_text_data">Daten</string>
@@ -86,6 +86,10 @@
     <!-- Touch Overlay Settings Dialog -->
     <string name="touch_settings_title">Einstellungen</string>
     <string name="touch_section_direct_tap">Touchpad Direkt-Tipp</string>
+    <string name="touch_section_map_input_mode">Kartenbildschirm Touch-Eingabe</string>
+    <string name="touch_map_input_both">Beide</string>
+    <string name="touch_map_input_direct_touch">Direkt-Touch</string>
+    <string name="touch_map_input_touchpad_mouse">Touchpad-Maus</string>
     <string name="touch_direct_tap_fast">Schnell</string>
     <string name="touch_direct_tap_slow">Langsam</string>
     <string name="touch_section_scroll_speed">Scroll-Geschwindigkeit</string>
@@ -229,7 +233,8 @@
     <string name="touch_preset_stealth_toggle">Schleichmodus an/aus</string>
     <string name="touch_preset_swap_places">Plätze tauschen</string>
     <string name="touch_preset_alt_movement_hold">Seitwärts-/Rückwärtsschritte</string>
-    <string name="touch_preset_shift_toggle">Item Stacking</string>
+    <string name="touch_preset_ctrl_examine">Untersuchen (STRG)</string>
+    <string name="touch_preset_shift_toggle">Item-Mehrfachauswahl</string>
     <string name="touch_preset_fire_mode">Feuermodus wechseln</string>
     <string name="touch_preset_keyring">Schlüsselbund öffnen</string>
     <string name="touch_preset_auto_bandage">Automatisches Verbinden</string>
@@ -272,7 +277,7 @@
     <string name="touch_preset_quick_load">Schnellladen</string>
     <string name="touch_preset_quit_game">Spiel beenden</string>
     <string name="touch_preset_cheats">Cheats</string>
-    <string name="touch_preset_map_shift">Item Stacking</string>
+    <string name="touch_preset_map_shift">Item-Mehrfachauswahl</string>
     <string name="touch_preset_map_options">Optionen</string>
     <string name="touch_preset_map_time_minus">Zeit langsamer</string>
     <string name="touch_preset_map_time_plus">Zeit schneller</string>

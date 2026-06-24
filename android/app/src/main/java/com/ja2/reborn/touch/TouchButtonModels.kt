@@ -3,8 +3,11 @@ package com.ja2.reborn.touch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val TOUCH_OVERLAY_CONFIG_VERSION = 15
-const val DEFAULT_TOUCH_PRESET_VERSION = 20260619
+const val TOUCH_OVERLAY_CONFIG_VERSION = 16
+const val MAP_SCREEN_INPUT_MODE_BOTH = "both"
+const val MAP_SCREEN_INPUT_MODE_DIRECT_TOUCH = "direct_touch"
+const val MAP_SCREEN_INPUT_MODE_TOUCHPAD_MOUSE = "touchpad_mouse"
+const val DEFAULT_TOUCH_PRESET_VERSION = 20260624
 
 @Serializable
 data class TouchOverlayConfig(
@@ -20,6 +23,7 @@ data class TouchOverlayConfig(
     @SerialName("tactical_map_fov_percent") val tacticalMapFovPercent: Int = 100,
     @SerialName("tactical_action_panel_scale_percent") val tacticalActionPanelScalePercent: Int = 130,
     @SerialName("direct_touch_arbitration_ms") val directTouchArbitrationMs: Int = 2500,
+    @SerialName("map_screen_input_mode") val mapScreenInputMode: String = MAP_SCREEN_INPUT_MODE_BOTH,
     val buttons: List<TouchButtonConfig> = defaultButtons(),
     @SerialName("map_screen_buttons") val mapScreenButtons: List<TouchButtonConfig> = emptyList()
 )
@@ -73,6 +77,7 @@ fun defaultButtons(): List<TouchButtonConfig> = listOf(
     TouchButtonConfig(id = "button_1778184701058", label = "Durch Ziele schalten", icon = "cycle_targets", x = 0.91f, y = 0f, size = 0.18f, iconFill = 1.1f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "N"))),
     TouchButtonConfig(id = "button_1781876669884", label = "Auswahl nachladen", icon = "reload_selected", x = 0.875f, y = 0.1944444f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key_combo", mode = "tap", keyNames = listOf("ALT", "R")))),
     TouchButtonConfig(id = "button_1781877119546", label = "Item Stacking", icon = "map_shift", x = 0.1225f, y = 0f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "SHIFT"))),
+    TouchButtonConfig(id = "button_1719600000001", label = "Examine (CTRL)", icon = "ctrl_examine", x = 0.91f, y = 0.5444445f, size = 0.18f, iconFill = 0.90000004f, actions = listOf(TouchButtonAction(type = "key", mode = "toggle", keyName = "CTRL"))),
     TouchButtonConfig(id = "button_1781877195847", label = "Ebene wechseln", icon = "level_toggle", x = 0.175f, y = 0f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "TAB"))),
     TouchButtonConfig(id = "button_1781879071413", label = "Plätze tauschen", icon = "swap_places", x = 0.805f, y = 0f, size = 0.18f, iconFill = 0.9900001f, actions = listOf(TouchButtonAction(type = "key", mode = "tap", keyName = "X")))
 )

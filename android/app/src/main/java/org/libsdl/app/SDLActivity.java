@@ -1330,6 +1330,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static native boolean isTeamPanelMercPortraitAt(float xNorm, float yNorm);
     public static native boolean selectAllTeamPanelMercs();
     public static native void toggleTacticalPanels();
+    public static native int getSelectedMercStealthMode();
     public static native float getTacticalBottomPanelTopRatio();
     public static native void showTutorial();
     public static native void setTutorialLanguage(boolean german);

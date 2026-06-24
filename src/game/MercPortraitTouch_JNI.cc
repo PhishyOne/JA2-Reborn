@@ -8,6 +8,7 @@
 #include "Tactical/Interface.h"
 #include "Tactical/Interface_Items.h"
 #include "Tactical/Interface_Panels.h"
+#include "Tactical/Overhead.h"
 #include "UILayout.h"
 #include "TacticalScaling.h"
 
@@ -41,6 +42,17 @@ Java_org_libsdl_app_SDLActivity_toggleTacticalPanels(JNIEnv* env, jclass cls)
 	if (guiCurrentScreen != GAME_SCREEN) return;
 	if (fInMapMode || gfInItemPickupMenu || gpItemPointer != NULL) return;
 	ToggleTacticalPanels();
+}
+
+extern "C" JNIEXPORT jint JNICALL
+Java_org_libsdl_app_SDLActivity_getSelectedMercStealthMode(JNIEnv* env, jclass cls)
+{
+	if (guiCurrentScreen != GAME_SCREEN) return 0;
+
+	SOLDIERTYPE const* const selected = GetSelectedMan();
+	if (selected == NULL) return 0;
+
+	return selected->bStealthMode ? 1 : 0;
 }
 
 extern "C" JNIEXPORT jfloat JNICALL

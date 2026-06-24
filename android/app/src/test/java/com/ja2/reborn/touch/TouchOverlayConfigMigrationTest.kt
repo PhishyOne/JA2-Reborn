@@ -83,24 +83,25 @@ class TouchOverlayConfigMigrationTest {
     fun codeDefaultHasEmptyMapScreenButtons() {
         val config = TouchOverlayConfig()
         assertEquals(TOUCH_OVERLAY_CONFIG_VERSION, config.schemaVersion)
-        assertEquals(15, config.schemaVersion)
+        assertEquals(16, config.schemaVersion)
         assertEquals(0, config.defaultPresetVersion)
         assertTrue(config.mapScreenButtons.isEmpty())
-        assertEquals(22, config.buttons.size)
+        assertEquals(23, config.buttons.size)
         assertEquals(1.45f, config.relativeMouseSpeed)
         assertEquals(35, config.scrollSpeedMs)
         assertEquals(130, config.tacticalActionPanelScalePercent)
         assertEquals(2500, config.directTouchArbitrationMs)
+        assertEquals(MAP_SCREEN_INPUT_MODE_BOTH, config.mapScreenInputMode)
     }
 
     @Test
-    fun schemaVersionConstantIs15() {
-        assertEquals(15, TOUCH_OVERLAY_CONFIG_VERSION)
+    fun schemaVersionConstantIs16() {
+        assertEquals(16, TOUCH_OVERLAY_CONFIG_VERSION)
     }
 
     @Test
-    fun defaultPresetVersionConstantIsCurrentPolishVersion() {
-        assertEquals(20260619, DEFAULT_TOUCH_PRESET_VERSION)
+    fun defaultPresetVersionConstantIsCurrentTouchVersion() {
+        assertEquals(20260624, DEFAULT_TOUCH_PRESET_VERSION)
     }
 
     @Test
@@ -139,11 +140,15 @@ class TouchOverlayConfigMigrationTest {
     @Test
     fun defaultButtonsIncludeNewPolishActions() {
         val buttons = defaultButtons()
-        assertEquals(22, buttons.size)
+        assertEquals(23, buttons.size)
 
         val reload = buttons.first { it.icon == "reload_selected" }
         assertEquals("key_combo", reload.actions.first().type)
         assertEquals(listOf("ALT", "R"), reload.actions.first().keyNames)
+
+        val examine = buttons.first { it.icon == "ctrl_examine" }
+        assertEquals("CTRL", examine.actions.first().keyName)
+        assertEquals("toggle", examine.actions.first().mode)
 
         val shift = buttons.first { it.icon == "map_shift" }
         assertEquals("SHIFT", shift.actions.first().keyName)

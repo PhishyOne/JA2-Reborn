@@ -39,6 +39,8 @@ class TouchOverlaySettingsDialog(
     private val onPanelScaleChanged: (Int) -> Unit = {},
     private val directTouchArbitrationMs: Int = 2500,
     private val onDirectTouchArbitrationChanged: (Int) -> Unit = {},
+    private val mapScreenInputMode: String = "both",
+    private val onMapScreenInputModeChanged: (String) -> Unit = {},
     private val resolutionMode: ResolutionMode = ResolutionMode.DEFAULT
 ) {
     // Inverted: left=slow (80ms), right=fast (5ms)
@@ -141,6 +143,45 @@ class TouchOverlaySettingsDialog(
         layout.addView(section(R.string.touch_section_direct_tap))
         layout.addView(sliderWithDirectionalLabels(arbitrationSeekBar,
             R.string.touch_direct_tap_fast, R.string.touch_direct_tap_slow))
+
+        val inputModeValues = arrayOf("both", "direct_touch", "touchpad_mouse")
+        val currentInputIndex = inputModeValues.indexOf(mapScreenInputMode).coerceAtLeast(0)
+        val inputModeSeekBar = SeekBar(context).apply {
+            max = 2
+            progress = currentInputIndex
+            thumbTintList = ColorStateList.valueOf(ACCENT)
+            progressTintList = ColorStateList.valueOf(ACCENT)
+            progressBackgroundTintList = ColorStateList.valueOf(0x667D8DA0)
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        val mode = inputModeValues[progress.coerceIn(0, 2)]
+                        SDLSurface.setMapScreenInputMode(mode)
+                        onMapScreenInputModeChanged(mode)
+                    }
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }
+
+        layout.addView(section(R.string.touch_section_map_input_mode))
+        layout.addView(LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 4.dp(), 0, 4.dp())
+            addView(inputModeSeekBar, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            ))
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                addView(speedLabel(R.string.touch_map_input_both, Gravity.START),
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                addView(speedLabel(R.string.touch_map_input_direct_touch, Gravity.CENTER),
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                addView(speedLabel(R.string.touch_map_input_touchpad_mouse, Gravity.END),
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            })
+        })
 
         val activePanelScaleValues = panelScaleValues
         val effectivePanelScalePercent = if (resolutionMode == ResolutionMode.RETRO) 100 else panelScalePercent

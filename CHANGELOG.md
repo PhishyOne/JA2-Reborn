@@ -4,6 +4,26 @@ All notable changes to this Android port are documented here.
 
 This project follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates use `YYYY-MM-DD`.
 
+## 2026-06-24 - 1.0.5
+
+### Added
+
+- Added a CTRL Examine touch-overlay toggle for tactical interactions that need a held CTRL modifier.
+- Added a Map Screen touch input mode setting with Direct Touch, Touchpad Mouse, and combined input modes.
+
+### Fixed
+
+- Fixed the touch-overlay Stealth toggle showing a stale active state after switching to another selected merc.
+- Fixed sticky Item Stacking and Sidestep/Backstep modifier toggles blocking later touch actions, while keeping Item Stacking active across tactical inventory-area and Map Screen touches.
+- Fixed Map Screen touch input mode slider label alignment.
+- Fixed German touch preset labels for CTRL Examine and SHIFT Item Stacking.
+
+### Verified
+
+- Ran `:app:testDebugUnitTest`.
+- Built and verified the signed release APK with versionCode `1000005`.
+- Verified the 1.0.5 touch fixes on Android hardware.
+
 ## 2026-06-19 - 1.0.4
 
 ### Added

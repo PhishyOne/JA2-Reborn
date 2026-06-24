@@ -36,5 +36,6 @@
   "map_tactical": "2000000006",
   "strafe_hold": "2000000017",
   "strafe_toggle": "2000000017",
-  "reload_selected": "2000000038"
+  "reload_selected": "2000000038",
+  "ctrl_examine": "2000000039"
 }

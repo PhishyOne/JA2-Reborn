@@ -28,6 +28,7 @@ val TACTICAL_TOUCH_BUTTON_PRESETS: List<TouchButtonPreset> = listOf(
     keyPreset("stealth_toggle", "Schleichmodus an/aus", "stealth_toggle", "Z", "Bewegung", mode = "toggle_tap"),
     keyPreset("swap_places", "Pl\u00e4tze tauschen", "swap_places", "X", "Bewegung"),
     keyPreset("alt_movement_hold", "Seitw\u00e4rts-/R\u00fcckw\u00e4rtsschritte", "alt_movement_hold", "ALT", "Bewegung", mode = "toggle"),
+    keyPreset("ctrl_examine", "Examine (STRG)", "ctrl_examine", "CTRL", "Bewegung", mode = "toggle"),
     keyPreset("shift_toggle", "Item Stacking", "map_shift", "SHIFT", "Bewegung", mode = "toggle"),
 
     keyPreset("fire_mode", "Feuermodus wechseln", "fire_mode", "B", "Kampf"),

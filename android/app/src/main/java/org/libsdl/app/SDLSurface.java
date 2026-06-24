@@ -58,15 +58,27 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     private static final int BOTTOM_UI_TWO_FINGER_TAP_TIMEOUT_MS = 450;
     private static final int PORTRAIT_LONG_PRESS_MS = 450;
     private static final int JA2_GAME_SCREEN = 5;
+    private static final int JA2_MAP_SCREEN = 9;
     private static final float TOUCHPAD_TAP_SLOP_PX = 30.0f;
     private static final float TOUCHPAD_DOUBLE_TAP_SLOP_DP = 64.0f;
     private static final float TOUCHPAD_DIRECT_TAP_ARBITRATION_DP = 72.0f;
     private static float sTouchpadSpeed = 1.0f;
     private static int sDirectTouchArbitrationMs = 1800;
+    private static String sMapScreenInputMode = "both";
     private static boolean sOverlayEditModeActive = false;
+    private static Runnable sTouchOverlayUserActionCallback = null;
+    private static Runnable sTouchOverlayInventoryActionCallback = null;
 
     public static void setOverlayEditModeActive(boolean active) {
         sOverlayEditModeActive = active;
+    }
+
+    public static void setTouchOverlayUserActionCallback(Runnable callback) {
+        sTouchOverlayUserActionCallback = callback;
+    }
+
+    public static void setTouchOverlayInventoryActionCallback(Runnable callback) {
+        sTouchOverlayInventoryActionCallback = callback;
     }
 
     public static boolean isOverlayEditModeActive() {
@@ -87,6 +99,14 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     public static int getDirectTouchArbitrationMs() {
         return sDirectTouchArbitrationMs;
+    }
+
+    public static void setMapScreenInputMode(String mode) {
+        sMapScreenInputMode = mode;
+    }
+
+    public static String getMapScreenInputMode() {
+        return sMapScreenInputMode;
     }
 
     private int mTouchpadPointerId = -1;
@@ -146,6 +166,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             if (mTeamPanelPortraitPointerId == -1) {
                 return;
             }
+            notifyTouchOverlayUserAction();
             if (SDLActivity.selectAllTeamPanelMercs()) {
                 mTeamPanelPortraitLongPressed = true;
             }
@@ -160,6 +181,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             SDLActivity.onNativeMouse(0, MotionEvent.ACTION_UP, mTouchpadCursorX, mTouchpadCursorY, false);
             mPendingTouchpadClickActive = false;
             mPendingTouchpadClickButton = 0;
+            notifyTouchOverlayActionForPoint(mTouchpadCursorY);
         }
     };
     private final Runnable mDeferredTouchpadClickRunnable = new Runnable() {
@@ -390,6 +412,30 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         return true;
    }
 
+    private static void notifyTouchOverlayUserAction() {
+        Runnable callback = sTouchOverlayUserActionCallback;
+        if (callback != null) {
+            callback.run();
+        }
+    }
+
+    private static void notifyTouchOverlayInventoryAction() {
+        Runnable callback = sTouchOverlayInventoryActionCallback;
+        if (callback != null) {
+            callback.run();
+            return;
+        }
+        notifyTouchOverlayUserAction();
+    }
+
+    private void notifyTouchOverlayActionForPoint(float y) {
+        if (isJa2MapScreen() || isInTacticalBottomPanel(y)) {
+            notifyTouchOverlayInventoryAction();
+        } else {
+            notifyTouchOverlayUserAction();
+        }
+    }
+
     private void dispatchNativeTouch(MotionEvent event, boolean forceNativeTouch) {
         int touchDevId = event.getDeviceId();
         final int pointerCount = event.getPointerCount();
@@ -428,21 +474,36 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             y = motionListener.getEventY(event);
 
             SDLActivity.onNativeMouse(mouseButton, action, x, y, motionListener.inRelativeMode());
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                notifyTouchOverlayActionForPoint(y);
+            }
         } else {
             if (!forceNativeTouch && handleTeamPanelPortraitTouch(event)) {
                 return;
             }
             if (!forceNativeTouch && !TOUCHSCREEN_MOUSE_MODE_HARDWARE.equals(mTouchscreenMouseMode)) {
-                if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode) && handleBottomUITouch(event)) {
-                    return;
-                }
-                if (TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mTouchscreenMouseMode)) {
-                    handleAbsoluteMouseTouch(event);
-                    return;
-                }
-                if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+                boolean skipMouseProcessing = isJa2MapScreen() && "direct_touch".equals(sMapScreenInputMode);
+
+                if (isJa2MapScreen() && "touchpad_mouse".equals(sMapScreenInputMode)) {
+                    if (handleBottomUITouch(event)) {
+                        return;
+                    }
                     handleTouchpadMouseTouch(event);
                     return;
+                }
+
+                if (!skipMouseProcessing) {
+                    if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode) && handleBottomUITouch(event)) {
+                        return;
+                    }
+                    if (TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mTouchscreenMouseMode)) {
+                        handleAbsoluteMouseTouch(event);
+                        return;
+                    }
+                    if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+                        handleTouchpadMouseTouch(event);
+                        return;
+                    }
                 }
             }
 
@@ -484,6 +545,9 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                         p = 1.0f;
                     }
                     SDLActivity.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
+                    if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP) {
+                        notifyTouchOverlayActionForPoint(event.getY(i));
+                    }
                     break;
 
                 case MotionEvent.ACTION_CANCEL:
@@ -499,6 +563,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                         }
                         SDLActivity.onNativeTouch(touchDevId, pointerFingerId, MotionEvent.ACTION_UP, x, y, p);
                     }
+                    notifyTouchOverlayUserAction();
                     break;
 
                 default:
@@ -524,6 +589,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
                 mHandler.removeCallbacks(mTeamPanelPortraitLongPressRunnable);
                 if (action == MotionEvent.ACTION_UP && !mTeamPanelPortraitLongPressed) {
+                    notifyTouchOverlayUserAction();
                     SDLActivity.selectTeamPanelMercPortraitAt(mTeamPanelPortraitDownXNorm, mTeamPanelPortraitDownYNorm);
                 }
                 mTeamPanelPortraitPointerId = -1;
@@ -724,6 +790,14 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         }
     }
 
+    private boolean isJa2MapScreen() {
+        try {
+            return SDLActivity.getJa2ScreenId() == JA2_MAP_SCREEN;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
     private void finishBottomUITouch(MotionEvent event, boolean allowTapAction) {
         int pointerIndex = event.findPointerIndex(mBottomUIPointerId);
         float x = pointerIndex >= 0 ? clamp(event.getX(pointerIndex), 0.0f, mWidth) : mBottomUILastX;
@@ -743,6 +817,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                 mTouchpadCursorX = x;
                 mTouchpadCursorY = y;
             }
+            notifyTouchOverlayInventoryAction();
         }
 
         resetBottomUITouchState();
@@ -751,6 +826,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     private void cancelBottomUITouch() {
         if (mBottomUIMouseDown) {
             SDLActivity.onNativeMouse(0, MotionEvent.ACTION_UP, mBottomUILastX, mBottomUILastY, false);
+            notifyTouchOverlayInventoryAction();
         }
         resetBottomUITouchState();
     }
@@ -785,6 +861,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             case MotionEvent.ACTION_UP:
                 mAbsoluteMouseDown = false;
                 SDLActivity.onNativeMouse(0, action, x, y, false);
+                notifyTouchOverlayActionForPoint(y);
                 break;
             case MotionEvent.ACTION_MOVE:
                 SDLActivity.onNativeMouse(mAbsoluteMouseDown ? MotionEvent.BUTTON_PRIMARY : 0, action, x, y, false);
@@ -792,6 +869,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             case MotionEvent.ACTION_CANCEL:
                 mAbsoluteMouseDown = false;
                 SDLActivity.onNativeMouse(0, MotionEvent.ACTION_UP, x, y, false);
+                notifyTouchOverlayActionForPoint(y);
                 break;
             default:
                 break;
@@ -964,6 +1042,9 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         if (isJa2GameScreen()) {
             return false;
         }
+        if (isJa2MapScreen() && "touchpad_mouse".equals(sMapScreenInputMode)) {
+            return false;
+        }
         if (mTouchpadLastRelativeMoveTime == 0
                 || mTouchpadLastRelativeFingerX < 0.0f
                 || mTouchpadLastRelativeFingerY < 0.0f) {
@@ -1025,6 +1106,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         mTouchpadCursorY = clamp(y, 0.0f, mHeight);
         SDLActivity.onNativeMouse(MotionEvent.BUTTON_PRIMARY, MotionEvent.ACTION_DOWN, mTouchpadCursorX, mTouchpadCursorY, false);
         SDLActivity.onNativeMouse(0, MotionEvent.ACTION_UP, mTouchpadCursorX, mTouchpadCursorY, false);
+        notifyTouchOverlayActionForPoint(mTouchpadCursorY);
     }
 
     public void performMouseButton(int mouseButton, boolean pressed) {
@@ -1114,6 +1196,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         SDLActivity.onNativeMouse(0, MotionEvent.ACTION_UP, mTouchpadCursorX, mTouchpadCursorY, false);
         mPendingTouchpadClickActive = false;
         mPendingTouchpadClickButton = 0;
+        notifyTouchOverlayActionForPoint(mTouchpadCursorY);
     }
 
     private void beginTouchpadDoubleTapDrag() {
@@ -1143,10 +1226,21 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         }
         SDLActivity.onNativeMouse(0, MotionEvent.ACTION_UP, mTouchpadCursorX, mTouchpadCursorY, false);
         mTouchpadDoubleTapDragActive = false;
+        notifyTouchOverlayActionForPoint(mTouchpadCursorY);
     }
 
     public void performOverlayMouseButton(int mouseButton, boolean pressed) {
-        if (!TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+        boolean effectiveTouchpad;
+        if (isJa2MapScreen()) {
+            if ("direct_touch".equals(sMapScreenInputMode)) {
+                return;
+            }
+            effectiveTouchpad = "touchpad_mouse".equals(sMapScreenInputMode)
+                    || TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode);
+        } else {
+            effectiveTouchpad = TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode);
+        }
+        if (!effectiveTouchpad) {
             return;
         }
         ensureTouchpadCursorInitialized();

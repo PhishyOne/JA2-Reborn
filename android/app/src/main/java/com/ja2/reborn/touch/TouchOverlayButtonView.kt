@@ -9,7 +9,6 @@ import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
-import org.libsdl.app.SDLActivity
 
 class TouchOverlayButtonView(
     context: Context,
@@ -18,6 +17,7 @@ class TouchOverlayButtonView(
     private val dragCallback: (String) -> Unit,
     private val longPressCallback: (TouchButtonConfig) -> Unit,
     private val specialActionCallback: (TouchButtonAction) -> Boolean = { false },
+    private val beforeUserActionCallback: (TouchButtonConfig) -> Unit = {},
     draggable: Boolean = false
 ) : View(context) {
 
@@ -99,6 +99,20 @@ class TouchOverlayButtonView(
         invalidate()
     }
 
+    fun syncToggleTapState(active: Boolean) {
+        if (!isToggleTapMode || activePointerId != -1 || isToggled == active) return
+        isToggled = active
+        setPressedState(false)
+        invalidate()
+    }
+
+    fun clearStickyToggleState() {
+        if (!isToggleMode || !isToggled) return
+        isToggled = false
+        setPressedState(false)
+        invalidate()
+    }
+
     private fun updateMode() {
         val action = buttonConfig.actions.firstOrNull() ?: TouchButtonAction(type = "", mode = "hold")
         isHoldMode = action.mode == "hold"
@@ -140,11 +154,6 @@ class TouchOverlayButtonView(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (isTutorialVisible()) {
-            releaseIfHeld()
-            return false
-        }
-
         val action = event.actionMasked
 
         when (action) {
@@ -163,6 +172,7 @@ class TouchOverlayButtonView(
                 isLongPress = false
 
                 if (canDispatchInput() && isDpad && isHoldMode) {
+                    beforeUserActionCallback(buttonConfig)
                     updateDpadDirection(event.x, event.y)
                 } else if (canDispatchInput() && isHoldMode) {
                     dispatchActions(true)
@@ -185,6 +195,7 @@ class TouchOverlayButtonView(
                 isLongPress = false
 
                 if (canDispatchInput() && isDpad && isHoldMode) {
+                    beforeUserActionCallback(buttonConfig)
                     updateDpadDirection(event.getX(index), event.getY(index))
                 } else if (canDispatchInput() && isHoldMode) {
                     dispatchActions(true)
@@ -245,6 +256,7 @@ class TouchOverlayButtonView(
                     dispatchActions(false)
                     setPressedState(false)
                 } else if (canDispatchInput() && isToggleMode) {
+                    beforeUserActionCallback(buttonConfig)
                     val nowActive = dispatcher.performToggle(buttonConfig.actions)
                     isToggled = nowActive
                     setPressedState(nowActive)
@@ -276,6 +288,7 @@ class TouchOverlayButtonView(
                     } else if (canDispatchInput() && isHoldMode) {
                         dispatchActions(false)
                     } else if (canDispatchInput() && isToggleMode) {
+                        beforeUserActionCallback(buttonConfig)
                         val nowActive = dispatcher.performToggle(buttonConfig.actions)
                         isToggled = nowActive
                     } else if (canDispatchInput() && isToggleTapMode) {
@@ -332,11 +345,8 @@ class TouchOverlayButtonView(
             releaseDpadDirection()
             setPressedState(false)
             activePointerId = -1
-        } else if (isPressed && isHoldMode && !isDragging) {
+        } else if (canDispatchInput() && isPressed && isHoldMode && !isDragging) {
             dispatchActions(false)
-            setPressedState(false)
-            activePointerId = -1
-        } else if (isPressed) {
             setPressedState(false)
             activePointerId = -1
         }
@@ -376,14 +386,22 @@ class TouchOverlayButtonView(
     }
 
     private fun dispatchActions(pressed: Boolean) {
+        val isMouseButtonAction = buttonConfig.actions.any { it.type == "mouse_button" }
+        if (pressed && !isMouseButtonAction) {
+            beforeUserActionCallback(buttonConfig)
+        }
         for (action in buttonConfig.actions) {
             if (!specialActionCallback(action)) {
                 dispatcher.performAction(action, pressed)
             }
         }
+        if (!pressed && isMouseButtonAction) {
+            beforeUserActionCallback(buttonConfig)
+        }
     }
 
     private fun dispatchTap() {
+        beforeUserActionCallback(buttonConfig)
         for (action in buttonConfig.actions) {
             if (!specialActionCallback(action)) {
                 dispatcher.performAction(action, true)
@@ -392,14 +410,7 @@ class TouchOverlayButtonView(
         }
     }
 
-    private fun canDispatchInput(): Boolean = !isDraggable && !isTutorialVisible()
-
-    private fun isTutorialVisible(): Boolean =
-        try {
-            SDLActivity.isTutorialVisible()
-        } catch (e: Exception) {
-            false
-        }
+    private fun canDispatchInput(): Boolean = !isDraggable
 
     private fun updateDpadDirection(x: Float, y: Float) {
         val direction = dpadDirection(x, y) ?: return

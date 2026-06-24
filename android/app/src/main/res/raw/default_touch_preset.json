@@ -1,10 +1,11 @@
 {
-    "schema_version":  15,
-    "default_preset_version":  20260619,
+    "schema_version":  16,
+    "default_preset_version":  20260624,
     "relative_mouse_speed":  1.45,
     "scroll_speed_ms":  35,
     "tactical_action_panel_scale_percent":  130,
     "direct_touch_arbitration_ms":  2500,
+    "map_screen_input_mode": "both",
     "buttons":  [
                     {
                         "id":  "mouse_left",
@@ -309,6 +310,22 @@
                                                               "ALT",
                                                               "R"
                                                           ]
+                                        }
+                                    ]
+                    },
+                    {
+                        "id":  "button_1719600000001",
+                        "label":  "Examine (CTRL)",
+                        "icon":  "ctrl_examine",
+                        "x":  0.91,
+                        "y":  0.5444445,
+                        "size":  0.18,
+                        "icon_fill":  0.90000004,
+                        "actions":  [
+                                        {
+                                            "type":  "key",
+                                            "mode":  "toggle",
+                                            "key_name":  "CTRL"
                                         }
                                     ]
                     },
