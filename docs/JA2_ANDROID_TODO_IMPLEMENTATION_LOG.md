@@ -77,6 +77,23 @@ Branch: `experimental` | Stand: 2026-06-24
 | P5.9 | CHANGELOG.md, JA2AutoUpdate.md, Implementierungs-Log | done |
 | P5.10 | Commit: c9bb66f | done |
 
+## P6 — Manual Update Check Button (2026-06-24)
+
+| Schritt | Aktion | Status |
+|---------|--------|--------|
+| P6.1 | ic_download.xml: Download-Pfeil Vector Drawable (32x20dp, Accent #FFC17A) | done |
+| P6.2 | activity_launcher.xml: updateCheck ImageView links vor flagDE/flagGB | done |
+| P6.3 | strings.xml (EN): update_check_cd, auto_update_up_to_date_title/message, auto_update_no_network | done |
+| P6.4 | strings.xml (DE): update_check_cd, auto_update_up_to_date_title/message, auto_update_no_network | done |
+| P6.5 | LauncherActivity.kt: updateCheck.setOnClickListener → performUpdateCheck(force=true) | done |
+| P6.6 | performUpdateCheck(): UI-Feedback für alle Pfade (no-network, up-to-date, draft-only, error) | done |
+| P6.7 | showUpdateUpToDateDialog(): Titel + Version + OK-Button | done |
+| P6.8 | showUpdateInfoDialog(): generisches Info-Panel (delegiert an showUpdateErrorDialog) | done |
+| P6.9 | Versions-Test: 1.0.3 APK installiert → Button erkennt v1.0.4 auf GitHub → Update-Flow erfolgreich | done |
+| P6.10 | Versions-Test: 1.0.5 APK installiert → Button zeigt "Up to date" / "Aktuell" | done |
+| P6.11 | Vollständigkeits-Check: alle 21 Auto-Update-Strings in EN + DE vorhanden | done |
+| P6.12 | assembleRelease + GDrive Upload | done |
+
 ## Codex Reviews (2026-06-24)
 
 | Review | Ergebnis |

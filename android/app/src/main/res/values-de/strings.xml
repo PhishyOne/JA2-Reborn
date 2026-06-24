@@ -218,6 +218,7 @@
     <string name="touch_key_unknown">Tst</string>
 
     <!-- Language Flags -->
+    <string name="update_check_cd">Nach Updates suchen</string>
     <string name="flag_de_cd">Deutsch</string>
     <string name="flag_gb_cd">English</string>
 
@@ -304,4 +305,7 @@
     <string name="auto_update_download_failed">Download fehlgeschlagen.</string>
     <string name="auto_update_verification_failed">Die heruntergeladene APK konnte nicht sicher verifiziert werden.</string>
     <string name="auto_update_installer_failed">Der Android-Installer konnte nicht geöffnet werden.</string>
+    <string name="auto_update_up_to_date_title">Aktuell</string>
+    <string name="auto_update_up_to_date_message">Du nutzt bereits die neueste Version (%1$s).</string>
+    <string name="auto_update_no_network">Keine Internetverbindung. Bitte prüfe dein Netzwerk und versuche es erneut.</string>
 </resources>

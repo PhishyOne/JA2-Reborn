@@ -218,6 +218,7 @@
     <string name="touch_key_unknown">Key</string>
 
     <!-- Language Flags -->
+    <string name="update_check_cd">Check for updates</string>
     <string name="flag_de_cd">Deutsch</string>
     <string name="flag_gb_cd">English</string>
 
@@ -304,4 +305,7 @@
     <string name="auto_update_download_failed">Download failed.</string>
     <string name="auto_update_verification_failed">The downloaded APK could not be verified safely.</string>
     <string name="auto_update_installer_failed">Could not open the Android installer.</string>
+    <string name="auto_update_up_to_date_title">Up to date</string>
+    <string name="auto_update_up_to_date_message">You are already using the latest version (%1$s).</string>
+    <string name="auto_update_no_network">No internet connection. Check your network and try again.</string>
 </resources>

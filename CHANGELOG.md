@@ -8,7 +8,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 
 ### Added
 
-- **Auto-Update Checker** (P1–P5): Users can opt in to automatic update checks against
+- **Auto-Update Checker** (P1–P6): Users can opt in to automatic update checks against
   the GitHub Releases API (`RealTommyGreen/JA2-Reborn`). When a newer version is found,
   the app downloads, verifies, and installs the APK — each step requires explicit user
   confirmation. No game data is ever uploaded.
@@ -25,6 +25,10 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
     lifecycle-safe UI updates.
   - P5: Release build verified with `apksigner` and `aapt`. 72 unit tests pass.
     Device staging tests documented in `JA2AutoUpdate.md` (requires Android hardware).
+  - P6: **Manual update check button** (download icon) added left of the language
+    flags in the launcher header. Tapping it runs a forced update check with full
+    UI feedback: "Up to date" confirmation when current, "Update available" dialog
+    with download flow when a newer release exists, and network/error feedback.
 - Added a CTRL Examine touch-overlay toggle for tactical interactions that need a held CTRL modifier.
 - Added a Map Screen touch input mode setting with Direct Touch, Touchpad Mouse, and combined input modes.
 

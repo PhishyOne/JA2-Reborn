@@ -148,6 +148,9 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun setupLanguageFlags() {
+        val updateCheck = binding.languageFlags.findViewById<android.widget.ImageView>(
+            com.ja2.reborn.R.id.updateCheck
+        )
         val flagDE = binding.languageFlags.findViewById<android.widget.ImageView>(
             com.ja2.reborn.R.id.flagDE
         )
@@ -175,6 +178,10 @@ class LauncherActivity : AppCompatActivity() {
                 saveJA2Json()
                 updateFlagHighlight()
             }
+        }
+
+        updateCheck.setOnClickListener {
+            performUpdateCheck(force = true)
         }
 
         flagDE.setOnClickListener {
@@ -661,7 +668,12 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun performUpdateCheck(force: Boolean) {
-        if (!isNetworkAvailable()) return
+        if (!isNetworkAvailable()) {
+            showUpdateInfoDialog(
+                getString(R.string.auto_update_no_network)
+            )
+            return
+        }
 
         if (UpdatePrefs.isRateLimited(this, force)) return
         UpdatePrefs.setLastCheckTimeNow(this)
@@ -670,13 +682,33 @@ class LauncherActivity : AppCompatActivity() {
 
         Thread({
             val release = UpdateChecker.fetchLatestRelease()
-            if (release == null) return@Thread
-            if (release.draft || release.prerelease) return@Thread
+            if (release == null) {
+                runOnUiIfAlive {
+                    showUpdateInfoDialog(getString(R.string.auto_update_download_failed))
+                }
+                return@Thread
+            }
+            if (release.draft || release.prerelease) {
+                runOnUiIfAlive {
+                    showUpdateUpToDateDialog(localVersion)
+                }
+                return@Thread
+            }
 
-            if (!UpdateChecker.isNewerVersion(release.tagName, localVersion)) return@Thread
+            if (!UpdateChecker.isNewerVersion(release.tagName, localVersion)) {
+                runOnUiIfAlive {
+                    showUpdateUpToDateDialog(localVersion)
+                }
+                return@Thread
+            }
 
             val asset = UpdateChecker.selectApkAsset(release)
-            if (asset == null) return@Thread
+            if (asset == null) {
+                runOnUiIfAlive {
+                    showUpdateInfoDialog(getString(R.string.auto_update_download_failed))
+                }
+                return@Thread
+            }
 
             runOnUiIfAlive {
                 showUpdateAvailableDialog(release, asset)
@@ -1055,6 +1087,65 @@ class LauncherActivity : AppCompatActivity() {
             setTextColor(Ja2GuiStyle.TEXT)
             textSize = 14f
             gravity = Gravity.CENTER
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        val dialog = AlertDialog.Builder(this).create()
+        val buttonRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        buttonRow.addView(Ja2GuiStyle.styledButton(
+            this,
+            getString(android.R.string.ok),
+            minHeightDp = 42
+        ) {
+            dialog.dismiss()
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(44), 0.5f))
+        content.addView(buttonRow, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = dp(16)
+        })
+
+        dialog.setView(content)
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
+    }
+
+    private fun showUpdateInfoDialog(message: String) {
+        showUpdateErrorDialog(message)
+    }
+
+    private fun showUpdateUpToDateDialog(version: String) {
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = Ja2GuiStyle.panelBackground(this@LauncherActivity)
+            setPadding(dp(20), dp(18), dp(20), dp(18))
+        }
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_up_to_date_title)
+            setTextColor(Ja2GuiStyle.ACCENT)
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+
+        content.addView(TextView(this).apply {
+            text = getString(R.string.auto_update_up_to_date_message, version)
+            setTextColor(Ja2GuiStyle.TEXT)
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(0, dp(14), 0, dp(16))
         }, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
