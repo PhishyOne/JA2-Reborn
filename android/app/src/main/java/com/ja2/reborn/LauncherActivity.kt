@@ -537,6 +537,7 @@ class LauncherActivity : AppCompatActivity() {
         }
 
         if (UpdateApkVerifier.needsInstallPermission(this)) {
+            showInstallPermissionDialog()
             return
         }
 
@@ -553,6 +554,13 @@ class LauncherActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             }
+        } else {
+            Log.w(activityLogTag, "createInstallerIntent returned null for pending APK")
+            Toast.makeText(
+                this,
+                getString(R.string.auto_update_installer_failed),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -949,6 +957,13 @@ class LauncherActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             }
+        } else {
+            Log.w(activityLogTag, "createInstallerIntent returned null")
+            Toast.makeText(
+                this,
+                getString(R.string.auto_update_installer_failed),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
