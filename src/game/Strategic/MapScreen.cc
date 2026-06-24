@@ -3064,6 +3064,10 @@ void EndMapScreen( BOOLEAN fDuringFade )
 {
 	if (!fInMapMode) return;
 
+	// The mapscreen inventory cleanup only removes the keyring button region.
+	// Close the popup itself before tearing down mapscreen regions.
+	DeleteKeyRingPopup();
+
 	fLeavingMapScreen = FALSE;
 
 	SetRenderFlags( RENDER_FLAG_FULL );

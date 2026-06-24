@@ -61,3 +61,65 @@ Datum: 2026-06-24
 - Arbeitsbaum vor Dokumentationsänderung erneut sauber.
 - Plan- und Log-Hashes gegen `git show` und `git rev-list` geprüft.
 - Phase 0 enthält nur Dokumentation und Git-Remote-Vorbereitung, keinen Upstream-Code-Sync.
+
+## Phase 1 - Upstream-Patch anwenden
+
+Datum: 2026-06-24
+
+### Ausgangspunkt
+
+- Aktiver Branch: `experimental`
+- Phase-0-Commit vor Anwendung: `749a27479`
+- Arbeitsbaum vor Phase 1: sauber (`git status --short --branch` -> `## experimental`)
+- Android-App-Version vor Anwendung: `1.0.5`
+
+### Anwendung
+
+- Patch trocken geprüft:
+  - `git diff --binary 6cd7bc2a..a3bd56e65e6adfd9f12994ddc1a523a0be784bf3 | git apply --check --ignore-space-change --ignore-whitespace`
+- Patch angewendet:
+  - `git diff --binary 6cd7bc2a..a3bd56e65e6adfd9f12994ddc1a523a0be784bf3 | git apply --ignore-space-change --ignore-whitespace`
+- Angewendete Range:
+  - `6cd7bc2ab49d88e95ff58b3300d232ace048fc37..a3bd56e65e6adfd9f12994ddc1a523a0be784bf3`
+- Ergebnisumfang: 13 Dateien, 209 Insertions, 25 Deletions
+
+### Inhalt
+
+- Stat-Healing durch Doctoring übernommen:
+  - `enable_stat_healing` in `assets/externalized/game.json`, Schema und Policy
+  - Savegame-Version-Bump von `102` auf `103`
+  - persistierte Damage-Felder für Agility, Dexterity, Strength und Wisdom
+  - Roundtrip-Test für neue Damage-Felder angepasst
+- Mapscreen-Keyring-Popup wird beim Verlassen des Mapscreens geschlossen.
+- Down-Arrow-Rendering in `src/game/Tactical/Interface.cc` auf Down-Koordinaten korrigiert.
+- Suppression-Werte externalisiert:
+  - `suppression_fire_modifier`
+  - `suppression_fire_reaction_threshold`
+
+### Port-spezifische Prüfung
+
+- JA2-Reborn-Scroll-Guard in `PrintAboveGuy()` bleibt erhalten:
+  - `if (g_scroll_inertia || gfScrollPending) return;`
+- JA2-Reborn-`CheatSystem`-Hooks in `src/game/Tactical/Weapons.cc` bleiben erhalten.
+- Android-App-Version bleibt unverändert: `version` enthält weiterhin `1.0.5`.
+- Upstream-Format in `assets/externalized/game.json` wurde übernommen; keine zusätzliche Formatierung oder Bereinigung durchgeführt.
+
+### Auffälligkeiten
+
+- `git apply` meldete vier trailing-whitespace-Warnungen aus dem Upstream-Patch.
+- Diese vier neu eingeführten Whitespace-Stellen wurden minimal bereinigt:
+  - `rust/stracciatella/src/schemas/yaml/game.schema.yaml`
+  - `src/game/Strategic/Assignments.cc`
+  - `src/game/Strategic/MapScreen.cc`
+- `git diff --check` meldet danach keine Fehler mehr; nur Windows-CRLF-Warnungen für betroffene Dateien.
+
+### Zweite Prüfung
+
+- `git diff --check`: keine Whitespace-Fehler, nur CRLF-Warnungen.
+- `rg -n "^(<<<<<<<|=======|>>>>>>>)" --glob "!dependencies/**" --glob "!.git/**" .`: keine Treffer.
+- Geprüfte Schwerpunktdateien:
+  - `src/game/Tactical/Interface.cc`
+  - `src/game/Tactical/Weapons.cc`
+  - `src/game/GameVersion.h`
+  - `version`
+- Diffstat erneut geprüft: 13 Dateien, 209 Insertions, 25 Deletions.

@@ -20,9 +20,9 @@ JA2 Reborn übernehmen.
 
 ## Status
 
-- Phase 0: abgeschlossen am 2026-06-24 mit Commit `72b6e98a4eb832a42cbeb95c6154cec8c2180116` als JA2-Reborn-Ausgangspunkt.
-- Phase 1: nächster Schritt.
-- Phase 2: offen.
+- Phase 0: abgeschlossen am 2026-06-24 mit Commit `749a27479`; JA2-Reborn-Ausgangspunkt war `72b6e98a4eb832a42cbeb95c6154cec8c2180116`.
+- Phase 1: abgeschlossen am 2026-06-24.
+- Phase 2: nächster Schritt.
 - Phase 3: offen.
 
 ## Phase 0 - Vorbereitung und Sicherheitsnetz
@@ -60,6 +60,8 @@ Abschluss:
 - Danach stoppen.
 
 ## Phase 1 - Upstream-Patch anwenden
+
+Status: abgeschlossen am 2026-06-24.
 
 Ziel: die komplette Upstream-Range in den Android-Port übernehmen, ohne lokale
 Port-Änderungen zu verlieren.
