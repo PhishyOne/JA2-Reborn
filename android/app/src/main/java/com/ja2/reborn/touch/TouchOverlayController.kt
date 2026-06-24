@@ -431,6 +431,8 @@ class TouchOverlayController(
             onPanelScaleChanged = { v -> persistPanelScale(v) },
             directTouchArbitrationMs = cfg?.directTouchArbitrationMs ?: 2500,
             onDirectTouchArbitrationChanged = { ms -> persistDirectTouchArbitration(ms) },
+            mapScreenInputMode = cfg?.mapScreenInputMode ?: MAP_SCREEN_INPUT_MODE_BOTH,
+            onMapScreenInputModeChanged = { mode -> persistMapScreenInputMode(mode) },
             resolutionMode = resolutionMode
         )
         dialog.show()
@@ -460,6 +462,7 @@ class TouchOverlayController(
     private fun applyRuntimeSpeeds(cfg: TouchOverlayConfig) {
         SDLSurface.setTouchpadMouseSpeed(cfg.relativeMouseSpeed)
         SDLSurface.setDirectTouchArbitrationMs(cfg.directTouchArbitrationMs)
+        SDLSurface.setMapScreenInputMode(cfg.mapScreenInputMode)
         try {
             SDLActivity.setScrollSpeed(cfg.scrollSpeedMs)
             SDLActivity.setMouseScrollingDisabled(cfg.disableMouseScrolling)
@@ -566,6 +569,13 @@ class TouchOverlayController(
     private fun persistDirectTouchArbitration(ms: Int) {
         val cfg = config ?: return
         val updated = cfg.copy(directTouchArbitrationMs = ms)
+        config = updated
+        store.save(persistableConfig(updated))
+    }
+
+    private fun persistMapScreenInputMode(mode: String) {
+        val cfg = config ?: return
+        val updated = cfg.copy(mapScreenInputMode = mode)
         config = updated
         store.save(persistableConfig(updated))
     }

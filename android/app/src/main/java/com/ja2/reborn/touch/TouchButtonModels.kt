@@ -3,7 +3,10 @@ package com.ja2.reborn.touch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val TOUCH_OVERLAY_CONFIG_VERSION = 15
+const val TOUCH_OVERLAY_CONFIG_VERSION = 16
+const val MAP_SCREEN_INPUT_MODE_BOTH = "both"
+const val MAP_SCREEN_INPUT_MODE_DIRECT_TOUCH = "direct_touch"
+const val MAP_SCREEN_INPUT_MODE_TOUCHPAD_MOUSE = "touchpad_mouse"
 const val DEFAULT_TOUCH_PRESET_VERSION = 20260624
 
 @Serializable
@@ -20,6 +23,7 @@ data class TouchOverlayConfig(
     @SerialName("tactical_map_fov_percent") val tacticalMapFovPercent: Int = 100,
     @SerialName("tactical_action_panel_scale_percent") val tacticalActionPanelScalePercent: Int = 130,
     @SerialName("direct_touch_arbitration_ms") val directTouchArbitrationMs: Int = 2500,
+    @SerialName("map_screen_input_mode") val mapScreenInputMode: String = MAP_SCREEN_INPUT_MODE_BOTH,
     val buttons: List<TouchButtonConfig> = defaultButtons(),
     @SerialName("map_screen_buttons") val mapScreenButtons: List<TouchButtonConfig> = emptyList()
 )

@@ -89,6 +89,10 @@
     <string name="touch_section_mouse_speed">Mouse Speed</string>
     <string name="touch_section_auto_hide">Auto-Hide</string>
     <string name="touch_section_direct_tap">Touchpad Direct-Tap</string>
+    <string name="touch_section_map_input_mode">Map Screen Touch Input</string>
+    <string name="touch_map_input_both">Both</string>
+    <string name="touch_map_input_direct_touch">Direct Touch</string>
+    <string name="touch_map_input_touchpad_mouse">Touchpad Mouse</string>
     <string name="touch_direct_tap_fast">Fast</string>
     <string name="touch_direct_tap_slow">Slow</string>
     <string name="touch_section_presets">Presets</string>

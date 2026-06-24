@@ -1,10 +1,11 @@
 {
-    "schema_version":  15,
+    "schema_version":  16,
     "default_preset_version":  20260624,
     "relative_mouse_speed":  1.45,
     "scroll_speed_ms":  35,
     "tactical_action_panel_scale_percent":  130,
     "direct_touch_arbitration_ms":  2500,
+    "map_screen_input_mode": "both",
     "buttons":  [
                     {
                         "id":  "mouse_left",

@@ -86,6 +86,10 @@
     <!-- Touch Overlay Settings Dialog -->
     <string name="touch_settings_title">Einstellungen</string>
     <string name="touch_section_direct_tap">Touchpad Direkt-Tipp</string>
+    <string name="touch_section_map_input_mode">Kartenbildschirm Touch-Eingabe</string>
+    <string name="touch_map_input_both">Beide</string>
+    <string name="touch_map_input_direct_touch">Direkt-Touch</string>
+    <string name="touch_map_input_touchpad_mouse">Touchpad-Maus</string>
     <string name="touch_direct_tap_fast">Schnell</string>
     <string name="touch_direct_tap_slow">Langsam</string>
     <string name="touch_section_scroll_speed">Scroll-Geschwindigkeit</string>

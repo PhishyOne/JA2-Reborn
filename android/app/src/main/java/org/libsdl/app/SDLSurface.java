@@ -64,6 +64,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     private static final float TOUCHPAD_DIRECT_TAP_ARBITRATION_DP = 72.0f;
     private static float sTouchpadSpeed = 1.0f;
     private static int sDirectTouchArbitrationMs = 1800;
+    private static String sMapScreenInputMode = "both";
     private static boolean sOverlayEditModeActive = false;
     private static Runnable sTouchOverlayUserActionCallback = null;
     private static Runnable sTouchOverlayInventoryActionCallback = null;
@@ -98,6 +99,14 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     public static int getDirectTouchArbitrationMs() {
         return sDirectTouchArbitrationMs;
+    }
+
+    public static void setMapScreenInputMode(String mode) {
+        sMapScreenInputMode = mode;
+    }
+
+    public static String getMapScreenInputMode() {
+        return sMapScreenInputMode;
     }
 
     private int mTouchpadPointerId = -1;
@@ -473,16 +482,28 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                 return;
             }
             if (!forceNativeTouch && !TOUCHSCREEN_MOUSE_MODE_HARDWARE.equals(mTouchscreenMouseMode)) {
-                if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode) && handleBottomUITouch(event)) {
-                    return;
-                }
-                if (TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mTouchscreenMouseMode)) {
-                    handleAbsoluteMouseTouch(event);
-                    return;
-                }
-                if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+                boolean skipMouseProcessing = isJa2MapScreen() && "direct_touch".equals(sMapScreenInputMode);
+
+                if (isJa2MapScreen() && "touchpad_mouse".equals(sMapScreenInputMode)) {
+                    if (handleBottomUITouch(event)) {
+                        return;
+                    }
                     handleTouchpadMouseTouch(event);
                     return;
+                }
+
+                if (!skipMouseProcessing) {
+                    if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode) && handleBottomUITouch(event)) {
+                        return;
+                    }
+                    if (TOUCHSCREEN_MOUSE_MODE_ABSOLUTE.equals(mTouchscreenMouseMode)) {
+                        handleAbsoluteMouseTouch(event);
+                        return;
+                    }
+                    if (TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+                        handleTouchpadMouseTouch(event);
+                        return;
+                    }
                 }
             }
 
@@ -1021,6 +1042,9 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         if (isJa2GameScreen()) {
             return false;
         }
+        if (isJa2MapScreen() && "touchpad_mouse".equals(sMapScreenInputMode)) {
+            return false;
+        }
         if (mTouchpadLastRelativeMoveTime == 0
                 || mTouchpadLastRelativeFingerX < 0.0f
                 || mTouchpadLastRelativeFingerY < 0.0f) {
@@ -1206,7 +1230,17 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     }
 
     public void performOverlayMouseButton(int mouseButton, boolean pressed) {
-        if (!TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode)) {
+        boolean effectiveTouchpad;
+        if (isJa2MapScreen()) {
+            if ("direct_touch".equals(sMapScreenInputMode)) {
+                return;
+            }
+            effectiveTouchpad = "touchpad_mouse".equals(sMapScreenInputMode)
+                    || TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode);
+        } else {
+            effectiveTouchpad = TOUCHSCREEN_MOUSE_MODE_TOUCHPAD.equals(mTouchscreenMouseMode);
+        }
+        if (!effectiveTouchpad) {
             return;
         }
         ensureTouchpadCursorInitialized();
