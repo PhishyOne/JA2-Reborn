@@ -1,5 +1,35 @@
 # JA2 Stracciatella Integration Log
 
+## Zusammenfassung
+
+- Ziel: Upstream-Patches aus dem offiziellen JA2 Stracciatella Repository sauber in JA2 Reborn übernehmen.
+- Arbeitsbranch: `experimental`
+- Upstream-Basis: `6cd7bc2ab49d88e95ff58b3300d232ace048fc37`
+- Synchronisierter Upstream-Zielstand: `a3bd56e65e6adfd9f12994ddc1a523a0be784bf3`
+- Umfang: 8 Upstream-Commits aus `6cd7bc2a..a3bd56e`
+- Android-App-Version: unverändert `1.0.5`
+- Phase-0-Commit: `749a27479` P0: Prepare upstream integration
+- Phase-1-Commit: `a54aa1320` P1: Apply Stracciatella upstream sync
+- Phase-2-Commit: `1af7d1559` P2: Validate upstream integration
+- Phase-3-Commit: `6648d7c91` P3: Finalize upstream integration review
+- Merge nach `main`: nicht ausgeführt.
+- Merge-Freigabe: erst nach manuellem Test und ausdrücklicher Merge-Freigabe durch den Nutzer.
+
+## Archivierte Planvorgaben
+
+- Ein sauberer Sync-Commit pro abgeschlossener Phase, keine ungeplanten Mischcommits.
+- Vor Abschluss jeder Phase wurden Status, Diff/Checks und Schwerpunktdateien erneut geprüft.
+- Android-App-Version bleibt unverändert, solange keine neue JA2-Reborn-Release vorbereitet wird.
+- Port-spezifisch zu bewahren:
+  - JA2-Reborn-Scroll-Guard in `PrintAboveGuy()`
+  - JA2-Reborn-`CheatSystem`-Hooks in `src/game/Tactical/Weapons.cc`
+  - `version` bleibt `1.0.5`
+- Bekannte Risiken:
+  - Die Repository-Historie hat keinen gemeinsamen Upstream-Ancestor; ein normaler Merge war deshalb nicht die bevorzugte Methode.
+  - Windows-CRLF kann Patch-/Diff-Warnungen verursachen, obwohl der Inhalt passt.
+  - `Interface.cc` und `Weapons.cc` enthalten JA2-Reborn-spezifische Änderungen, die beim Sync ausdrücklich erhalten bleiben müssen.
+  - Savegame-Version-Bump ist native Stracciatella-Logik und darf nicht mit der Android-App-Version verwechselt werden.
+
 ## Phase 0 - Vorbereitung und Sicherheitsnetz
 
 Datum: 2026-06-24
@@ -202,7 +232,7 @@ Datum: 2026-06-24
 - Phase-2-Commit vor Abschlussreview: `1af7d1559`
 - Arbeitsbaum vor Phase 3: sauber (`git status --short --branch` -> `## experimental`)
 - Merge nach `main`: nicht ausgeführt.
-- Merge-Sperre: `experimental` darf erst nach manuellem Test und ausdrücklicher Freigabe durch den Nutzer nach `main` gemerged werden.
+- Merge-Sperre: `experimental` darf erst nach manuellem Test und ausdrücklicher Merge-Freigabe durch den Nutzer nach `main` gemerged werden.
 
 ### Review
 
@@ -224,7 +254,7 @@ Datum: 2026-06-24
   - Upstream-Basis: `6cd7bc2ab49d88e95ff58b3300d232ace048fc37`
   - letzter synchronisierter Upstream-Commit: `a3bd56e65e6adfd9f12994ddc1a523a0be784bf3`
   - `experimental` bleibt bis manuellem Test und Freigabe der Merge-Vorbereitungsbranch.
-- `JA2Integration.md` um die verbindliche Merge-Sperre ergänzt.
+- Die verbindliche Merge-Sperre wurde im damaligen Plan festgehalten und ist jetzt in diesem Log archiviert.
 
 ### Finaler Merge-Hinweis
 
@@ -236,14 +266,26 @@ Datum: 2026-06-24
   - `.\gradlew.bat :app:testDebugUnitTest`
   - `.\gradlew.bat :app:externalNativeBuildDebug`
   - `.\gradlew.bat :app:assembleRelease --rerun-tasks`
-- Bekannte Risiken:
-  - Manuelle Gameplay-Tests auf Android-Hardware stehen noch aus.
+- Bekannte Risiken zum Zeitpunkt von Phase 3:
+  - Manuelle Gameplay-Tests auf Android-Hardware standen noch aus.
   - Alte Savegames vor Version `103` wurden per Code-Review geprüft, aber nicht manuell geladen.
   - Release-APK wurde gebaut, aber im Rahmen dieser Phase nicht auf einem Gerät installiert.
-  - Der spätere Merge nach `main` darf erst nach Nutzerfreigabe erfolgen.
+  - Der spätere Merge nach `main` durfte erst nach Nutzerfreigabe erfolgen.
 
 ### Zweite Prüfung
 
 - `git status --short --branch` geprüft.
 - `git log --oneline --decorate --max-count=12` geprüft.
 - Plan, Log, Changelog und README final geprüft.
+
+## Nachlauf - Test und Planablage
+
+Datum: 2026-06-25
+
+- Release-APK für manuellen Test nach Google Drive kopiert:
+  - `G:\Meine Ablage\Claude\JA2-Reborn-1.0.5-upstream-sync-6648d7c91.apk`
+  - SHA-256: `EF431E2BDEAB5A4D49FDC782D60742D63697124C1AB481AF2EE8F65DE606CE40`
+- Nutzerfeedback nach manuellem Test: "scheint alles zu funktionieren".
+- Trotz erfolgreichem Test wurde kein Merge nach `main` ausgeführt.
+- Der Merge nach `main` bleibt bis zu einer ausdrücklichen Merge-Freigabe blockiert.
+- `JA2Integration.md` wurde in diesen Log überführt und entfernt.
