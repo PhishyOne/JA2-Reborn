@@ -388,5 +388,17 @@
         "iconRotation":  0,
         "iconFlipH":  false,
         "iconFlipV":  false
+    },
+    {
+        "name":  "2000000039",
+        "svg":  "icon_action_examine.svg",
+        "iconFill":  0.90000004,
+        "iconOffsetX":  0.0,
+        "iconOffsetY":  0.0,
+        "iconScaleX":  1.0,
+        "iconScaleY":  1.0,
+        "iconRotation":  0,
+        "iconFlipH":  false,
+        "iconFlipV":  false
     }
 ]
