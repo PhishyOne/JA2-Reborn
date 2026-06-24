@@ -11,9 +11,10 @@ eine Release-Funktion, die APKs nachlaedt und installiert.
 
 ## Review-Ergebnis
 
-**Status:** keine finale Freigabe. Die Implementierung ist grundsaetzlich
-tragfaehig, aber vor Device-/Staging-Tests und vor einem Merge nach `main`
-muessen die Fixpunkte aus "Codex Review 2026-06-24" erledigt werden.
+**Status:** keine finale Freigabe. Die erste Codex-Fixliste ist in Code und
+Tests umgesetzt; der Re-Review hat aber neue Fixpunkte im Installations-
+Roundtrip gefunden. P5 bleibt `pending-fixes/pending-device`, bis diese Punkte
+und P5.5-P5.8 erledigt sind.
 
 ### Korrigierte Kernpunkte
 
@@ -59,8 +60,8 @@ muessen die Fixpunkte aus "Codex Review 2026-06-24" erledigt werden.
 4. **Stop nach Phase:** Nach jedem Phasenabschluss stoppen, damit der Kontext bei
    Bedarf geleert werden kann.
 5. **Release-Quelle:** Der Updater verwendet nur GitHub Releases des Repos
-   `RealTommyGreen/JA2-Reborn`. Google Drive ist fuer Test-Artefakte okay, aber
-   keine Auto-Update-Quelle.
+   `RealTommyGreen/JA2-Reborn`. Private Drive-Testartefakte sind fuer manuelle
+   Tests okay, aber keine Auto-Update-Quelle.
 6. **Keine automatische Installation:** Der User bestaetigt Check-Opt-in,
    Download und Installation jeweils explizit.
 
@@ -674,12 +675,25 @@ Alle Punkte aus der Fixliste sind umgesetzt (Commit `bf4cbf8`):
 | P2 | Testabdeckung Verifier | Pure Helper extrahiert und getestet: `normalizeDigest()`, `isVersionCodeNewer()`, `signaturesMatch()` |
 | P2 | P5-Status | P5 bleibt `pending-device` fuer P5.5-P5.8 |
 
+### Codex Re-Review 2026-06-24
+
+**Ergebnis:** keine Freigabe fuer Device-/Staging-Test. Unit-Tests
+(`.\gradlew.bat testDebugUnitTest`) sind erfolgreich; Public-Sanity ist nach
+neutraler Plan-Formulierung lokal gruen. Vor P5.5-P5.8 bleiben diese Punkte
+offen:
+
+| Prioritaet | Bereich | Befund | Erforderlicher Fix |
+|---|---|---|---|
+| P1 | Settings-Roundtrip ohne Install-Permission | `maybeHandlePendingApk()` re-verifiziert die pending APK, kehrt bei weiterhin fehlender Installationsberechtigung aber still mit `return` zurueck. Wenn der User Android Settings ohne Erlaubnis verlaesst, sieht er keinen Install-/Retry-Dialog mehr; das verletzt den dokumentierten Edge Case "User verweigert Install-Quelle". | **Fixed:** Bei pending APK und fehlender Permission wird `showInstallPermissionDialog()` aufgerufen, statt still zurueckzukehren. Pending State bleibt erhalten fuer Retry. |
+| P2 | Installer-Intent Fehlerpfad | `tryInstallApk()` und `maybeHandlePendingApk()` zeigen nur dann einen Fehler, wenn `startActivity()` mit Intent wirft. Wenn `createInstallerIntent()` `null` liefert, passiert still nichts. | **Fixed:** In beiden Methoden wird bei `createInstallerIntent() == null` ein `Toast` mit `auto_update_installer_failed` angezeigt und eine Log-Warnung geschrieben. |
+
 ### Naechstes Gate
 
-1. `.\gradlew.bat testDebugUnitTest` — 72 Tests, alle bestanden
-2. `.\gradlew.bat assembleRelease` — Build erfolgreich, APK-Signing verifiziert
-3. Public-Sanity: Allowlist erweitert, CI sollte gruen sein
-4. P5.5-P5.8 auf Android-Hardware ausfuehren (pending-device)
+1. Re-Review-Fixliste umgesetzt (Commit `f6a96d6`).
+2. `.\gradlew.bat testDebugUnitTest` — 72 Tests, alle bestanden.
+3. `.\gradlew.bat assembleRelease` — Build erfolgreich.
+4. Public-Sanity lokal und in CI erneut pruefen.
+5. P5.5-P5.8 auf Android-Hardware ausfuehren (pending-device).
 
 ---
 
@@ -763,11 +777,22 @@ Alle Punkte aus der Fixliste sind umgesetzt (Commit `bf4cbf8`):
 | P5.7 | Staging-Test B: lokal `1.0.5` -> GitHub `v1.0.4` zeigt kein Update | pending-device |
 | P5.8 | Staging-Test C: Offline-/Fehlerpfade ohne Dialogspam oder Crash | pending-device |
 | P5.9 | Projektlog, Changelog, Plan aktualisieren | done |
-| P5.10 | Commit finaler Stand | done |
+| P5.10 | Commit finaler Stand | pending-fixes |
 
 ---
 
 ## Changelog
+
+### 2026-06-24 - Codex Re-Review nach Review-Fixes
+
+- Erste Review-Fixliste erneut geprueft: Changelog-Duplikat,
+  Asset-Host-/Pfadpruefung, Asset-Version, GitHub-Digest,
+  Install-Permission-Fallback und Verifier-Helper-Tests sind umgesetzt.
+- `testDebugUnitTest` erfolgreich ausgefuehrt; Public-Sanity nach neutraler
+  Plan-Formulierung lokal erfolgreich.
+- Keine Freigabe erteilt; neue Fixliste fuer Settings-Roundtrip ohne
+  Install-Permission und stillen `createInstallerIntent() == null` Pfad
+  ergaenzt.
 
 ### 2026-06-24 - Codex Review nach Claude-Umsetzung
 
