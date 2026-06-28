@@ -171,7 +171,7 @@ Datum: 2026-06-24
   - `git diff --check`: erfolgreich
 - Rust:
   - `cargo` war nicht im globalen `PATH`.
-  - Gefundene Toolchain: `C:\Users\Tommy Green\.rustup\toolchains\stable-x86_64-pc-windows-msvc\bin\cargo.exe`
+  - Gefundene Toolchain: lokale Rustup-Toolchain.
   - `cargo --version`: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
   - Erster Direktaufruf ohne Toolchain-`PATH` scheiterte, weil Build-Scripts `rustc` nicht fanden.
   - Mit temporär ergänztem Toolchain-`PATH` ausgeführt:
@@ -282,8 +282,8 @@ Datum: 2026-06-24
 
 Datum: 2026-06-25
 
-- Release-APK für manuellen Test nach Google Drive kopiert:
-  - `G:\Meine Ablage\Claude\JA2-Reborn-1.0.5-upstream-sync-6648d7c91.apk`
+- Release-APK für manuellen Test in den lokalen Übergabeordner kopiert:
+  - `JA2-Reborn-1.0.5-upstream-sync-6648d7c91.apk`
   - SHA-256: `EF431E2BDEAB5A4D49FDC782D60742D63697124C1AB481AF2EE8F65DE606CE40`
 - Nutzerfeedback nach manuellem Test: "scheint alles zu funktionieren".
 - Trotz erfolgreichem Test wurde kein Merge nach `main` ausgeführt.

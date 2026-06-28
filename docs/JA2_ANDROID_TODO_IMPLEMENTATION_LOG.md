@@ -69,9 +69,9 @@ This log keeps the release-relevant Android 1.0.5 work in one place. Completed p
 
 ## Release Artifact
 
-Latest local release APK copied to Google Drive:
+Latest local release APK copied to the release handoff folder:
 
-`G:\Meine Ablage\Claude\JA2RebornRelease1.0.5.apk`
+`JA2RebornRelease1.0.5.apk`
 
 Last verified artifact:
 
