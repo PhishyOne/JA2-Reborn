@@ -55,10 +55,12 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Fixed sticky Item Stacking and Sidestep/Backstep modifier toggles blocking later touch actions, while keeping Item Stacking active across tactical inventory-area and Map Screen touches.
 - Fixed Map Screen touch input mode slider label alignment.
 - Fixed German touch preset labels for CTRL Examine and SHIFT Item Stacking.
+- Fixed the forced touch-layout reset so only pre-1.0.4 configs are reset. Users already on 1.0.4 or newer, and fresh installs, no longer see the reset warning unnecessarily.
 
 ### Verified
 
 - Ran `:app:testDebugUnitTest`.
+- Ran focused touch-overlay migration tests for the 1.0.3-to-1.0.4 reset threshold.
 - Built and verified the signed release APK with versionCode `1000005`.
 - Verified APK asset matching, SHA-256 digest checks, version-code checks, and
   signature matching in the update flow.

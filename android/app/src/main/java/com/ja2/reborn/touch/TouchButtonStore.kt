@@ -48,7 +48,7 @@ class TouchButtonStore(
             val raw = configFile.readText()
             val config = jsonFormat.decodeFromString<TouchOverlayConfig>(raw)
             if (needsDefaultPresetReset(config)) {
-                Log.i(TAG, "Default touch preset version mismatch (${config.defaultPresetVersion} != $DEFAULT_TOUCH_PRESET_VERSION), replacing user layout with bundled default")
+                Log.i(TAG, "Touch preset is older than the 1.0.4 reset threshold (${config.defaultPresetVersion} < $TOUCH_PRESET_V104_RESET_VERSION), replacing user layout with bundled default")
                 val defaults = loadDefaultFromRaw()
                 save(defaults)
                 return TouchOverlayLoadResult(defaults, defaultPresetWasReset = true)

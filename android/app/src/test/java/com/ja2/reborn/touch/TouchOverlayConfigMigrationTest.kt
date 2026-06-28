@@ -105,6 +105,11 @@ class TouchOverlayConfigMigrationTest {
     }
 
     @Test
+    fun touchPresetV104ResetVersionConstantMatches104FixStamp() {
+        assertEquals(20260619, TOUCH_PRESET_V104_RESET_VERSION)
+    }
+
+    @Test
     fun normalizeStampsDefaultPresetVersion() {
         val config = TouchOverlayConfig(defaultPresetVersion = 0)
         val normalized = normalizeTouchOverlayConfig(config)
@@ -114,10 +119,12 @@ class TouchOverlayConfigMigrationTest {
     }
 
     @Test
-    fun defaultPresetResetDecisionDetectsMissingOldAndCurrentVersions() {
+    fun defaultPresetResetDecisionOnlyTargetsPre104Configs() {
         assertTrue(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = 0)))
-        assertTrue(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION - 1)))
+        assertTrue(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = TOUCH_PRESET_V104_RESET_VERSION - 1)))
+        assertFalse(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = TOUCH_PRESET_V104_RESET_VERSION)))
         assertFalse(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION)))
+        assertFalse(needsDefaultPresetReset(TouchOverlayConfig(defaultPresetVersion = DEFAULT_TOUCH_PRESET_VERSION + 1)))
     }
 
     @Test

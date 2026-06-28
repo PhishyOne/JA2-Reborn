@@ -8,6 +8,7 @@ const val MAP_SCREEN_INPUT_MODE_BOTH = "both"
 const val MAP_SCREEN_INPUT_MODE_DIRECT_TOUCH = "direct_touch"
 const val MAP_SCREEN_INPUT_MODE_TOUCHPAD_MOUSE = "touchpad_mouse"
 const val DEFAULT_TOUCH_PRESET_VERSION = 20260624
+const val TOUCH_PRESET_V104_RESET_VERSION = 20260619
 
 @Serializable
 data class TouchOverlayConfig(
@@ -122,7 +123,7 @@ fun normalizeTouchOverlayConfig(config: TouchOverlayConfig): TouchOverlayConfig 
 }
 
 internal fun needsDefaultPresetReset(config: TouchOverlayConfig): Boolean =
-    config.defaultPresetVersion != DEFAULT_TOUCH_PRESET_VERSION
+    config.defaultPresetVersion < TOUCH_PRESET_V104_RESET_VERSION
 
 private fun TouchButtonConfig.migrateMapInventoryEnterKey(): TouchButtonConfig {
     if (id != "map_inventory") return this
