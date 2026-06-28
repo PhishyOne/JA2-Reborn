@@ -31,4 +31,10 @@ Java_org_libsdl_app_SDLActivity_requestTouchPresetUpdateNotice(JNIEnv* env, jcla
     RequestTouchPresetUpdateNotice(static_cast<int>(version));
 }
 
+extern "C" JNIEXPORT void JNICALL
+Java_org_libsdl_app_SDLActivity_requestTouchOverlayFeatureNotice(JNIEnv* env, jclass cls, jint version)
+{
+    RequestTouchOverlayFeatureNotice(static_cast<int>(version));
+}
+
 #endif

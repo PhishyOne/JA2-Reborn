@@ -43,7 +43,7 @@
 #define TUTORIAL_CLR_DOT_ACTIVE    Get16BPPColor(FROMRGB(200, 200, 210))
 #define TUTORIAL_CLR_DOT_INACTIVE  Get16BPPColor(FROMRGB(60, 60, 70))
 
-TUTORIAL_STATE gTutorial = { false, 0, false, false, false, false, false, 0, 0, TutorialMode::Tactical, nullptr };
+TUTORIAL_STATE gTutorial = { false, 0, false, false, false, false, false, 0, 0, 0, 0, TutorialMode::Tactical, nullptr };
 
 static const TUTORIAL_PANEL gTutorialPanelsDE[3] = {
 	{
@@ -125,6 +125,18 @@ static const TUTORIAL_PANEL gTouchPresetUpdatePanelEN = {
 	"Further large resets of this kind are not expected."
 };
 
+static const TUTORIAL_PANEL gTouchOverlayFeaturePanelDE = {
+	"Neuer Untersuchen-Button",
+	"Der neue Untersuchen-Button ist jetzt im Touch Overlay verfuegbar.\n\n"
+	"Entsperre das Schloss, tippe auf + und waehle Untersuchen (STRG), um ihn deinem Layout hinzuzufuegen."
+};
+
+static const TUTORIAL_PANEL gTouchOverlayFeaturePanelEN = {
+	"New Examine Button",
+	"The new Examine button is now available in the touch overlay.\n\n"
+	"Unlock the lock, tap +, and choose Examine (CTRL) to add it to your layout."
+};
+
 TUTORIAL_PANEL gTutorialPanels[3];
 static bool sTutorialPanelsInitialized = false;
 static bool sTutorialLanguageGerman = false;
@@ -187,6 +199,12 @@ static ST::string GetTouchPresetUpdateNoticePath()
 	return FileMan::joinPaths(ST::string(home.get()), "touch_preset_update_notice.set");
 }
 
+static ST::string GetTouchOverlayFeatureNoticePath()
+{
+	RustPointer<char> home(EngineOptions_getStracciatellaHome());
+	return FileMan::joinPaths(ST::string(home.get()), "touch_overlay_feature_notice.set");
+}
+
 static int TutorialPanelCount()
 {
 	return gTutorial.mode == TutorialMode::Tactical ? 3 : 1;
@@ -201,6 +219,10 @@ static const TUTORIAL_PANEL& CurrentTutorialPanel()
 	if (gTutorial.mode == TutorialMode::TouchPresetUpdate)
 	{
 		return IsTutorialGerman() ? gTouchPresetUpdatePanelDE : gTouchPresetUpdatePanelEN;
+	}
+	if (gTutorial.mode == TutorialMode::TouchOverlayFeatureUpdate)
+	{
+		return IsTutorialGerman() ? gTouchOverlayFeaturePanelDE : gTouchOverlayFeaturePanelEN;
 	}
 	return gTutorialPanels[gTutorial.sCurrentPanel];
 }
@@ -256,6 +278,22 @@ void LoadTutorialSettings()
 			SLOGW("Failed to read touch_preset_update_notice.set, using defaults");
 		}
 	}
+
+	ST::string touchFeaturePath = GetTouchOverlayFeatureNoticePath();
+	if (FileMan::isFile(touchFeaturePath))
+	{
+		try
+		{
+			AutoSGPFile f(FileMan::openForReading(touchFeaturePath));
+			INT32 val;
+			f->read(&val, sizeof(val));
+			gTutorial.iTouchOverlayFeatureSeenVersion = val;
+		}
+		catch (...)
+		{
+			SLOGW("Failed to read touch_overlay_feature_notice.set, using defaults");
+		}
+	}
 }
 
 void SaveTutorialSettings()
@@ -264,7 +302,9 @@ void SaveTutorialSettings()
 		? GetMainMenuTutorialSettingsPath()
 		: (gTutorial.mode == TutorialMode::TouchPresetUpdate
 			? GetTouchPresetUpdateNoticePath()
-			: GetTutorialSettingsPath());
+			: (gTutorial.mode == TutorialMode::TouchOverlayFeatureUpdate
+				? GetTouchOverlayFeatureNoticePath()
+				: GetTutorialSettingsPath()));
 
 	try
 	{
@@ -272,6 +312,11 @@ void SaveTutorialSettings()
 		if (gTutorial.mode == TutorialMode::TouchPresetUpdate)
 		{
 			INT32 val = gTutorial.iTouchPresetUpdateSeenVersion;
+			f->write(&val, sizeof(val));
+		}
+		else if (gTutorial.mode == TutorialMode::TouchOverlayFeatureUpdate)
+		{
+			INT32 val = gTutorial.iTouchOverlayFeatureSeenVersion;
 			f->write(&val, sizeof(val));
 		}
 		else
@@ -306,6 +351,21 @@ bool ShouldShowTouchPresetUpdateNotice()
 	return !gTutorial.fVisible &&
 		gTutorial.iPendingTouchPresetUpdateVersion > 0 &&
 		gTutorial.iPendingTouchPresetUpdateVersion > gTutorial.iTouchPresetUpdateSeenVersion;
+}
+
+void RequestTouchOverlayFeatureNotice(int version)
+{
+	if (version > gTutorial.iTouchOverlayFeatureSeenVersion)
+	{
+		gTutorial.iPendingTouchOverlayFeatureVersion = version;
+	}
+}
+
+bool ShouldShowTouchOverlayFeatureNotice()
+{
+	return !gTutorial.fVisible &&
+		gTutorial.iPendingTouchOverlayFeatureVersion > 0 &&
+		gTutorial.iPendingTouchOverlayFeatureVersion > gTutorial.iTouchOverlayFeatureSeenVersion;
 }
 
 static std::vector<ST::string> TutorialBodyParagraphs(const char* body)
@@ -373,7 +433,9 @@ static bool PointInExpandedRect(int x, int y, int left, int top, int width, int 
 static bool TutorialUsesMainMenuBounds()
 {
 	return gTutorial.mode == TutorialMode::MainMenu ||
-		(gTutorial.mode == TutorialMode::TouchPresetUpdate && guiCurrentScreen == MAINMENU_SCREEN);
+		((gTutorial.mode == TutorialMode::TouchPresetUpdate ||
+		  gTutorial.mode == TutorialMode::TouchOverlayFeatureUpdate) &&
+		 guiCurrentScreen == MAINMENU_SCREEN);
 }
 
 static void RecalcCardLayout()
@@ -576,6 +638,31 @@ void EnterTouchPresetUpdateNotice()
 	gTutorialUIInitialized = true;
 }
 
+void EnterTouchOverlayFeatureNotice()
+{
+	InitTutorialPanels();
+	if (gTutorial.fVisible || !ShouldShowTouchOverlayFeatureNotice()) return;
+
+	gTutorial.fVisible = true;
+	gTutorial.mode = TutorialMode::TouchOverlayFeatureUpdate;
+	gTutorial.sCurrentPanel = 0;
+	gTutorial.fCheckboxChecked = false;
+	gTutorialPointerDown = false;
+	gTutorialSwipeHandled = false;
+	gTutorialConfirmPressed = false;
+	gTutorialCheckboxPressed = false;
+
+	RecalcCardLayout();
+
+	gTutorial.pSaveBuffer = AddVideoSurface(SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH);
+	BlitBufferToBuffer(FRAME_BUFFER, gTutorial.pSaveBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	MSYS_DefineRegion(&gTutorialInputRegion, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+		MSYS_PRIORITY_HIGHEST, VIDEO_NO_CURSOR, TutorialMoveCallback, TutorialButtonCallback);
+
+	gTutorialUIInitialized = true;
+}
+
 void ExitTutorial()
 {
 	if (!gTutorialUIInitialized) return;
@@ -597,6 +684,12 @@ void ExitTutorial()
 	{
 		gTutorial.iTouchPresetUpdateSeenVersion = gTutorial.iPendingTouchPresetUpdateVersion;
 		gTutorial.iPendingTouchPresetUpdateVersion = 0;
+		SaveTutorialSettings();
+	}
+	else if (gTutorial.mode == TutorialMode::TouchOverlayFeatureUpdate)
+	{
+		gTutorial.iTouchOverlayFeatureSeenVersion = gTutorial.iPendingTouchOverlayFeatureVersion;
+		gTutorial.iPendingTouchOverlayFeatureVersion = 0;
 		SaveTutorialSettings();
 	}
 	else if (gTutorial.fCheckboxChecked)

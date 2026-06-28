@@ -8,7 +8,8 @@
 enum class TutorialMode {
 	Tactical,
 	MainMenu,
-	TouchPresetUpdate
+	TouchPresetUpdate,
+	TouchOverlayFeatureUpdate
 };
 
 struct TUTORIAL_STATE {
@@ -21,6 +22,8 @@ struct TUTORIAL_STATE {
 	bool fMainMenuAutoShownThisSession;
 	int  iTouchPresetUpdateSeenVersion;
 	int  iPendingTouchPresetUpdateVersion;
+	int  iTouchOverlayFeatureSeenVersion;
+	int  iPendingTouchOverlayFeatureVersion;
 	TutorialMode mode;
 	SGPVSurface* pSaveBuffer; // background save for overlay
 };
@@ -39,6 +42,9 @@ void EnterMainMenuTutorial();
 void RequestTouchPresetUpdateNotice(int version);
 bool ShouldShowTouchPresetUpdateNotice();
 void EnterTouchPresetUpdateNotice();
+void RequestTouchOverlayFeatureNotice(int version);
+bool ShouldShowTouchOverlayFeatureNotice();
+void EnterTouchOverlayFeatureNotice();
 void ExitTutorial();
 void RenderTutorial();
 void LoadTutorialSettings();

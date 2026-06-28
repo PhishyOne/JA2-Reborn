@@ -85,6 +85,7 @@ class TouchOverlayController(
         if (loadResult.defaultPresetWasReset) {
             requestTouchPresetUpdateNotice()
         }
+        requestTouchOverlayFeatureNotice()
         SDLSurface.setTouchOverlayUserActionCallback {
             releaseStickyTogglesForUserAction(null)
         }
@@ -456,6 +457,14 @@ class TouchOverlayController(
             SDLActivity.requestTouchPresetUpdateNotice(DEFAULT_TOUCH_PRESET_VERSION)
         } catch (e: Exception) {
             Log.w(TAG, "Could not request touch preset update notice: ${e.message}")
+        }
+    }
+
+    private fun requestTouchOverlayFeatureNotice() {
+        try {
+            SDLActivity.requestTouchOverlayFeatureNotice(TOUCH_OVERLAY_EXAMINE_NOTICE_VERSION)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not request touch overlay feature notice: ${e.message}")
         }
     }
 

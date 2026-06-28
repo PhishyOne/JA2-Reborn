@@ -36,6 +36,7 @@ This project follows the spirit of [Keep a Changelog](https://keepachangelog.com
 - Added a manual update check button to the launcher header, left of the language
   flags, with update-available, up-to-date, progress, and error feedback.
 - Added a CTRL Examine touch-overlay toggle for tactical interactions that need a held CTRL modifier.
+- Added a one-time start notice that tells users the new Examine/Untersuchen touch-overlay button can be added from the new-button menu.
 - Added a Map Screen touch input mode setting with Direct Touch, Touchpad Mouse, and combined input modes.
 
 ### Changed

@@ -171,6 +171,10 @@ ScreenID MainMenuScreenHandle(void)
 	{
 		EnterTouchPresetUpdateNotice();
 	}
+	else if (ShouldShowTouchOverlayFeatureNotice())
+	{
+		EnterTouchOverlayFeatureNotice();
+	}
 
 	if (gTutorial.fVisible)
 	{

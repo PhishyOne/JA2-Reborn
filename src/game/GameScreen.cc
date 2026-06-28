@@ -593,6 +593,10 @@ ScreenID MainGameScreenHandle(void)
 	{
 		EnterTouchPresetUpdateNotice();
 	}
+	else if (ShouldShowTouchOverlayFeatureNotice())
+	{
+		EnterTouchOverlayFeatureNotice();
+	}
 
 	return( GAME_SCREEN );
 

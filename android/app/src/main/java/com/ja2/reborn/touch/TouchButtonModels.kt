@@ -9,6 +9,7 @@ const val MAP_SCREEN_INPUT_MODE_DIRECT_TOUCH = "direct_touch"
 const val MAP_SCREEN_INPUT_MODE_TOUCHPAD_MOUSE = "touchpad_mouse"
 const val DEFAULT_TOUCH_PRESET_VERSION = 20260624
 const val TOUCH_PRESET_V104_RESET_VERSION = 20260619
+const val TOUCH_OVERLAY_EXAMINE_NOTICE_VERSION = 20260628
 
 @Serializable
 data class TouchOverlayConfig(
