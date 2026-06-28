@@ -49,7 +49,7 @@ This log keeps the release-relevant Android 1.0.5 work in one place. Completed p
 
 | Step | Result |
 |------|--------|
-| New notice | Added a one-time start notice for the new Examine/Untersuchen overlay button. |
+| New notice | Added a one-time start notice for the new Examine overlay button. |
 | Languages | Added German and English panel text through the existing tutorial language selection. |
 | Persistence | Added a separate `touch_overlay_feature_notice.set` state file so it is independent from the reset notice. |
 | Priority | Main Menu and Game Screen show the reset notice first, then the feature notice if pending. |

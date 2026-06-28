@@ -19,6 +19,7 @@ The Android port currently supports:
 - Release APK builds for all configured Android ABIs
 - Android 7.0+ devices, including Android 16
 - Android launcher for game data path, save path, resolution, scaling, language, and mouse mode
+- Opt-in GitHub release update checker with a manual launcher update button, APK verification, and explicit install confirmation
 - Safe launcher resolution presets for Modern, High Res (More Map), and Retro 640x480 play
 - Expert Settings for manual resolution, scaling, and legacy control choices
 - Fixed-path game data loading
@@ -38,9 +39,11 @@ The Android port currently supports:
 - One-time main menu touch-control hint panel
 - Optional cheat system with launcher and in-game overlay controls
 - Separate Map Screen touch overlay with editable buttons, mouse buttons, and toggle-key modifiers
+- Map Screen touch input mode selection for Direct Touch, Touchpad Mouse, or combined input
 - Shopkeeper/Vendor touch overlay support using the tactical button layout
-- SVG icon set and touch overlay rework: 37 icons, shape-aware hit-testing, toggle-keys, sidestep/backstep toggle, reload preset, configurable direct-tap arbitration
-- One-time forced touch-layout refresh for the 1.0.4 default preset, with a localized reset notice
+- SVG icon set and touch overlay rework: 37 icons, shape-aware hit-testing, toggle-keys, sidestep/backstep toggle, reload preset, CTRL Examine preset, configurable direct-tap arbitration
+- One-time start notice explaining that the Examine touch-overlay button can be added from the new-button menu
+- One-time forced touch-layout refresh for pre-1.0.4 layouts only, with a localized reset notice
 - Widescreen-aware UI scaling for Auto-Bandage, Shopkeeper, tactical messages, and NPC dialogue
 - Native crash log export next to emergency savegames when a recoverable crash report can be written
 
@@ -74,7 +77,9 @@ In Modern Controls mode:
 - Tactical bottom-panel touches are routed directly to the JA2 interface for panel controls and inventory movement.
 - A two-finger tap on the tactical bottom panel toggles team portraits and single-merc inventory view.
 
-The touch overlay is available in the tactical game screen, Shopkeeper/Vendor screens, and the Map Screen. Tactical and Map Screen layouts have separate button configurations; Shopkeeper/Vendor screens use the tactical layout. The overlay can be unlocked in-game to edit button layout, actions, icon sizing, and presets. 37 SVG icons provide crisp rendering at any button size, and buttons use shape-aware hit-testing for precise touch detection. Modifier keys (Shift, Ctrl, Alt) support a sticky toggle mode with visual feedback.
+The touch overlay is available in the tactical game screen, Shopkeeper/Vendor screens, and the Map Screen. Tactical and Map Screen layouts have separate button configurations; Shopkeeper/Vendor screens use the tactical layout. The overlay can be unlocked in-game to edit button layout, actions, icon sizing, and presets, including the CTRL Examine button. 37 SVG icons provide crisp rendering at any button size, and buttons use shape-aware hit-testing for precise touch detection. Modifier keys (Shift, Ctrl, Alt) support a sticky toggle mode with visual feedback.
+
+On the Map Screen, touch input can be switched between Direct Touch, Touchpad Mouse, or a combined mode from the overlay settings.
 
 ## Resolution Modes
 
@@ -101,6 +106,7 @@ cheats.json           Optional cheat configuration
 tutorial.set          Tutorial visibility preference
 mainmenu_tutorial.set Main menu hint visibility preference
 touch_preset_update_notice.set Touch-layout reset notice preference
+touch_overlay_feature_notice.set One-time touch-overlay feature notice preference
 crashlog-latest.txt   Latest native crash report, when available
 ```
 
