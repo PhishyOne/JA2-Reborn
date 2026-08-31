@@ -29,11 +29,13 @@ jobs:
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
 
+      - name: Set up Android SDK tools
+        uses: android-actions/setup-android@v3
+
       - name: Install Android SDK components
         shell: pwsh
         run: |
-          $sdkmanager = (Get-Command sdkmanager.bat -ErrorAction Stop).Source
-          & $sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
 
       - name: Build installable debug APK
         shell: pwsh
