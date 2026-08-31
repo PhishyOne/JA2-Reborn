@@ -29,7 +29,6 @@ externalproject_add(string_theory
         -DST_ENABLE_STL_FILESYSTEM:BOOL=OFF
         -DST_BUILD_TESTS:BOOL=OFF
         -DCMAKE_INSTALL_MESSAGE=LAZY
-    PATCH_COMMAND "${CMAKE_COMMAND}" "-DSOURCE_DIR=<SOURCE_DIR>" -P "${CMAKE_CURRENT_SOURCE_DIR}/cpp17-compat.cmake"
     BUILD_COMMAND "${CMAKE_COMMAND}" --build . --config RelWithDebInfo
     INSTALL_COMMAND "${CMAKE_COMMAND}" --build . --config RelWithDebInfo --target install
     BUILD_ALWAYS 1
