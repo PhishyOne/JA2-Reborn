@@ -25,10 +25,4 @@ replace_once("${FORMATTER}"
             format_type(format, output, value);
         };
     }
-
-    inline void format_type(const ST::format_spec &format, ST::format_writer &output,
-                            std::string_view value)
-    {
-        ST::format_string(format, output, value.data(), value.size());
-    }
 ]=])
