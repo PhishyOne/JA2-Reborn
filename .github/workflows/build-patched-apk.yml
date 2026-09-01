@@ -18,7 +18,7 @@ jobs:
       - name: Checkout patched source
         uses: actions/checkout@v4
 
-      - name: Apply destroyed-vehicle boundary guards
+      - name: Apply upstream Stracciatella 2420 vehicle lookup fix
         shell: pwsh
         run: |
           @'
@@ -33,75 +33,34 @@ jobs:
               p.write_text(text.replace(old, new, 1), encoding="utf-8")
               print(f"applied: {label}")
 
+          map_file = "src/game/Strategic/Map_Screen_Interface_Map.cc"
           vehicles = "src/game/Tactical/Vehicles.cc"
-          movement = "src/game/Strategic/Strategic_Movement.cc"
+          vehicles_h = "src/game/Tactical/Vehicles.h"
 
           replace_once(
-              vehicles,
-              """bool IsThisVehicleAccessibleToSoldier(SOLDIERTYPE const& s, VEHICLETYPE const& v)\n{\n\treturn !s.fBetweenSectors &&\n\t\t!v.fBetweenSectors &&""",
-              """bool IsThisVehicleAccessibleToSoldier(SOLDIERTYPE const& s, VEHICLETYPE const& v)\n{\n\treturn !v.fDestroyed &&\n\t\t!s.fBetweenSectors &&\n\t\t!v.fBetweenSectors &&""",
-              "destroyed vehicles are inaccessible",
+              map_file,
+              """\t\tSOLDIERTYPE const& vs = GetSoldierStructureForVehicle(v);\n\t\tif (vs.bTeam != OUR_TEAM) continue;""",
+              """\t\tif (auto s = FindSoldierType(v); !s || s->bTeam != OUR_TEAM) continue;""",
+              "ShowVehicles uses nullable vehicle soldier lookup",
           )
 
           replace_once(
               vehicles,
-              """bool DoesVehicleNeedAnyRepairs(VEHICLETYPE const& v)\n{\n\t// Skyrider isn't damagable/repairable\n\tif (IsHelicopter(v)) return false;""",
-              """bool DoesVehicleNeedAnyRepairs(VEHICLETYPE const& v)\n{\n\tif (v.fDestroyed) return false;\n\n\t// Skyrider isn't damagable/repairable\n\tif (IsHelicopter(v)) return false;""",
-              "destroyed vehicles cannot be repaired",
+              """SOLDIERTYPE& GetSoldierStructureForVehicle(VEHICLETYPE const& v)\n{\n\tFOR_EACH_SOLDIER(s)\n\t{\n\t\tif (!(s->uiStatusFlags & SOLDIER_VEHICLE)) continue;\n\t\tif (s->bVehicleID != VEHICLE2ID(v))        continue;\n\t\treturn *s;\n\t}\n\tthrow std::logic_error(\"Vehicle has no corresponding soldier\");\n}""",
+              """SOLDIERTYPE * FindSoldierType(VEHICLETYPE const& v)\n{\n\tFOR_EACH_SOLDIER(s)\n\t{\n\t\tif (!(s->uiStatusFlags & SOLDIER_VEHICLE)) continue;\n\t\tif (s->bVehicleID != VEHICLE2ID(v))        continue;\n\t\treturn s;\n\t}\n\treturn nullptr;\n}\n\n\nSOLDIERTYPE& GetSoldierStructureForVehicle(VEHICLETYPE const& v)\n{\n\tif (auto pSoldier = FindSoldierType(v); pSoldier) return *pSoldier;\n\tthrow std::logic_error(\"Vehicle has no corresponding soldier\");\n}""",
+              "add nullable FindSoldierType helper",
           )
 
           replace_once(
-              vehicles,
-              """\tCFOR_EACH_VEHICLE(v)\n\t{\n\t\tif (IsHelicopter(v)) continue;\n\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);\n\t\t// Init fuel!""",
-              """\tCFOR_EACH_VEHICLE(v)\n\t{\n\t\tif (IsHelicopter(v)) continue;\n\t\tif (v.fDestroyed)    continue;\n\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);\n\t\t// Init fuel!""",
-              "fuel migration skips destroyed vehicles",
-          )
-
-          replace_once(
-              vehicles,
-              """\tif (InHelicopter(*pSoldier)) return FALSE; // they don't get a squad #\n\n\tSOLDIERTYPE const& vs = GetSoldierStructureForVehicle(GetVehicle(pSoldier->iVehicleId));""",
-              """\tif (InHelicopter(*pSoldier)) return FALSE; // they don't get a squad #\n\n\tVEHICLETYPE const& v = GetVehicle(pSoldier->iVehicleId);\n\tif (v.fDestroyed) return FALSE;\n\tSOLDIERTYPE const& vs = GetSoldierStructureForVehicle(v);""",
-              "squad lookup skips destroyed vehicles",
-          )
-
-          replace_once(
-              movement,
-              """\t\telse if (!IsGroupTheHelicopterGroup(g))\n\t\t{\n\t\t\tVEHICLETYPE const& v  = GetVehicleFromMvtGroup(g);\n\t\t\tSOLDIERTYPE&       vs = GetSoldierStructureForVehicle(v);""",
-              """\t\telse if (!IsGroupTheHelicopterGroup(g) && !GetVehicleFromMvtGroup(g).fDestroyed)\n\t\t{\n\t\t\tVEHICLETYPE const& v  = GetVehicleFromMvtGroup(g);\n\t\t\tSOLDIERTYPE&       vs = GetSoldierStructureForVehicle(v);""",
-              "arrival fuel skips destroyed vehicles",
-          )
-
-          replace_once(
-              movement,
-              """\t\t\tSetVehicleSectorValues(v, cSector);\n\t\t\tv.fBetweenSectors = FALSE;\n\n\t\t\tif (!IsHelicopter(v))\n\t\t\t{\n\t\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              """\t\t\tSetVehicleSectorValues(v, cSector);\n\t\t\tv.fBetweenSectors = FALSE;\n\n\t\t\tif (!IsHelicopter(v) && !v.fDestroyed)\n\t\t\t{\n\t\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              "arrival sync skips destroyed vehicles",
-          )
-
-          replace_once(
-              movement,
-              """\t\tVEHICLETYPE& v = GetVehicleFromMvtGroup(first_group);\n\t\tv.fBetweenSectors = TRUE;\n\n\t\tif (!IsHelicopter(v))\n\t\t{\n\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              """\t\tVEHICLETYPE& v = GetVehicleFromMvtGroup(first_group);\n\t\tv.fBetweenSectors = TRUE;\n\n\t\tif (!IsHelicopter(v) && !v.fDestroyed)\n\t\t{\n\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              "simultaneous movement skips destroyed vehicles",
-          )
-
-          replace_once(
-              movement,
-              """\t\tVEHICLETYPE& v = GetVehicleFromMvtGroup(*pGroup);\n\t\tv.fBetweenSectors = TRUE;\n\n\t\tif (!IsHelicopter(v))\n\t\t{\n\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              """\t\tVEHICLETYPE& v = GetVehicleFromMvtGroup(*pGroup);\n\t\tv.fBetweenSectors = TRUE;\n\n\t\tif (!IsHelicopter(v) && !v.fDestroyed)\n\t\t{\n\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              "movement initiation skips destroyed vehicles",
-          )
-
-          replace_once(
-              movement,
-              """\t\tVEHICLETYPE& v = GetVehicleFromMvtGroup(g);\n\t\tv.sSector = sSector;\n\n\t\tif (!IsHelicopter(v))\n\t\t{\n\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              """\t\tVEHICLETYPE& v = GetVehicleFromMvtGroup(g);\n\t\tv.sSector = sSector;\n\n\t\tif (!IsHelicopter(v) && !v.fDestroyed)\n\t\t{\n\t\t\tSOLDIERTYPE& vs = GetSoldierStructureForVehicle(v);""",
-              "group location sync skips destroyed vehicles",
+              vehicles_h,
+              """// the soldiertype containing this tactical incarnation of this vehicle\nSOLDIERTYPE& GetSoldierStructureForVehicle(VEHICLETYPE const&);""",
+              """// the soldiertype containing this tactical incarnation of this vehicle\n// This version returns nullptr if there is no corresponding soldier.\nSOLDIERTYPE * FindSoldierType(VEHICLETYPE const& v);\n// This version throws an exception if there is no corresponding soldier.\nSOLDIERTYPE& GetSoldierStructureForVehicle(VEHICLETYPE const&);""",
+              "declare nullable vehicle soldier lookup",
           )
           '@ | python -
 
           git diff --check
-          git diff -- src/game/Tactical/Vehicles.cc src/game/Strategic/Strategic_Movement.cc
+          git diff -- src/game/Strategic/Map_Screen_Interface_Map.cc src/game/Tactical/Vehicles.cc src/game/Tactical/Vehicles.h
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -131,7 +90,7 @@ jobs:
       - name: Upload patched APK
         uses: actions/upload-artifact@v4
         with:
-          name: ja2-reborn-destroyed-vehicle-test-debug
+          name: ja2-reborn-upstream-2420-test-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
