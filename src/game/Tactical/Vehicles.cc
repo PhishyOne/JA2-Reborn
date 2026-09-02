@@ -41,7 +41,7 @@
 #include <vector>
 
 
-INT8 gubVehicleMovementGroups[ MAX_VEHICLES ];
+UINT8 gubVehicleMovementGroups[MAX_VEHICLES];
 
 // the list of vehicle slots
 std::vector<VEHICLETYPE> pVehicleList;
@@ -74,10 +74,17 @@ void SetVehicleValuesIntoSoldierType(SOLDIERTYPE* const vs)
 
 INT32 AddVehicleToList(const SGPSector& sMap, const INT16 sGridNo, const UINT8 ubType)
 {
+	// Garbage-collect destroyed tanks left in old saves by the stale-vehicle bug.
+	// Do not invalidate one in the sector currently being loaded until its
+	// tactical soldier has been processed.
+	for (auto& v : pVehicleList)
+	{
+		if (v.fDestroyed && v.sSector != sMap) v.fValid = FALSE;
+	}
+
 	INT32 vid;
 	for (vid = 0;; ++vid)
 	{
-		Assert(pVehicleList.size() <= INT32_MAX);
 		if (vid == static_cast<INT32>(pVehicleList.size()))
 		{
 			pVehicleList.push_back(VEHICLETYPE{});
@@ -85,6 +92,7 @@ INT32 AddVehicleToList(const SGPSector& sMap, const INT16 sGridNo, const UINT8 u
 		}
 		if (!pVehicleList[vid].fValid) break;
 	}
+	Assert(pVehicleList.size() <= MAX_VEHICLES);
 	VEHICLETYPE* const v = &pVehicleList[vid];
 
 	// found a slot
@@ -140,6 +148,7 @@ bool IsThisVehicleAccessibleToSoldier(SOLDIERTYPE const& s, VEHICLETYPE const& v
 	return !s.fBetweenSectors &&
 		!v.fBetweenSectors &&
 		s.sSector == v.sSector &&
+		!v.fDestroyed &&
 		OKUseVehicle(GCM->getVehicle(v.ubVehicleType)->profile);
 }
 
@@ -809,7 +818,7 @@ void LoadVehicleMovementInfoFromSavedGameFile(HWFILE const hFile)
 	INT32 cnt;
 
 	//Load in the Squad movement id's
-	hFile->read(gubVehicleMovementGroups, sizeof(INT8) * 5);
+	hFile->read(gubVehicleMovementGroups, sizeof(UINT8) * 5);
 
 	for( cnt = 5; cnt <  MAX_VEHICLES; cnt++ )
 	{
@@ -824,14 +833,14 @@ void LoadVehicleMovementInfoFromSavedGameFile(HWFILE const hFile)
 void NewSaveVehicleMovementInfoToSavedGameFile(HWFILE const hFile)
 {
 	//Save all the vehicle movement id's
-	hFile->write(gubVehicleMovementGroups, sizeof(INT8) * MAX_VEHICLES);
+	hFile->write(gubVehicleMovementGroups);
 }
 
 
 void NewLoadVehicleMovementInfoFromSavedGameFile(HWFILE const hFile)
 {
 	//Load in the Squad movement id's
-	hFile->read(gubVehicleMovementGroups, sizeof(INT8) * MAX_VEHICLES);
+	hFile->read(gubVehicleMovementGroups);
 }
 
 
